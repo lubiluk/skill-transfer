@@ -1,0 +1,66 @@
+<sdf version="1.6">
+    <world name="scraping">
+
+        <physics type="ode">
+            <!--<max_step_size>0.0001</max_step_size>-->
+            <!--<ode>-->
+                <!--<solver>-->
+                    <!--<type>quick</type>-->
+                    <!--<iters>50</iters>-->
+                    <!--<sor>1.4</sor>-->
+                <!--</solver>-->
+            <!--</ode>-->
+        </physics>
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://table</uri>
+            <pose>-0.071633 0.854817 0 0 0 -1.57694</pose>
+            <static>true</static>
+        </include>
+
+        <include>
+            <uri>model://knife</uri>
+            <pose>-0.351127 0.976666 1.331360 0 0 0</pose>
+        </include>
+
+        <include>
+            <uri>model://gripper</uri>
+            <pose>-0.459675 0.976666 1.362517 0 0 0</pose>
+            <plugin name="grip" filename="libGripPlugin.so"/>
+            <plugin name="scrape" filename="libScrapePlugin.so"/>
+        </include>
+
+        <include>
+            <uri>model://frying_pan</uri>
+            <pose>-0.131965 0.924513 1.05 3.14 0.10 1.57</pose>
+            <static>true</static>
+        </include>
+
+
+        <include>
+            <uri>model://butter_box</uri>
+            <pose>-0.164298 0.981918 1.325094 0 0 0</pose>
+            <plugin name="stick" filename="libStickPlugin.so"/>
+        </include>
+
+        <!--<plugin name="shpere_container_factory" filename="libShpereContainerFactoryPlugin.so">-->
+            <!--<pose>-0.131965 0.924513 1.048990 0 0 0</pose>-->
+        <!--</plugin>-->
+
+        <gui>
+            <camera name='user_camera'>
+                <pose>0.892691 1.54384 1.57989 -1.4918e-17 0.375643 -2.675</pose>
+                <view_controller>orbit</view_controller>
+            </camera>
+        </gui>
+
+    </world>
+</sdf>
