@@ -35,7 +35,7 @@
             <uri>model://gripper</uri>
             <pose>-0.459675 0.976666 1.362517 0 0 0</pose>
             <plugin name="grip" filename="libGripPlugin.so"/>
-            <plugin name="scrape" filename="libScrapePlugin.so"/>
+            <!--plugin name="scrape" filename="libScrapePlugin.so"/-->
         </include>
 
         <include>
