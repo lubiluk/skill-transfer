@@ -4,6 +4,7 @@
 #include <giskard_core/giskard_core.hpp>
 #include <giskard_ros_utils/giskard_ros_utils.hpp>
 #include <kdl_conversions/kdl_msg.h>
+#include <visualization_msgs/Marker.h>
 
 template<class T, class U>
 inline std::map<T, U> to_map(const std::vector<T>& keys, const std::vector<U>& values)
@@ -98,6 +99,7 @@ class TestGazeboComm
       controller_(generate_controller(giskard_ros_utils::readParam<std::string>(nh_, "yaml_string"))),
       sub_(nh_.subscribe("/gazebo/link_states", 1, &TestGazeboComm::callback, this)),
       pub_(nh_.advertise<gazebo_msgs::LinkState>("/gazebo/set_link_state", 1)),
+      pub_viz_(nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1)),
       controller_started_(false)
     {
     }
@@ -108,6 +110,7 @@ class TestGazeboComm
     ros::NodeHandle nh_;
     ros::Subscriber sub_;
     ros::Publisher pub_;
+    ros::Publisher pub_viz_;
     giskard_core::QPController controller_;
     bool controller_started_;
 
@@ -142,6 +145,37 @@ class TestGazeboComm
 
       cmd.twist = giskard_to_msg(get_jacobian(controller_, "mug-frame", inputs).data * controller_.get_command());
       pub_.publish(cmd);
+
+      // Visualization
+      const KDL::Expression<KDL::Vector>::Ptr some_vector =
+        controller_.get_scope().find_vector_expression("mug-top");
+      KDL::Vector mug_top = some_vector->value();
+
+      uint32_t shape = visualization_msgs::Marker::SPHERE;
+      visualization_msgs::Marker marker;
+
+      marker.header.frame_id = "world";
+      marker.header.stamp = ros::Time::now();
+      marker.ns = "giskard_expressions";
+      marker.id = 1;
+      marker.type = shape;
+      marker.action = visualization_msgs::Marker::ADD;
+      marker.pose.position.x = mug_top.x();
+      marker.pose.position.y = mug_top.y();
+      marker.pose.position.z = mug_top.z();
+      marker.pose.orientation.x = 0.0;
+      marker.pose.orientation.y = 0.0;
+      marker.pose.orientation.z = 0.0;
+      marker.pose.orientation.w = 1.0;
+      marker.scale.x = 0.01;
+      marker.scale.y = 0.01;
+      marker.scale.z = 0.01;
+      marker.color.r = 0.0f;
+      marker.color.g = 1.0f;
+      marker.color.b = 0.0f;
+      marker.color.a = 1.0;
+
+      pub_viz_.publish(marker);
     }
 };
 
