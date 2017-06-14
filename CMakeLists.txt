@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(skill_transfer)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   gazebo_msgs
   std_msgs
   giskard_core
+  giskard_ros_utils
   kdl_conversions
 )
 

@@ -2,18 +2,8 @@
 #include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/LinkState.h>
 #include <giskard_core/giskard_core.hpp>
+#include <giskard_ros_utils/giskard_ros_utils.hpp>
 #include <kdl_conversions/kdl_msg.h>
-
-template<class T>
-inline T readParam(const ros::NodeHandle& nh, const std::string& name)
-{
-  // FIXME: where to put this?
-  T param;
-  if(!nh.getParam(name, param))
-    throw std::runtime_error("Could not find parameter '" + name +
-        "' in namespace '" + nh.getNamespace() + "'.");
-  return param;
-}
 
 template<class T, class U>
 inline std::map<T, U> to_map(const std::vector<T>& keys, const std::vector<U>& values)
@@ -59,6 +49,7 @@ inline Eigen::VectorXd pose_to_giskard(const geometry_msgs::Pose& pose)
 
 inline std::vector<double> to_stl(const Eigen::VectorXd& v)
 {
+  // FIXME: where to put this?
   std::vector<double> result;
   for(size_t i=0; i<v.rows(); ++i)
     result.push_back(v(i));
@@ -84,6 +75,7 @@ inline KDL::Jacobian get_jacobian(const giskard_core::QPController& controller,
 
 inline geometry_msgs::Twist giskard_to_msg(const Eigen::VectorXd& t)
 {
+  // FIXME: where to put this?
   if (t.rows() != 6)
     throw std::runtime_error("Did not receive vector representing a twist with 6 values.");
 
@@ -103,7 +95,7 @@ class TestGazeboComm
   public:
     TestGazeboComm(const ros::NodeHandle& nh): 
       nh_(nh), 
-      controller_(generate_controller(readParam<std::string>(nh_, "yaml_string"))),
+      controller_(generate_controller(giskard_ros_utils::readParam<std::string>(nh_, "yaml_string"))),
       sub_(nh_.subscribe("/gazebo/link_states", 1, &TestGazeboComm::callback, this)),
       pub_(nh_.advertise<gazebo_msgs::LinkState>("/gazebo/set_link_state", 1)),
       controller_started_(false)
