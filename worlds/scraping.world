@@ -40,7 +40,7 @@
 
         <include>
             <uri>model://frying_pan</uri>
-            <pose>-0.131965 0.924513 1.05 3.14 0.10 1.57</pose>
+            <pose>-0.131965 0.924513 1.058 3.14 0.10 1.57</pose>
             <static>true</static>
         </include>
 
