@@ -48,6 +48,18 @@ inline Eigen::VectorXd pose_to_giskard(const geometry_msgs::Pose& pose)
   return result;
 }
 
+inline Eigen::VectorXd frame_to_giskard(const KDL::Frame& frame)
+{
+  Eigen::VectorXd result(6);
+
+  result(0) = frame.p.x();
+  result(1) = frame.p.y();
+  result(2) = frame.p.z();
+  frame.M.GetEulerZYX(result(3), result(4), result(5));
+
+  return result;
+}
+
 inline std::vector<double> to_stl(const Eigen::VectorXd& v)
 {
   // FIXME: where to put this?
@@ -91,6 +103,35 @@ inline geometry_msgs::Twist giskard_to_msg(const Eigen::VectorXd& t)
   return result;
 }
 
+inline visualization_msgs::Marker vector_to_point_marker(const KDL::Vector &v, std::string ns, int id)
+{
+  uint32_t shape = visualization_msgs::Marker::SPHERE;
+  visualization_msgs::Marker marker;
+
+  marker.header.frame_id = "world";
+  marker.header.stamp = ros::Time::now();
+  marker.ns = ns;
+  marker.id = id;
+  marker.type = shape;
+  marker.action = visualization_msgs::Marker::ADD;
+  marker.pose.position.x = v.x();
+  marker.pose.position.y = v.y();
+  marker.pose.position.z = v.z();
+  marker.pose.orientation.x = 0.0;
+  marker.pose.orientation.y = 0.0;
+  marker.pose.orientation.z = 0.0;
+  marker.pose.orientation.w = 1.0;
+  marker.scale.x = 0.01;
+  marker.scale.y = 0.01;
+  marker.scale.z = 0.01;
+  marker.color.r = 0.0f;
+  marker.color.g = 1.0f;
+  marker.color.b = 0.0f;
+  marker.color.a = 1.0;
+
+  return marker;
+}
+
 class TestGazeboComm
 {
   public:
@@ -119,10 +160,22 @@ class TestGazeboComm
       std::map<std::string, geometry_msgs::Pose> link_state =
         to_map<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
 
-      Eigen::VectorXd inputs(12);
+      auto knife_world_pose = link_state.find("knife::link")->second;
+      auto gripper_world_pose = link_state.find("gripper::link")->second;
+
+      KDL::Frame knife_world_frame;
+      tf::poseMsgToKDL(knife_world_pose, knife_world_frame);
+
+      KDL::Frame gripper_world_frame;
+      tf::poseMsgToKDL(gripper_world_pose, gripper_world_frame);
+      
+      auto knife_gripper_frame = gripper_world_frame.Inverse() * knife_world_frame;
+
+      Eigen::VectorXd inputs(18);
       // FIXME: protect against not finding
-      inputs.segment(0, 6) = pose_to_giskard(link_state.find("gripper::link")->second);
+      inputs.segment(0, 6) = pose_to_giskard(gripper_world_pose);
       inputs.segment(6, 6) = pose_to_giskard(link_state.find("frying_pan::link")->second);
+      inputs.segment(12, 6) = frame_to_giskard(knife_gripper_frame);
 
       if (!controller_started_)
       {
@@ -143,39 +196,25 @@ class TestGazeboComm
         if (msg->name[i].compare(cmd.link_name) == 0)
           cmd.pose = msg->pose[i];
 
-      cmd.twist = giskard_to_msg(get_jacobian(controller_, "mug-frame", inputs).data * controller_.get_command());
+      cmd.twist = giskard_to_msg(get_jacobian(controller_, "gripper-frame", inputs).data * controller_.get_command());
       pub_.publish(cmd);
 
       // Visualization
-      const KDL::Expression<KDL::Vector>::Ptr some_vector =
-        controller_.get_scope().find_vector_expression("mug-top");
-      KDL::Vector mug_top = some_vector->value();
+      const KDL::Expression<KDL::Vector>::Ptr frying_pan_edge_expression =
+        controller_.get_scope().find_vector_expression("frying-pan-edge");
+      KDL::Vector frying_pan_edge = frying_pan_edge_expression->value();
 
-      uint32_t shape = visualization_msgs::Marker::SPHERE;
-      visualization_msgs::Marker marker;
-
-      marker.header.frame_id = "world";
-      marker.header.stamp = ros::Time::now();
-      marker.ns = "giskard_expressions";
-      marker.id = 1;
-      marker.type = shape;
-      marker.action = visualization_msgs::Marker::ADD;
-      marker.pose.position.x = mug_top.x();
-      marker.pose.position.y = mug_top.y();
-      marker.pose.position.z = mug_top.z();
-      marker.pose.orientation.x = 0.0;
-      marker.pose.orientation.y = 0.0;
-      marker.pose.orientation.z = 0.0;
-      marker.pose.orientation.w = 1.0;
-      marker.scale.x = 0.01;
-      marker.scale.y = 0.01;
-      marker.scale.z = 0.01;
-      marker.color.r = 0.0f;
-      marker.color.g = 1.0f;
-      marker.color.b = 0.0f;
-      marker.color.a = 1.0;
+      visualization_msgs::Marker marker = vector_to_point_marker(frying_pan_edge, "frying_pan_edge", 1);
 
       pub_viz_.publish(marker);
+
+      const KDL::Expression<KDL::Vector>::Ptr knife_base_expression =
+        controller_.get_scope().find_vector_expression("knife-base");
+      KDL::Vector knife_base = knife_base_expression->value();
+
+      visualization_msgs::Marker marker2 = vector_to_point_marker(knife_base, "knife_base", 1);
+
+      pub_viz_.publish(marker2);
     }
 };
 

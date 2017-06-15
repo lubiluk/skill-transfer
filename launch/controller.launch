@@ -1,6 +1,6 @@
 <launch>
   <node pkg="skill_transfer" type="test_gazebo_comm" name="controller"
         output="screen">
-    <param name="yaml_string" type="string" textfile="$(find skill_transfer)/config/first.giskard" />
+    <param name="yaml_string" type="string" textfile="$(find skill_transfer)/config/contact.yaml" />
   </node>
 </launch>
