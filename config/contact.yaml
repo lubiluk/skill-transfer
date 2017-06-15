@@ -58,13 +58,9 @@ scope:
         - frame-mul: [gripper-frame, knife-gripper-frame]
         - {vector3: [0.018, 0.003, -0.002]}       
   - frying-pan-edge: {transform-vector: [frying-pan-frame, {vector3: [0.142186, -0.139196, -0.0318549]}]}
-  #- frying-pan-edge: {transform-vector: [frying-pan-frame, {vector3: [0.098775, -0.036126, -0.140118]}]}
-  #- frying-pan-edge: {transform-vector: [frying-pan-frame, {vector3: [0.128, -0.145, -0.015]}]}
 
   # expressions used in constraints 
-  - knife-frying-pan-contact-x: {double-sub: [{x-coord: knife-base}, {x-coord: frying-pan-edge}]}
-  - knife-frying-pan-contact-y: {double-sub: [{y-coord: knife-base}, {y-coord: frying-pan-edge}]}
-  - knife-frying-pan-contact-z: {double-sub: [{z-coord: knife-base}, {z-coord: frying-pan-edge}]}
+  - knife-pan-distance: {vector-sub: [frying-pan-edge, knife-base]}
 
   # some constants
   - controllable-weight: 0.001 # mu * 1
@@ -80,24 +76,22 @@ controllable-constraints:
 
 soft-constraints: 
   - soft-constraint: 
-      - {double-sub: [0.0, knife-frying-pan-contact-x]} # control law for lower boundary
-      - {double-sub: [0.005, knife-frying-pan-contact-x]} # control law for upper boundary
+      - {double-sub: [0.0, {x-coord: knife-pan-distance}]} # control law for lower boundary
+      - {double-sub: [0.005, {x-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
-      - knife-frying-pan-contact-x # expression used for Jacobian calcuation
+      - {x-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_x # name of expression reported
-
   - soft-constraint: 
-      - {double-sub: [0.0, knife-frying-pan-contact-y]} # control law for lower boundary
-      - {double-sub: [0.005, knife-frying-pan-contact-y]} # control law for upper boundary
+      - {double-sub: [0.0, {y-coord: knife-pan-distance}]} # control law for lower boundary
+      - {double-sub: [0.005, {y-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
-      - knife-frying-pan-contact-y # expression used for Jacobian calcuation
+      - {y-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_y # name of expression reported
-
   - soft-constraint: 
-      - {double-sub: [0.0, knife-frying-pan-contact-z]} # control law for lower boundary
-      - {double-sub: [0.005, knife-frying-pan-contact-z]} # control law for upper boundary
+      - {double-sub: [0.0, {z-coord: knife-pan-distance}]} # control law for lower boundary
+      - {double-sub: [0.005, {z-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
-      - knife-frying-pan-contact-z # expression used for Jacobian calcuation
+      - {z-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_z # name of expression reported
 
 hard-constraints: [] # no hard constraints used in this motion
