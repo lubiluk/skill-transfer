@@ -103,30 +103,64 @@ inline geometry_msgs::Twist giskard_to_msg(const Eigen::VectorXd& t)
   return result;
 }
 
-inline visualization_msgs::Marker vector_to_point_marker(const KDL::Vector &v, std::string ns, int id)
+inline visualization_msgs::Marker create_point_marker(const giskard_core::QPController& controller, 
+    const std::string& exp_name, const std::string& frame_id)
 {
-  uint32_t shape = visualization_msgs::Marker::SPHERE;
+  const KDL::Expression<KDL::Vector>::Ptr exp =
+    controller.get_scope().find_vector_expression(exp_name);
+
   visualization_msgs::Marker marker;
 
-  marker.header.frame_id = "world";
+  marker.header.frame_id = frame_id;
   marker.header.stamp = ros::Time::now();
-  marker.ns = ns;
-  marker.id = id;
-  marker.type = shape;
+  marker.ns = "giskard_expressions/" + exp_name;
+  marker.id = 1;
+  marker.type = visualization_msgs::Marker::SPHERE;
   marker.action = visualization_msgs::Marker::ADD;
-  marker.pose.position.x = v.x();
-  marker.pose.position.y = v.y();
-  marker.pose.position.z = v.z();
-  marker.pose.orientation.x = 0.0;
-  marker.pose.orientation.y = 0.0;
-  marker.pose.orientation.z = 0.0;
+  marker.pose.position.x = exp->value().x();
+  marker.pose.position.y = exp->value().y();
+  marker.pose.position.z = exp->value().z();
   marker.pose.orientation.w = 1.0;
   marker.scale.x = 0.01;
   marker.scale.y = 0.01;
   marker.scale.z = 0.01;
-  marker.color.r = 0.0f;
-  marker.color.g = 1.0f;
-  marker.color.b = 0.0f;
+  marker.color.r = 244.0/255.0;
+  marker.color.g = 180.0/255.0;
+  marker.color.b = 47.0/255.0;
+  marker.color.a = 1.0;
+
+  return marker;
+}
+
+inline visualization_msgs::Marker create_point_direction_marker(const giskard_core::QPController& controller, 
+    const std::string& point_name, const std::string& direction_name, const std::string& frame_id)
+{
+  const KDL::Expression<KDL::Vector>::Ptr point_exp =
+    controller.get_scope().find_vector_expression(point_name);
+  const KDL::Expression<KDL::Vector>::Ptr direction_exp =
+    controller.get_scope().find_vector_expression(direction_name);
+
+  visualization_msgs::Marker marker;
+
+  marker.header.frame_id = frame_id;
+  marker.header.stamp = ros::Time::now();
+  marker.ns = "giskard_expressions/" + direction_name;
+  marker.id = 1;
+  marker.type = visualization_msgs::Marker::ARROW;
+  marker.action = visualization_msgs::Marker::ADD;
+  marker.points.resize(2);
+  marker.points[0].x = point_exp->value().x();
+  marker.points[0].y = point_exp->value().y();
+  marker.points[0].z = point_exp->value().z();
+  marker.points[1].x = point_exp->value().x() + direction_exp->value().x();
+  marker.points[1].y = point_exp->value().y() + direction_exp->value().y();
+  marker.points[1].z = point_exp->value().z() + direction_exp->value().z();
+  marker.scale.x = 0.01;
+  marker.scale.y = 0.02;
+  marker.scale.z = 0.0;
+  marker.color.r = 244.0/255.0;
+  marker.color.g = 180.0/255.0;
+  marker.color.b = 47.0/255.0;
   marker.color.a = 1.0;
 
   return marker;
@@ -199,22 +233,9 @@ class TestGazeboComm
       cmd.twist = giskard_to_msg(get_jacobian(controller_, "gripper-frame", inputs).data * controller_.get_command());
       pub_.publish(cmd);
 
-      // Visualization
-      const KDL::Expression<KDL::Vector>::Ptr frying_pan_edge_expression =
-        controller_.get_scope().find_vector_expression("frying-pan-edge");
-      KDL::Vector frying_pan_edge = frying_pan_edge_expression->value();
-
-      visualization_msgs::Marker marker = vector_to_point_marker(frying_pan_edge, "frying_pan_edge", 1);
-
-      pub_viz_.publish(marker);
-
-      const KDL::Expression<KDL::Vector>::Ptr knife_base_expression =
-        controller_.get_scope().find_vector_expression("knife-base");
-      KDL::Vector knife_base = knife_base_expression->value();
-
-      visualization_msgs::Marker marker2 = vector_to_point_marker(knife_base, "knife_base", 1);
-
-      pub_viz_.publish(marker2);
+      pub_viz_.publish(create_point_marker(controller_, "knife-base", "world"));
+      pub_viz_.publish(create_point_marker(controller_, "frying-pan-edge", "world"));
+      pub_viz_.publish(create_point_direction_marker(controller_, "knife-base", "knife-pan-distance", "world"));
     }
 };
 
