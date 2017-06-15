@@ -76,20 +76,20 @@ controllable-constraints:
 
 soft-constraints: 
   - soft-constraint: 
-      - {double-sub: [0.0, {x-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {x-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {x-coord: knife-pan-distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {x-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {x-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_x # name of expression reported
   - soft-constraint: 
-      - {double-sub: [0.0, {y-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {y-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {y-coord: knife-pan-distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {y-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {y-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_y # name of expression reported
   - soft-constraint: 
-      - {double-sub: [0.0, {z-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {z-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {z-coord: knife-pan-distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {z-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {z-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_z # name of expression reported
