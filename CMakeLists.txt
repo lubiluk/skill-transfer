@@ -39,3 +39,7 @@ include_directories(
 add_executable(test_gazebo_comm src/test_gazebo_comm.cpp)
 add_dependencies(test_gazebo_comm ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(test_gazebo_comm ${catkin_LIBRARIES})
+
+add_executable(task_executive src/task_executive.cpp)
+target_link_libraries(task_executive ${catkin_LIBRARIES})
+
