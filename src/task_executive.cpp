@@ -32,18 +32,30 @@ class TaskExecutive
     ros::NodeHandle nh_;
     ros::Subscriber link_state_sub_;
     ros::Subscriber set_link_state_sub_;
+    double stopVelocity = 1.0e-05;
 
     void linkStateCallback(const gazebo_msgs::LinkStatesConstPtr& msg)
     {
       auto link_twists = to_map<std::string, geometry_msgs::Twist>(msg->name, msg->twist);
-      auto gripper_pose = link_twists["gripper::link"];
-
-      ROS_INFO_STREAM("Gripper twist: " << gripper_pose << "\n");
+      auto gripper_twist = link_twists["gripper::link"];
+      
+      if (gripper_twist.linear.x < stopVelocity &&
+          gripper_twist.linear.y < stopVelocity &&
+          gripper_twist.linear.z < stopVelocity) {
+        ROS_INFO_STREAM("Gripper stop! " << gripper_twist.linear << "\n"); 
+      }
     }
 
     void setLinkStateCallback(const gazebo_msgs::LinkStateConstPtr& msg)
     {
-      ROS_INFO_STREAM("Set gripper twist: " << msg->twist << "\n");
+      if (msg->link_name != "gripper::link") return;
+      
+      if (msg->twist.linear.x < stopVelocity &&
+          msg->twist.linear.y < stopVelocity &&
+          msg->twist.linear.z < stopVelocity) {
+        ROS_INFO_STREAM("Command stop! :" << msg->twist.linear << "\n"); 
+      }
+      
     }
 };
 
