@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/LinkState.h>
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
+#include <skill_transfer/MoveArmAction.h>
 
 template<class T, class U>
 inline std::map<T, U> to_map(const std::vector<T>& keys, const std::vector<U>& values)
@@ -23,16 +26,22 @@ class TaskExecutive
     TaskExecutive(const ros::NodeHandle& nh): 
       nh_(nh),
       link_state_sub_(nh_.subscribe("/gazebo/link_states", 1, &TaskExecutive::linkStateCallback, this)),
-      set_link_state_sub_(nh_.subscribe("/gazebo/set_link_state", 1, &TaskExecutive::setLinkStateCallback, this)) 
+      set_link_state_sub_(nh_.subscribe("/gazebo/set_link_state", 1, &TaskExecutive::setLinkStateCallback, this)),
+      ac_("move_arm", true)
       {}
 
     ~TaskExecutive() {}
+    
+    void start() {
+      this->requestMotion();
+    }
 
   private:
     ros::NodeHandle nh_;
     ros::Subscriber link_state_sub_;
     ros::Subscriber set_link_state_sub_;
     double stopVelocity = 1.0e-05;
+    actionlib::SimpleActionClient<skill_transfer::MoveArmAction> ac_;
 
     void linkStateCallback(const gazebo_msgs::LinkStatesConstPtr& msg)
     {
@@ -57,6 +66,31 @@ class TaskExecutive
       }
       
     }
+
+    void requestMotion()
+    {
+      ROS_INFO("Waiting for server to start.");
+
+      ac_.waitForServer();
+
+      ROS_INFO("Action server started, sending goal.");
+
+      skill_transfer::MoveArmGoal goal;
+      goal.arm_id = 1;
+      ac_.sendGoal(goal);
+
+      // wait for the action to return
+      bool finished_before_timeout = ac_.waitForResult(ros::Duration(30.0));
+
+      if (finished_before_timeout) 
+      {
+        actionlib::SimpleClientGoalState state = ac_.getState();
+        ROS_INFO("Action finished: %s", state.toString().c_str());
+      }
+      else
+        ROS_INFO("Action did not finish before the timeout.");
+
+    }
 };
 
 int main(int argc, char **argv) 
@@ -67,7 +101,7 @@ int main(int argc, char **argv)
   try
   {
     TaskExecutive te(nh);
-    ros::spin();
+    te.start();
   }
   catch (const std::exception& e)
   {

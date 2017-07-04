@@ -12,7 +12,13 @@ find_package(catkin REQUIRED COMPONENTS
   giskard_ros_utils
   kdl_conversions
   visualization_msgs
+  actionlib_msgs
+  actionlib
 )
+
+add_action_files(DIRECTORY action FILES MoveArm.action)
+
+generate_messages(DEPENDENCIES actionlib_msgs std_msgs gazebo_msgs visualization_msgs)
 
 catkin_package(
 #  INCLUDE_DIRS include
@@ -41,5 +47,10 @@ add_dependencies(test_gazebo_comm ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 target_link_libraries(test_gazebo_comm ${catkin_LIBRARIES})
 
 add_executable(task_executive src/task_executive.cpp)
+add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(task_executive ${catkin_LIBRARIES})
+
+add_executable(constraint_controller src/constraint_controller.cpp)
+add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(constraint_controller ${catkin_LIBRARIES})
 

@@ -1,0 +1,9 @@
+# The goal
+uint32 arm_id
+---
+# The result
+bool is_goal_reached  # maybe
+---
+# The feedback
+float32 goal_distance # maybe
+
