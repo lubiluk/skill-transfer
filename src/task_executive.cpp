@@ -28,7 +28,11 @@ class TaskExecutive
       link_state_sub_(nh_.subscribe("/gazebo/link_states", 1, &TaskExecutive::linkStateCallback, this)),
       set_link_state_sub_(nh_.subscribe("/gazebo/set_link_state", 1, &TaskExecutive::setLinkStateCallback, this)),
       ac_("move_arm", true)
-      {}
+      {
+        ROS_INFO("Waiting for action server to start.");
+        ac_.waitForServer();
+        ROS_INFO("Action server started, sending goal.");
+      }
 
     ~TaskExecutive() {}
     
@@ -69,27 +73,21 @@ class TaskExecutive
 
     void requestMotion()
     {
-      ROS_INFO("Waiting for server to start.");
-
-      ac_.waitForServer();
-
-      ROS_INFO("Action server started, sending goal.");
-
       skill_transfer::MoveArmGoal goal;
       goal.arm_id = 1;
-      ac_.sendGoal(goal);
+    
+      // Need boost::bind to pass in the 'this' pointer
+      ac_.sendGoal(goal,
+      boost::bind(&TaskExecutive::doneCallback, this, _1, _2),
+      Client::SimpleActiveCallback(),
+      Client::SimpleFeedbackCallback());
+    }
 
-      // wait for the action to return
-      bool finished_before_timeout = ac_.waitForResult(ros::Duration(30.0));
-
-      if (finished_before_timeout) 
-      {
-        actionlib::SimpleClientGoalState state = ac_.getState();
-        ROS_INFO("Action finished: %s", state.toString().c_str());
-      }
-      else
-        ROS_INFO("Action did not finish before the timeout.");
-
+    void doneCallback(const actionlib::SimpleClientGoalState& state,
+        const skill_transfer::MoveArmResultConstPtr& result)
+    {
+      ROS_INFO("Finished in state [%s]", state.toString().c_str());
+      ros::shutdown();
     }
 };
 
@@ -102,6 +100,7 @@ int main(int argc, char **argv)
   {
     TaskExecutive te(nh);
     te.start();
+    ros::spin();
   }
   catch (const std::exception& e)
   {
