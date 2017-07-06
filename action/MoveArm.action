@@ -1,9 +1,9 @@
 # The goal
-uint32 arm_id
+string constraints
 ---
 # The result
-bool is_goal_reached  # maybe
+float64[] jacobian
 ---
 # The feedback
-float32 goal_distance # maybe
+float64[] jacobian
 

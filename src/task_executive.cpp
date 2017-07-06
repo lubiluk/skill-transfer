@@ -5,6 +5,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <skill_transfer/MoveArmAction.h>
+#include <fstream>
 
 template<class T, class U>
 inline std::map<T, U> to_map(const std::vector<T>& keys, const std::vector<U>& values)
@@ -74,13 +75,12 @@ class TaskExecutive
     void requestMotion()
     {
       skill_transfer::MoveArmGoal goal;
-      goal.arm_id = 1;
+      goal.constraints = this->readConstraintFile();
     
-      // Need boost::bind to pass in the 'this' pointer
       ac_.sendGoal(goal,
       boost::bind(&TaskExecutive::doneCallback, this, _1, _2),
-      Client::SimpleActiveCallback(),
-      Client::SimpleFeedbackCallback());
+      actionlib::SimpleActionClient<skill_transfer::MoveArmAction>::SimpleActiveCallback(),
+      actionlib::SimpleActionClient<skill_transfer::MoveArmAction>::SimpleFeedbackCallback());
     }
 
     void doneCallback(const actionlib::SimpleClientGoalState& state,
@@ -88,6 +88,15 @@ class TaskExecutive
     {
       ROS_INFO("Finished in state [%s]", state.toString().c_str());
       ros::shutdown();
+    }
+
+    std::string readConstraintFile()
+    {
+      std::ifstream file("config/contact.yaml");
+      std::stringstream buffer;
+      buffer << file.rdbuf();
+
+      return buffer.str();
     }
 };
 
