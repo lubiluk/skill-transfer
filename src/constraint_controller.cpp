@@ -164,16 +164,16 @@ inline visualization_msgs::Marker create_point_direction_marker(const giskard_co
 
 class ConstraintController {
 protected:
-  ros::NodeHandle nh_;
   std::string action_name_;
+  ros::NodeHandle nh_;
   actionlib::SimpleActionServer<skill_transfer::MoveArmAction> as_;
-  skill_transfer::MoveArmFeedback feedback_;
-  skill_transfer::MoveArmResult result_;
-  std::string constraints_;
   bool controller_started_;
   ros::Subscriber sub_;
   ros::Publisher pub_;
   ros::Publisher pub_viz_;
+  skill_transfer::MoveArmFeedback feedback_;
+  skill_transfer::MoveArmResult result_;
+  std::string constraints_;
   giskard_core::QPController controller_;
 
 public:
