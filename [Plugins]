@@ -1,7 +1,0 @@
-Updated. Elapsed time: 0.052279 sec.
-[x]
-
-- Finishing ... Done!
-x viR-colors-solarized:
-    Cloning into '/home/lubiluk/.vim/plugged/vim-colors-solarized'...
-    fatal: unable to access 'https://github.com/altercation/vim-colors-solarized.git/': Could not resolve host: github.com
