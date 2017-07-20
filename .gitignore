@@ -1,6 +1,3 @@
-
-# Created by https://www.gitignore.io/api/vim,ros,c++,cmake,clion
-
 ### C++ ###
 # Prerequisites
 *.d
@@ -114,4 +111,5 @@ Session.vim
 # auto-generated tag files
 tags
 
-# End of https://www.gitignore.io/api/vim,ros,c++,cmake,clion
+### macOS ###
+*.DS_Store
