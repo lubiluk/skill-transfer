@@ -83,7 +83,7 @@ soft-constraints:
       - frying_pan_knife_contact_x # name of expression reported
   - soft-constraint: 
       - {double-sub: [-0.007, {y-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [1.007, {y-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [0.007, {y-coord: knife-pan-distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {y-coord: knife-pan-distance} # expression used for Jacobian calcuation
       - frying_pan_knife_contact_y # name of expression reported

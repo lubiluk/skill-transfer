@@ -183,7 +183,8 @@ public:
     controller_started_(false),
     sub_(nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::motionCallback, this)),
     pub_(nh_.advertise<gazebo_msgs::LinkState>("/gazebo/set_link_state", 1)),
-    pub_viz_(nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1)) {
+    pub_viz_(nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1))
+  {
     as_.registerGoalCallback(boost::bind(&ConstraintController::goalCallback, this));
     as_.registerPreemptCallback(boost::bind(&ConstraintController::preemptCallback, this));
     as_.start();

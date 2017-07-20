@@ -48,7 +48,7 @@
         <include>
             <uri>model://butter_box</uri>
             <pose>-0.164298 0.981918 1.325094 0 0 0</pose>
-            <plugin name="stick" filename="libStickPlugin.so"/>
+            <!--<plugin name="stick" filename="libStickPlugin.so"/>-->
         </include>
 
         <!--<plugin name="shpere_container_factory" filename="libShpereContainerFactoryPlugin.so">-->

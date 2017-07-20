@@ -14,22 +14,23 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   actionlib_msgs
   actionlib
-)
+  message_generation
+  )
 
-add_action_files(DIRECTORY action FILES MoveArm.action)
+add_action_files(DIRECTORY action FILES MoveArm.action Averaging.action)
 
 generate_messages(DEPENDENCIES actionlib_msgs std_msgs gazebo_msgs visualization_msgs)
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES skill_transfer
-#  CATKIN_DEPENDS roscpp std_msgs
-#  DEPENDS system_lib
+  #  INCLUDE_DIRS include
+  #  LIBRARIES skill_transfer
+  #  CATKIN_DEPENDS roscpp std_msgs
+  #  DEPENDS system_lib
 )
 
 include_directories(
   # include
- ${catkin_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -49,4 +50,3 @@ target_link_libraries(task_executive ${catkin_LIBRARIES})
 add_executable(constraint_controller src/constraint_controller.cpp)
 add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(constraint_controller ${catkin_LIBRARIES})
-
