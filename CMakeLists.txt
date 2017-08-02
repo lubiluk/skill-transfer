@@ -4,49 +4,64 @@ project(skill_transfer)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED COMPONENTS
+## Find catkin dependencies
+find_package(catkin REQUIRED COMPONENTS 
   roscpp
-  gazebo_msgs
-  std_msgs
+  actionlib 
+  message_generation
   giskard_core
   giskard_ros_utils
   kdl_conversions
-  visualization_msgs
-  actionlib_msgs
-  actionlib
-  message_generation
-  )
+  std_msgs
+  gazebo_msgs
+)
 
-add_action_files(DIRECTORY action FILES MoveArm.action Averaging.action)
+## Find Boost
+find_package(Boost REQUIRED COMPONENTS 
+  system
+  filesystem
+)
 
-generate_messages(DEPENDENCIES actionlib_msgs std_msgs gazebo_msgs visualization_msgs)
+## Add actions
+add_action_files(DIRECTORY action FILES 
+  MoveArm.action
+)
 
+## Generate messages
+generate_messages(DEPENDENCIES std_msgs actionlib_msgs)
+
+## Define catkin exports
 catkin_package(
-  #  INCLUDE_DIRS include
-  #  LIBRARIES skill_transfer
-  #  CATKIN_DEPENDS roscpp std_msgs
-  #  DEPENDS system_lib
+  CATKIN_DEPENDS message_runtime roscpp actionlib
+  DEPENDS Boost
 )
 
-include_directories(
-  # include
-  ${catkin_INCLUDE_DIRS}
+## Setup include dirs
+include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+## Constraint controller
+add_executable(constraint_controller 
+  src/constraint_controller.cpp
 )
-
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/skill_transfer.cpp
-# )
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-add_executable(task_executive src/task_executive.cpp)
-add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(task_executive ${catkin_LIBRARIES})
-
-add_executable(constraint_controller src/constraint_controller.cpp)
-add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(constraint_controller ${catkin_LIBRARIES})
+add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Task executive
+add_executable(task_executive 
+  src/task_executive.cpp 
+  src/file_sequence.cpp
+  src/twist_log.cpp
+)
+target_link_libraries(task_executive ${catkin_LIBRARIES})
+add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Install scripts and executables
+# install(PROGRAMS
+#   scripts/gen_numbers.py
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+# install(TARGETS averaging_server averaging_client
+#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
