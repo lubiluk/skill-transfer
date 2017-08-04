@@ -8,6 +8,7 @@
 #include <giskard_core/giskard_core.hpp>
 #include "skill_transfer/conversions.h"
 #include "skill_transfer/giskard_utils.h"
+#include "skill_transfer/giskard_viz.h"
 
 class ConstraintController
 {
@@ -22,6 +23,7 @@ public:
     //subscribe to the data topic of interest
     sub_ = nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::analysisCB, this);
     pub_ = nh_.advertise<gazebo_msgs::LinkState>("/gazebo/set_link_state", 1);
+    // TODO: Make an independent node from this
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
     as_.start();
@@ -111,6 +113,11 @@ public:
     ROS_INFO_STREAM("Twist: " << cmd.twist);
 
     pub_.publish(cmd);
+
+    // Visualization
+    pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
+    pub_viz_.publish(createPointMarker(controller_, "frying-pan-edge", "world"));
+    pub_viz_.publish(createPointDirectionMarker(controller_, "knife-base", "knife-pan-distance", "world"));
   }
 
 protected:

@@ -4,7 +4,7 @@
 #include <giskard_core/giskard_core.hpp>
 #include "skill_transfer/conversions.h"
 
-giskard_core::QPController generateController(const std::string &yaml_string)
+inline giskard_core::QPController generateController(const std::string &yaml_string)
 {
   // FIXME: add this to giskard_core
   YAML::Node node = YAML::Load(yaml_string);
