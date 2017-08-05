@@ -40,6 +40,7 @@ public:
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
 
+    ROS_INFO_STREAM(constraints_);
     // Clear the previous state
     controller_started_ = false;
     controller_ = generateController(constraints_);
@@ -111,8 +112,6 @@ public:
     pub_.publish(cmd);
 
     ROS_INFO_STREAM("Twist: " << cmd.twist);
-
-    pub_.publish(cmd);
 
     // Visualization
     pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
