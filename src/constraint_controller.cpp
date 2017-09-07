@@ -40,7 +40,7 @@ public:
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
 
-    ROS_INFO_STREAM(constraints_);
+    // ROS_INFO_STREAM(constraints_);
     // Clear the previous state
     controller_started_ = false;
     controller_ = generateController(constraints_);
@@ -55,9 +55,6 @@ public:
 
   void analysisCB(const gazebo_msgs::LinkStatesConstPtr &msg)
   {
-    // make sure that the action hasn't been canceled
-    if (!as_.isActive())
-      return;
 
     // Link state map
     auto link_state = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
@@ -65,58 +62,64 @@ public:
     auto knife_world_pose = link_state.find("knife::link")->second;
     auto gripper_world_pose = link_state.find("gripper::link")->second;
     auto frying_pan_world_pose = link_state.find("frying_pan::link")->second;
-
-    // Prepare controller inputs
-
-    KDL::Frame knife_world_frame;
-    tf::poseMsgToKDL(knife_world_pose, knife_world_frame);
-
-    KDL::Frame gripper_world_frame;
-    tf::poseMsgToKDL(gripper_world_pose, gripper_world_frame);
-
-    // Knife in gripper space
-    auto knife_gripper_frame = gripper_world_frame.Inverse() * knife_world_frame;
-
-    Eigen::VectorXd inputs(18);
-    inputs.segment(0, 6) = msgPoseToEigenVector(gripper_world_pose);
-    inputs.segment(6, 6) = msgPoseToEigenVector(frying_pan_world_pose);
-    inputs.segment(12, 6) = kdlFrameToEigenVector(knife_gripper_frame);
-
-    // Start the controller if it's a new one
-    if (!controller_started_)
-    {
-      // FIXME: get nWSR from parameter server
-      if (!controller_.start(inputs, 100))
-      {
-        throw std::runtime_error("Failed to start controller.");
-      }
-
-      controller_started_ = true;
-    }
-
-    // Get new calculations from the controller
-    // FIXME: get nWSR from parameter server
-    if (!controller_.update(inputs, 100))
-    {
-      throw std::runtime_error("Failed to update controller.");
-    }
-
+    
     gazebo_msgs::LinkState cmd;
     cmd.link_name = "gripper::link";
     cmd.reference_frame = "world";
     cmd.pose = gripper_world_pose;
 
-    // Insert the Jacobian to the message as twist
-    auto jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
-    cmd.twist = eigenVectorToMsgTwist(jacobian);
+    // When action is not active send zero twist,
+    // otherwise do all the calculations
+    if (as_.isActive())
+    {
+      // Prepare controller inputs
+
+      KDL::Frame knife_world_frame;
+      tf::poseMsgToKDL(knife_world_pose, knife_world_frame);
+
+      KDL::Frame gripper_world_frame;
+      tf::poseMsgToKDL(gripper_world_pose, gripper_world_frame);
+
+      // Knife in gripper space
+      auto knife_gripper_frame = gripper_world_frame.Inverse() * knife_world_frame;
+
+      Eigen::VectorXd inputs(18);
+      inputs.segment(0, 6) = msgPoseToEigenVector(gripper_world_pose);
+      inputs.segment(6, 6) = msgPoseToEigenVector(frying_pan_world_pose);
+      inputs.segment(12, 6) = kdlFrameToEigenVector(knife_gripper_frame);
+
+      // Start the controller if it's a new one
+      if (!controller_started_)
+      {
+        // FIXME: get nWSR from parameter server
+        if (!controller_.start(inputs, 100))
+        {
+          throw std::runtime_error("Failed to start controller.");
+        }
+
+        controller_started_ = true;
+      }
+
+      // Get new calculations from the controller
+      // FIXME: get nWSR from parameter server
+      if (!controller_.update(inputs, 100))
+      {
+        throw std::runtime_error("Failed to update controller.");
+      }
+
+      // Insert the Jacobian to the message as twist
+      auto jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
+      cmd.twist = eigenVectorToMsgTwist(jacobian);
+
+      // Visualization
+      pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
+      pub_viz_.publish(createPointMarker(controller_, "frying-pan-edge", "world"));
+      pub_viz_.publish(createPointDirectionMarker(controller_, "knife-base", "knife-pan-distance", "world"));
+    }
+    
     pub_.publish(cmd);
 
-    ROS_INFO_STREAM("Twist: " << cmd.twist);
-
-    // Visualization
-    pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
-    pub_viz_.publish(createPointMarker(controller_, "frying-pan-edge", "world"));
-    pub_viz_.publish(createPointDirectionMarker(controller_, "knife-base", "knife-pan-distance", "world"));
+    // ROS_INFO_STREAM("Twist: " << cmd.twist);
   }
 
 protected:
