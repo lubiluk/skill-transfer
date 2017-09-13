@@ -62,11 +62,6 @@ public:
     auto knife_world_pose = link_state.find("knife::link")->second;
     auto gripper_world_pose = link_state.find("gripper::link")->second;
     auto frying_pan_world_pose = link_state.find("frying_pan::link")->second;
-    
-    gazebo_msgs::LinkState cmd;
-    cmd.link_name = "gripper::link";
-    cmd.reference_frame = "world";
-    cmd.pose = gripper_world_pose;
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -96,7 +91,8 @@ public:
         {
           throw std::runtime_error("Failed to start controller.");
         }
-
+        
+        ROS_INFO("starting controller");
         controller_started_ = true;
       }
 
@@ -107,17 +103,33 @@ public:
         throw std::runtime_error("Failed to update controller.");
       }
 
+
+
+      gazebo_msgs::LinkState cmd;
+      cmd.link_name = "gripper::link";
+      cmd.reference_frame = "world";
+      cmd.pose = gripper_world_pose;
+      
       // Insert the Jacobian to the message as twist
-      auto jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
+      const Eigen::VectorXd jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
       cmd.twist = eigenVectorToMsgTwist(jacobian);
+
+      pub_.publish(cmd);
 
       // Visualization
       pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
       pub_viz_.publish(createPointMarker(controller_, "frying-pan-edge", "world"));
       pub_viz_.publish(createPointDirectionMarker(controller_, "knife-base", "knife-pan-distance", "world"));
     }
-    
-    pub_.publish(cmd);
+    else
+    {
+      gazebo_msgs::LinkState cmd;
+      cmd.link_name = "gripper::link";
+      cmd.reference_frame = "world";
+      cmd.pose = gripper_world_pose;
+
+      pub_.publish(cmd);
+    } 
 
     // ROS_INFO_STREAM("Twist: " << cmd.twist);
   }
