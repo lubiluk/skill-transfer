@@ -57,7 +57,7 @@ scope:
       transform-vector:
         - frame-mul: [gripper-frame, knife-gripper-frame]
         - {vector3: [0.018, 0.003, -0.002]}       
-  - frying-pan-edge: {transform-vector: [frying-pan-frame, {vector3: [0.12, -0.14, -0.03]}]}
+  - frying-pan-edge: {transform-vector: [frying-pan-frame, {vector3: [0.12, -0.14, -0.02]}]}
 
   # expressions used in constraints 
   - knife-pan-distance: {vector-sub: [frying-pan-edge, knife-base]}

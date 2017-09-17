@@ -1,7 +1,7 @@
 <sdf version="1.6">
     <world name="scraping">
 
-        <physics type="bullet">
+        <physics type="ode">
             <!--<max_step_size>0.0001</max_step_size>-->
             <!--<ode>-->
                 <!--<solver>-->
@@ -27,28 +27,32 @@
         </include>
 
         <include>
-            <uri>model://knife</uri>
-            <pose>-0.351127 0.976666 1.331360 0 0 0</pose>
+            <uri>model://simple_knife</uri>
+            <pose>-0.351127 0.976666 1.331360 1.57694 0 3.14159</pose>
         </include>
 
         <include>
             <uri>model://gripper</uri>
             <pose>-0.459675 0.976666 1.362517 0 0 0</pose>
-            <plugin name="grip" filename="libGripPlugin.so"/>
+            <plugin name="grip" filename="libGripPlugin.so">
+              <object>simple_knife</object>
+            </plugin>
             <!--plugin name="scrape" filename="libScrapePlugin.so"/-->
         </include>
 
         <include>
-            <uri>model://frying_pan</uri>
-            <pose>-0.131965 0.924513 1.058 3.14 0.10 1.57</pose>
-            <static>true</static>
+            <uri>model://simple_frying_pan</uri>
+            <pose>-0.131965 0.924513 1.058 0 0 0</pose>
+             <static>true</static> 
         </include>
 
 
         <include>
             <uri>model://butter_box</uri>
-            <pose>-0.164298 0.981918 1.325094 0 0 0</pose>
-            <plugin name="stick" filename="libStickPlugin.so"/>
+            <pose>-0.226387 0.981918 1.325094 0 0 0</pose>
+            <plugin name="stick" filename="libStickPlugin.so">
+              <link>simple_knife::link</link>
+            </plugin>
         </include>
 
         <!--<plugin name="shpere_container_factory" filename="libShpereContainerFactoryPlugin.so">-->

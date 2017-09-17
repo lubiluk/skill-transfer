@@ -7,6 +7,7 @@
 #include "skill_transfer/conversions.h"
 #include "skill_transfer/file_sequence.h"
 #include "skill_transfer/twist_log.h"
+#include <gazebo_msgs/ContactsState.h>
 
 class TaskExecutive
 {
@@ -24,6 +25,9 @@ public:
                                     &TaskExecutive::linkStateAnalysisCB, this);
     set_link_state_sub_ = nh_.subscribe("/gazebo/set_link_state", 1,
                                         &TaskExecutive::setLinkStateAnalysisCB, this);
+                                        
+    tool_contact_sensor_state_sub_ = nh_.subscribe("/tool_contact_sensor_state", 1,
+                                                   &TaskExecutive::toolContactSensorStateAnalysisCB, this);
 
     ROS_INFO("Motion files:");
 
@@ -84,12 +88,22 @@ public:
     // TODO: Is it necessary to call it here as well?
     checkProgress();
   }
+  
+  void toolContactSensorStateAnalysisCB(const gazebo_msgs::ContactsState &msg)
+  {
+    // Do not track velocities until the motion starts
+    if (!running_)
+      return;
+
+    ROS_INFO_STREAM("ContactsState: " << msg);
+  }
 
 protected:
   ros::NodeHandle nh_;
   actionlib::SimpleActionClient<skill_transfer::MoveArmAction> ac_;
   ros::Subscriber link_state_sub_;
   ros::Subscriber set_link_state_sub_;
+  ros::Subscriber tool_contact_sensor_state_sub_;
   bool running_ = false;
   FileSequence file_sequence_;
   TwistLog velocity_log_;

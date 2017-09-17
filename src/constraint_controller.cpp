@@ -59,9 +59,9 @@ public:
     // Link state map
     auto link_state = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
 
-    auto knife_world_pose = link_state.find("knife::link")->second;
+    auto knife_world_pose = link_state.find("simple_knife::link")->second;
     auto gripper_world_pose = link_state.find("gripper::link")->second;
-    auto frying_pan_world_pose = link_state.find("frying_pan::link")->second;
+    auto frying_pan_world_pose = link_state.find("simple_frying_pan::link")->second;
 
     // When action is not active send zero twist,
     // otherwise do all the calculations

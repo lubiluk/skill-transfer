@@ -1,6 +1,6 @@
 <launch>
-  <node pkg="skill_transfer" type="test_gazebo_comm" name="controller"
+  <node pkg="skill_transfer" type="te" name="te"
         output="screen">
-    <param name="yaml_string" type="string" textfile="$(find skill_transfer)/config/contact.yaml" />
+    <param name="yaml_string" type="string" textfile="$(find skill_transfer)/config/1-contact.yaml" />
   </node>
 </launch>
