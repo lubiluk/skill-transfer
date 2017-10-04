@@ -1,8 +1,7 @@
 #include "skill_transfer/twist_log.h"
 #include <algorithm>
 
-TwistLog::TwistLog(unsigned int size, double threshold) : size_(size),
-                                                          threshold_(threshold)
+TwistLog::TwistLog(unsigned int size) : size_(size)
 {
 }
 
@@ -21,16 +20,16 @@ void TwistLog::clear()
   log_.clear();
 }
 
-bool TwistLog::allFilledAndBelowThreshold()
+bool TwistLog::allFilledAndBelowThreshold(double threshold)
 {
   // Log has to be filled up
   if (log_.size() < size_)
     return false;
 
   return std::all_of(log_.begin(), log_.end(),
-                     [this](const geometry_msgs::Twist &t) {
-                       return (t.linear.x < this->threshold_) &&
-                              (t.linear.y < this->threshold_) &&
-                              (t.linear.z < this->threshold_);
+                     [threshold](const geometry_msgs::Twist &t) {
+                       return (t.linear.x < threshold) &&
+                              (t.linear.y < threshold) &&
+                              (t.linear.z < threshold);
                      });
 }

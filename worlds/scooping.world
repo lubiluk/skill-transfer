@@ -1,0 +1,78 @@
+<sdf version="1.6">
+    <world name="scooping">
+
+<!--        <physics type="ode">-->
+<!--            <max_step_size>0.001</max_step_size>-->
+<!--            <real_time_factor>1</real_time_factor>-->
+<!--            <real_time_update_rate>1000</real_time_update_rate>-->
+<!--            <bullet>-->
+<!--                <solver>-->
+<!--                    <iters>70</iters>-->
+<!--                </solver>-->
+<!--            </bullet>-->
+<!--            <ode>-->
+<!--                <solver>-->
+<!--                    <iters>70</iters>-->
+<!--                </solver>-->
+<!--            </ode>-->
+<!--        </physics>-->
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://table</uri>
+            <pose>-0.071633 0.854817 0 0 0 -1.57694</pose>
+            <static>true</static>
+        </include>
+
+        <include>
+            <uri>model://ladle</uri>
+            <pose>-0.201127 0.976666 1.308308 0 -0.457343 3.14159265359</pose>
+        </include>
+
+        <include>
+            <uri>model://gripper</uri>
+            <pose>-0.309675 0.976666 1.362517 0 0 0</pose>
+            <plugin name="grip" filename="libGripPlugin.so">
+              <link>ladle::link</link>
+            </plugin>
+        </include>
+
+        <plugin name="box_factory" filename="libBoxFactoryPlugin.so">
+            <pose>-0.125013 0.976666 1.015001 0 0 0</pose>
+            <width>0.15</width>
+            <depth>0.15</depth>
+            <height>0.06</height>
+            <friction>0.8</friction>
+            <friction2>0.8</friction2>
+            <mass>0.01</mass>
+            <thickness>0.005</thickness>
+            <static>true</static>
+        </plugin>
+
+
+        <plugin name="grains_factory" filename="libGrainsFactoryPlugin.so">
+            <pose>-0.125013 0.976666 1.15 0 0 0</pose>
+            <mass>0.001</mass>
+            <radius>0.007</radius>
+            <quantity>200</quantity>
+            <friction>0.4</friction>
+            <friction2>0.4</friction2>
+            <velocity_decay>0.3</velocity_decay>
+        </plugin>
+
+        <gui>
+            <camera name='user_camera'>
+                <pose>0.892691 1.54384 1.57989 -1.4918e-17 0.375643 -2.675</pose>
+                <view_controller>orbit</view_controller>
+            </camera>
+        </gui>
+
+    </world>
+</sdf>

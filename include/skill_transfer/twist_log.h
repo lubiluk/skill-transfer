@@ -7,15 +7,14 @@
 class TwistLog
 {
 public:
-  TwistLog(unsigned int size, double threshold);
+  TwistLog(unsigned int size);
   void push(geometry_msgs::Twist twist);
   void clear();
-  bool allFilledAndBelowThreshold();
+  bool allFilledAndBelowThreshold(double threshold);
 
 protected:
   std::deque<geometry_msgs::Twist> log_;
   std::deque<geometry_msgs::Twist>::size_type size_;
-  double threshold_;
 };
 
 #endif

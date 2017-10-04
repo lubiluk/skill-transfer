@@ -2,8 +2,8 @@
 string constraints
 ---
 # The result
-float64[] jacobian
+float64 distance
 ---
 # The feedback
-float64[] jacobian
+float64 distance
 

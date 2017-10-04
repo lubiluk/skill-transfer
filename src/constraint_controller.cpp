@@ -22,7 +22,8 @@ public:
 
     //subscribe to the data topic of interest
     sub_ = nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::analysisCB, this);
-    pub_ = nh_.advertise<gazebo_msgs::LinkState>("/gazebo/set_link_state", 1);
+    
+    pub_ = nh_.advertise<geometry_msgs::Twist>("/set_gripper_twist", 1);
     // TODO: Make an independent node from this
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
@@ -103,18 +104,29 @@ public:
         throw std::runtime_error("Failed to update controller.");
       }
 
-
-
-      gazebo_msgs::LinkState cmd;
-      cmd.link_name = "gripper::link";
-      cmd.reference_frame = "world";
-      cmd.pose = gripper_world_pose;
       
       // Insert the Jacobian to the message as twist
       const Eigen::VectorXd jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
-      cmd.twist = eigenVectorToMsgTwist(jacobian);
+      auto cmd = eigenVectorToMsgTwist(jacobian);
 
       pub_.publish(cmd);
+
+      // TODO: Rather than distance this should generically post all defined positions      
+      // Calculate distance for feedback
+      const KDL::Expression<KDL::Vector>::Ptr point_exp =
+          controller_.get_scope().find_vector_expression("knife-base");
+      const KDL::Expression<KDL::Vector>::Ptr direction_exp =
+          controller_.get_scope().find_vector_expression("frying-pan-edge");
+          
+          
+      auto point = point_exp->value();
+      auto direction = direction_exp->value();
+      auto distance = (direction - point).Norm();
+      
+      feedback_.distance = distance;
+      
+      as_.publishFeedback(feedback_);
+          
 
       // Visualization
       pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
@@ -123,10 +135,7 @@ public:
     }
     else
     {
-      gazebo_msgs::LinkState cmd;
-      cmd.link_name = "gripper::link";
-      cmd.reference_frame = "world";
-      cmd.pose = gripper_world_pose;
+      geometry_msgs::Twist cmd;
 
       pub_.publish(cmd);
     } 
@@ -144,6 +153,7 @@ protected:
   std::string constraints_;
   giskard_core::QPController controller_;
   bool controller_started_;
+  skill_transfer::MoveArmFeedback feedback_;
 };
 
 int main(int argc, char **argv)

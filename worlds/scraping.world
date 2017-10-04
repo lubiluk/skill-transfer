@@ -2,14 +2,19 @@
     <world name="scraping">
 
         <physics type="ode">
-            <!--<max_step_size>0.0001</max_step_size>-->
-            <!--<ode>-->
-                <!--<solver>-->
-                    <!--<type>quick</type>-->
-                    <!--<iters>50</iters>-->
-                    <!--<sor>1.4</sor>-->
-                <!--</solver>-->
-            <!--</ode>-->
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1</real_time_factor>
+            <real_time_update_rate>1000</real_time_update_rate>
+            <bullet>
+                <solver>
+                    <iters>70</iters>
+                </solver>
+            </bullet>
+            <ode>
+                <solver>
+                    <iters>70</iters>
+                </solver>
+            </ode>
         </physics>
 
         <include>
@@ -34,16 +39,21 @@
         <include>
             <uri>model://gripper</uri>
             <pose>-0.459675 0.976666 1.362517 0 0 0</pose>
+            
             <plugin name="grip" filename="libGripPlugin.so">
-              <object>simple_knife</object>
+              <link>simple_knife::link</link>
             </plugin>
-            <!--plugin name="scrape" filename="libScrapePlugin.so"/-->
+            
+            <plugin name="force_controller" filename="libforce_controller_plugin.so">
+              <linkName>link</linkName>
+              <topicName>set_gripper_twist</topicName>
+            </plugin>
         </include>
 
         <include>
             <uri>model://simple_frying_pan</uri>
-            <pose>-0.131965 0.924513 1.058 0 0 0</pose>
-             <static>true</static> 
+            <pose>-0.131927 0.924515 1.015023 0 0 0</pose>
+             <static>false</static> 
         </include>
 
 
@@ -52,12 +62,9 @@
             <pose>-0.226387 0.981918 1.325094 0 0 0</pose>
             <plugin name="stick" filename="libStickPlugin.so">
               <link>simple_knife::link</link>
+              <force>10</force>
             </plugin>
         </include>
-
-        <!--<plugin name="shpere_container_factory" filename="libShpereContainerFactoryPlugin.so">-->
-            <!--<pose>-0.131965 0.924513 1.048990 0 0 0</pose>-->
-        <!--</plugin>-->
 
         <gui>
             <camera name='user_camera'>

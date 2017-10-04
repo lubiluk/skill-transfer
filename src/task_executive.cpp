@@ -14,8 +14,8 @@ class TaskExecutive
 public:
   TaskExecutive() : ac_("move_arm", true),
                     file_sequence_("config"),
-                    velocity_log_(10, 0.001),
-                    command_log_(10, 0.001)
+                    velocity_log_(10),
+                    command_log_(10)
   {
     ROS_INFO("Waiting for action server to start.");
     ac_.waitForServer();
@@ -53,6 +53,11 @@ public:
     ros::shutdown();
   }
 
+  void feedbackCB(const skill_transfer::MoveArmFeedbackConstPtr &feedback)
+  {
+    goal_distance_ = feedback->distance;
+  }
+
   void linkStateAnalysisCB(const gazebo_msgs::LinkStatesConstPtr &msg)
   {
     if (!running_)
@@ -64,7 +69,7 @@ public:
     // Save twist to log
     velocity_log_.push(gripper_twist);
 
-    ROS_INFO_STREAM("Velocity: " << gripper_twist);
+//    ROS_INFO_STREAM("Velocity: " << gripper_twist);
 
     // Check progress for stop condition
     checkProgress();
@@ -82,20 +87,28 @@ public:
     // Save twist to log
     command_log_.push(msg->twist);
 
-    ROS_INFO_STREAM("Command: " << msg->twist);
+//    ROS_INFO_STREAM("Command: " << msg->twist);
 
     // Check progress for stop condition
     // TODO: Is it necessary to call it here as well?
     checkProgress();
   }
   
-  void toolContactSensorStateAnalysisCB(const gazebo_msgs::ContactsState &msg)
+  void toolContactSensorStateAnalysisCB(const gazebo_msgs::ContactsStatePtr
+   &msg)
   {
-    // Do not track velocities until the motion starts
+    // Do not track contact until the motion starts
     if (!running_)
       return;
-
-    ROS_INFO_STREAM("ContactsState: " << msg);
+      
+    if (goal_distance_ > 0.02) 
+      return;
+      
+    //TODO: this is cheating
+    if (msg->states.size() > 0 && file_sequence_.hasNextFile()) {
+      ROS_INFO_STREAM("Contact stop");
+      completeStage();
+    }
   }
 
 protected:
@@ -108,10 +121,10 @@ protected:
   FileSequence file_sequence_;
   TwistLog velocity_log_;
   TwistLog command_log_;
+  double goal_distance_;
 
   void sendNextGoal()
   {
-    running_ = false;
     velocity_log_.clear();
     command_log_.clear();
 
@@ -123,7 +136,7 @@ protected:
     ac_.sendGoal(goal,
                  boost::bind(&TaskExecutive::finishCB, this, _1, _2),
                  actionlib::SimpleActionClient<skill_transfer::MoveArmAction>::SimpleActiveCallback(),
-                 actionlib::SimpleActionClient<skill_transfer::MoveArmAction>::SimpleFeedbackCallback());
+                 boost::bind(&TaskExecutive::feedbackCB, this, _1));
 
     running_ = true;
   }
@@ -136,10 +149,23 @@ protected:
 
   void checkProgress()
   {
-    if (!velocity_log_.allFilledAndBelowThreshold() &&
-        !command_log_.allFilledAndBelowThreshold())
+    if (goal_distance_ > 0.02) 
       return;
+    
+    if (!velocity_log_.allFilledAndBelowThreshold(0.0001) &&
+        !command_log_.allFilledAndBelowThreshold(0.0001))
+      return;
+      
+    ROS_INFO("Velocity/Command stop");
 
+    completeStage();
+  }
+  
+  void completeStage()
+  {
+    running_ = false;
+    goal_distance_ = 1000.0;
+  
     if (file_sequence_.hasNextFile())
     {
       ROS_INFO("Next");

@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   kdl_conversions
   std_msgs
   gazebo_msgs
+  gazebo_ros
 )
 
 ## Find Boost
@@ -21,6 +22,9 @@ find_package(Boost REQUIRED COMPONENTS
   system
   filesystem
 )
+
+# Depend on system install of Gazebo
+find_package(gazebo REQUIRED)
 
 ## Add actions
 add_action_files(DIRECTORY action FILES 
@@ -33,11 +37,21 @@ generate_messages(DEPENDENCIES std_msgs actionlib_msgs)
 ## Define catkin exports
 catkin_package(
   CATKIN_DEPENDS message_runtime roscpp actionlib
-  DEPENDS Boost
+  DEPENDS Boost gazebo_ros
+)
+
+## Setup link dirs
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
 )
 
 ## Setup include dirs
-include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
+)
 
 ## Constraint controller
 add_executable(constraint_controller 
@@ -54,6 +68,10 @@ add_executable(task_executive
 )
 target_link_libraries(task_executive ${catkin_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Force controller Gazebo plugin
+add_library(force_controller_plugin src/force_controller_plugin.cpp)
+target_link_libraries(force_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Install scripts and executables
 # install(PROGRAMS
