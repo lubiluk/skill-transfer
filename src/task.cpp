@@ -4,8 +4,12 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+Task::Task() : current_phase_index_(0)
+{
 
-Task::Task(std::string file_name): current_phase_index_(0)
+}
+
+void Task::load(std::string file_name)
 {
   YAML::Node spec = YAML::LoadFile(file_name);
   
@@ -49,12 +53,13 @@ bool Task::hasNextPhase()
 std::string Task::getCurrentPhaseSpec()
 {
   const auto &phase = phases[current_phase_index_];
-  const auto &path = phase.file_path;
+  boost::filesystem::path dir_path(motion_directory_path);
+  const auto path = dir_path / phase.file_path;
   
   boost::filesystem::ifstream file(path);
   std::stringstream buffer;
   buffer << file.rdbuf();
-
+  
   return buffer.str();
 }
 

@@ -26,11 +26,13 @@ struct MotionPhase {
 class Task
 {
 public:
-  Task(std::string file_path);
+  Task();
   
+  void load(std::string file_path);
   std::string name;
   SceneObjects scene_objects;
   std::vector<MotionPhase> phases;
+  std::string motion_directory_path;
   
   bool hasNextPhase();
   std::string getCurrentPhaseSpec();

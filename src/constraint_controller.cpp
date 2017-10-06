@@ -41,10 +41,9 @@ public:
     constraints_ = goal->constraints;
     gripper_link_name_ = goal->gripper_link_name;
     tool_link_name_ = goal->tool_link_name;
-    utility_link_name_ = goal->utility_link_name;
+    utility_link_name_ = goal->utility_link_name;  
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
-
     // ROS_INFO_STREAM(constraints_);
     // Clear the previous state
     controller_started_ = false;

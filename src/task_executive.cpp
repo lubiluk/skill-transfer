@@ -6,31 +6,47 @@
 #include <actionlib/client/terminal_state.h>
 #include <skill_transfer/MoveArmAction.h>
 #include <gazebo_msgs/LinkStates.h>
-#include <gazebo_msgs/LinkState.h>
 #include <gazebo_msgs/ContactsState.h>
+#include <geometry_msgs/Twist.h>
 
 class TaskExecutive
 {
 public:
-  TaskExecutive() : ac_("move_arm", true),
+  TaskExecutive() : nh_("~"),
+                    ac_("move_arm", true),
                     velocity_log_(10),
-                    command_log_(10),
-                    task_("tasks/scraping_butter.yaml")
+                    command_log_(10)
   {
+    // Get task specifications
+    if ( !nh_.getParam("task_file", task_file_path_) )
+    {
+      throw std::runtime_error("Could not find parameter 'task_file' in namespace '" + nh_.getNamespace() + "'.");
+    }
+    
+    std::string motion_directory;
+    // Get task specifications
+    if ( !nh_.getParam("motion_directory", motion_directory) )
+    {
+      throw std::runtime_error("Could not find parameter 'motion_directory' in namespace '" + nh_.getNamespace() + "'.");
+    }
+    
+    task_.motion_directory_path = motion_directory;
+    task_.load(task_file_path_);
+    
+    ROS_INFO_STREAM("Task: " << task_.name);
+    ROS_INFO_STREAM("Phases: " << task_.phases.size());
+  
     ROS_INFO("Waiting for action server to start.");
     ac_.waitForServer();
     ROS_INFO("Action server started.");
 
     link_state_sub_ = nh_.subscribe("/gazebo/link_states", 1,
                                     &TaskExecutive::linkStateAnalysisCB, this);
-    set_link_state_sub_ = nh_.subscribe("/gazebo/set_link_state", 1,
-                                        &TaskExecutive::setLinkStateAnalysisCB, this);
+    set_link_state_sub_ = nh_.subscribe("/set_gripper_twist", 1,
+                                        &TaskExecutive::setGripperTwistAnalysisCB, this);
                                         
     tool_contact_sensor_state_sub_ = nh_.subscribe("/tool_contact_sensor_state", 1,
                                                    &TaskExecutive::toolContactSensorStateAnalysisCB, this);
-    
-    ROS_INFO_STREAM("Task: " << task_.name);
-    ROS_INFO_STREAM("Phases: " << task_.phases.size());
   }
 
   ~TaskExecutive()
@@ -68,17 +84,14 @@ public:
     checkProgress();
   }
 
-  void setLinkStateAnalysisCB(const gazebo_msgs::LinkStateConstPtr &msg)
+  void setGripperTwistAnalysisCB(const geometry_msgs::TwistConstPtr &msg)
   {
     // Do not track velocities until the motion starts
     if (!running_)
       return;
 
-    if (msg->link_name != task_.scene_objects.gripper_link_name)
-      return;
-
     // Save twist to log
-    command_log_.push(msg->twist);
+    command_log_.push(*msg);
 
     checkProgress();
   }
@@ -98,7 +111,8 @@ public:
     if (goal_distance_ > phase.stop_activation_distance) 
       return;
       
-    if (msg->states.size() > 0) {
+    if (msg->states.size() > 0) 
+    {
       ROS_INFO_STREAM("Contact stop");
       completeStage();
     }
@@ -114,6 +128,7 @@ protected:
   TwistLog velocity_log_;
   TwistLog command_log_;
   double goal_distance_;
+  std::string task_file_path_;
   Task task_;
 
   void sendNextGoal()
