@@ -37,7 +37,11 @@ public:
   void goalCB()
   {
     // Accept goal and get new constraints
-    constraints_ = as_.acceptNewGoal()->constraints;
+    const auto goal = as_.acceptNewGoal();
+    constraints_ = goal->constraints;
+    gripper_link_name_ = goal->gripper_link_name;
+    tool_link_name_ = goal->tool_link_name;
+    utility_link_name_ = goal->utility_link_name;
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
 
@@ -60,9 +64,9 @@ public:
     // Link state map
     auto link_state = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
 
-    auto knife_world_pose = link_state.find("simple_knife::link")->second;
-    auto gripper_world_pose = link_state.find("gripper::link")->second;
-    auto frying_pan_world_pose = link_state.find("simple_frying_pan::link")->second;
+    auto knife_world_pose = link_state.find(tool_link_name_)->second;
+    auto gripper_world_pose = link_state.find(gripper_link_name_)->second;
+    auto frying_pan_world_pose = link_state.find(utility_link_name_)->second;
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -114,9 +118,9 @@ public:
       // TODO: Rather than distance this should generically post all defined positions      
       // Calculate distance for feedback
       const KDL::Expression<KDL::Vector>::Ptr point_exp =
-          controller_.get_scope().find_vector_expression("knife-base");
+          controller_.get_scope().find_vector_expression("tool-point");
       const KDL::Expression<KDL::Vector>::Ptr direction_exp =
-          controller_.get_scope().find_vector_expression("frying-pan-edge");
+          controller_.get_scope().find_vector_expression("utility-point");
           
           
       auto point = point_exp->value();
@@ -129,9 +133,9 @@ public:
           
 
       // Visualization
-      pub_viz_.publish(createPointMarker(controller_, "knife-base", "world"));
-      pub_viz_.publish(createPointMarker(controller_, "frying-pan-edge", "world"));
-      pub_viz_.publish(createPointDirectionMarker(controller_, "knife-base", "knife-pan-distance", "world"));
+      pub_viz_.publish(createPointMarker(controller_, "tool-point", "world"));
+      pub_viz_.publish(createPointMarker(controller_, "utility-point", "world"));
+      pub_viz_.publish(createPointDirectionMarker(controller_, "tool-point", "distance", "world"));
     }
     else
     {
@@ -154,6 +158,9 @@ protected:
   giskard_core::QPController controller_;
   bool controller_started_;
   skill_transfer::MoveArmFeedback feedback_;
+  std::string gripper_link_name_;
+  std::string tool_link_name_;
+  std::string utility_link_name_;
 };
 
 int main(int argc, char **argv)

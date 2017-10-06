@@ -1,0 +1,32 @@
+name: "Scooping Grains"
+
+# List of objecs taking part in the task
+objects:
+  gripper-link-name: "gripper::link"
+  tool-link-name: "ladle::link"
+  utility-link-name: "bowl::link"
+
+# The following motion phases will be executed in a sequence
+motion-phases:
+  - name: "immersion"
+    # Giskard file
+    file: "motions/scoop_grains.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.0001
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.0001
+      # Stop on contact
+      contact: true
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.1
+  - name: "lifting"
+    file: "motions/lift_grains.yaml"
+    stop:
+      measured-velocity-min-threshold: 0.0001
+      desired-velocity-min-threshold: 0.0001
+      contact: false
+    stop-activation-distance: 0.1
+    

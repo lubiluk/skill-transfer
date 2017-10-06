@@ -1,4 +1,7 @@
 # The goal
+string gripper_link_name
+string tool_link_name
+string utility_link_name
 string constraints
 ---
 # The result

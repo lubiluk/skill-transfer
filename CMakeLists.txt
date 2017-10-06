@@ -26,6 +26,15 @@ find_package(Boost REQUIRED COMPONENTS
 # Depend on system install of Gazebo
 find_package(gazebo REQUIRED)
 
+# YAML library
+#find_library(YAML_CPP_LIBRARIES yaml-cpp)
+#if(NOT YAML_CPP_LIBRARIES)
+  # If yaml-cpp not found in the system, try finding it as a user CMake-generated project
+  find_package(yaml-cpp REQUIRED)
+  include_directories(${YAML_CPP_INCLUDE_DIRS})
+#endif(NOT YAML_CPP_LIBRARIES)
+
+
 ## Add actions
 add_action_files(DIRECTORY action FILES 
   MoveArm.action
@@ -51,6 +60,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIRS}
 )
 
 ## Constraint controller
@@ -65,8 +75,9 @@ add_executable(task_executive
   src/task_executive.cpp 
   src/file_sequence.cpp
   src/twist_log.cpp
+  src/task.cpp
 )
-target_link_libraries(task_executive ${catkin_LIBRARIES})
+target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Force controller Gazebo plugin

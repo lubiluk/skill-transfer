@@ -1,21 +1,21 @@
+#include "skill_transfer/conversions.h"
+#include "skill_transfer/twist_log.h"
+#include "skill_transfer/task.h"
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <skill_transfer/MoveArmAction.h>
 #include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/LinkState.h>
-#include "skill_transfer/conversions.h"
-#include "skill_transfer/file_sequence.h"
-#include "skill_transfer/twist_log.h"
 #include <gazebo_msgs/ContactsState.h>
 
 class TaskExecutive
 {
 public:
   TaskExecutive() : ac_("move_arm", true),
-                    file_sequence_("config"),
                     velocity_log_(10),
-                    command_log_(10)
+                    command_log_(10),
+                    task_("tasks/scraping_butter.yaml")
   {
     ROS_INFO("Waiting for action server to start.");
     ac_.waitForServer();
@@ -28,13 +28,9 @@ public:
                                         
     tool_contact_sensor_state_sub_ = nh_.subscribe("/tool_contact_sensor_state", 1,
                                                    &TaskExecutive::toolContactSensorStateAnalysisCB, this);
-
-    ROS_INFO("Motion files:");
-
-    for (auto filename : file_sequence_.getFilenames())
-    {
-      ROS_INFO_STREAM(filename);
-    }
+    
+    ROS_INFO_STREAM("Task: " << task_.name);
+    ROS_INFO_STREAM("Phases: " << task_.phases.size());
   }
 
   ~TaskExecutive()
@@ -64,14 +60,11 @@ public:
       return;
 
     auto link_twists = toMap<std::string, geometry_msgs::Twist>(msg->name, msg->twist);
-    auto gripper_twist = link_twists["gripper::link"];
+    auto gripper_twist = link_twists[task_.scene_objects.gripper_link_name];
 
     // Save twist to log
     velocity_log_.push(gripper_twist);
 
-//    ROS_INFO_STREAM("Velocity: " << gripper_twist);
-
-    // Check progress for stop condition
     checkProgress();
   }
 
@@ -81,16 +74,12 @@ public:
     if (!running_)
       return;
 
-    if (msg->link_name != "gripper::link")
+    if (msg->link_name != task_.scene_objects.gripper_link_name)
       return;
 
     // Save twist to log
     command_log_.push(msg->twist);
 
-//    ROS_INFO_STREAM("Command: " << msg->twist);
-
-    // Check progress for stop condition
-    // TODO: Is it necessary to call it here as well?
     checkProgress();
   }
   
@@ -101,11 +90,15 @@ public:
     if (!running_)
       return;
       
-    if (goal_distance_ > 0.02) 
+    const auto &phase = task_.getCurrentPhase();
+      
+    if ( !phase.stop_condition.contact )
       return;
       
-    //TODO: this is cheating
-    if (msg->states.size() > 0 && file_sequence_.hasNextFile()) {
+    if (goal_distance_ > phase.stop_activation_distance) 
+      return;
+      
+    if (msg->states.size() > 0) {
       ROS_INFO_STREAM("Contact stop");
       completeStage();
     }
@@ -118,10 +111,10 @@ protected:
   ros::Subscriber set_link_state_sub_;
   ros::Subscriber tool_contact_sensor_state_sub_;
   bool running_ = false;
-  FileSequence file_sequence_;
   TwistLog velocity_log_;
   TwistLog command_log_;
   double goal_distance_;
+  Task task_;
 
   void sendNextGoal()
   {
@@ -129,7 +122,10 @@ protected:
     command_log_.clear();
 
     skill_transfer::MoveArmGoal goal;
-    goal.constraints = file_sequence_.getNextFileContents();
+    goal.gripper_link_name = task_.scene_objects.gripper_link_name;
+    goal.tool_link_name = task_.scene_objects.tool_link_name;
+    goal.utility_link_name = task_.scene_objects.utility_link_name;
+    goal.constraints = task_.getCurrentPhaseSpec();
 
     ROS_INFO("Sending new goal.");
 
@@ -149,11 +145,13 @@ protected:
 
   void checkProgress()
   {
-    if (goal_distance_ > 0.02) 
+    const auto &phase = task_.getCurrentPhase();
+  
+    if (goal_distance_ > phase.stop_activation_distance) 
       return;
     
-    if (!velocity_log_.allFilledAndBelowThreshold(0.0001) &&
-        !command_log_.allFilledAndBelowThreshold(0.0001))
+    if (!velocity_log_.allFilledAndBelowThreshold(phase.stop_condition.measured_velocity_min) &&
+        !command_log_.allFilledAndBelowThreshold(phase.stop_condition.desired_velocity_min))
       return;
       
     ROS_INFO("Velocity/Command stop");
@@ -164,9 +162,12 @@ protected:
   void completeStage()
   {
     running_ = false;
-    goal_distance_ = 1000.0;
+    goal_distance_ = 1000000.0;
+    
+    // Increments task's internal index
+    task_.completeCurrentPhase();
   
-    if (file_sequence_.hasNextFile())
+    if (task_.hasNextPhase())
     {
       ROS_INFO("Next");
       sendNextGoal();

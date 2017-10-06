@@ -35,7 +35,7 @@ scope:
         - frame: [{axis-angle: [unit-z, {input-var: 3}]}, zero-vec]
         - frame: [{axis-angle: [unit-y, {input-var: 4}]}, zero-vec]
         - frame: [{axis-angle: [unit-x, {input-var: 5}]}, zero-vec]
-  - frying-pan-frame:
+  - tool-frame:
       frame-mul:
         - frame: [identity-rot, {vector3: [{input-var: 6}, 0, 0]}]
         - frame: [identity-rot, {vector3: [0, {input-var: 7}, 0]}]
@@ -43,7 +43,7 @@ scope:
         - frame: [{axis-angle: [unit-z, {input-var: 9}]}, zero-vec]
         - frame: [{axis-angle: [unit-y, {input-var: 10}]}, zero-vec]
         - frame: [{axis-angle: [unit-x, {input-var: 11}]}, zero-vec]
-  - knife-gripper-frame:
+  - tool-gripper-frame:
       frame-mul:
         - frame: [identity-rot, {vector3: [{input-var: 12}, 0, 0]}]
         - frame: [identity-rot, {vector3: [0, {input-var: 13}, 0]}]
@@ -53,14 +53,14 @@ scope:
         - frame: [{axis-angle: [unit-x, {input-var: 17}]}, zero-vec]
 
   # definition of features
-  - knife-base: 
+  - tool-point: 
       transform-vector:
-        - frame-mul: [gripper-frame, knife-gripper-frame]
-        - {vector3: [-0.0610747, -0.0003, -0.024996]}       
-  - frying-pan-edge: {transform-vector: [frying-pan-frame, {vector3: [-0.152094, 0.0526113, 0.0499648]}]}
+        - frame-mul: [gripper-frame, tool-gripper-frame]
+        - {vector3: [-0.0610747, -0.0003, -0.024996]}
+  - utility-point: {transform-vector: [tool-frame, {vector3: [-0.5, 0.0526113, 0.0499648]}]}
 
   # expressions used in constraints 
-  - knife-pan-distance: {vector-sub: [frying-pan-edge, knife-base]}
+  - distance: {vector-sub: [utility-point, tool-point]}
 
   # some constants
   - controllable-weight: 0.001 # mu * 1
@@ -76,22 +76,23 @@ controllable-constraints:
 
 soft-constraints: 
   - soft-constraint: 
-      - {double-sub: [-0.007, {x-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [0.007, {x-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {x-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {x-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
-      - {x-coord: knife-pan-distance} # expression used for Jacobian calcuation
-      - frying_pan_knife_contact_x # name of expression reported
+      - {x-coord: distance} # expression used for Jacobian calcuation
+      - contact_x # name of expression reported
   - soft-constraint: 
-      - {double-sub: [-0.007, {y-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [0.007, {y-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {y-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {y-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
-      - {y-coord: knife-pan-distance} # expression used for Jacobian calcuation
-      - frying_pan_knife_contact_y # name of expression reported
+      - {y-coord: distance} # expression used for Jacobian calcuation
+      - contact_y # name of expression reported
   - soft-constraint: 
-      - {double-sub: [-0.007, {z-coord: knife-pan-distance}]} # control law for lower boundary
-      - {double-sub: [0.007, {z-coord: knife-pan-distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {z-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {z-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
-      - {z-coord: knife-pan-distance} # expression used for Jacobian calcuation
-      - frying_pan_knife_contact_z # name of expression reported
+      - {z-coord: distance} # expression used for Jacobian calcuation
+      - contact_z # name of expression reported
 
 hard-constraints: [] # no hard constraints used in this motion
+
