@@ -1,5 +1,6 @@
 #include "skill_transfer/twist_log.h"
 #include <algorithm>
+#include <cmath>
 
 TwistLog::TwistLog(unsigned int size) : size_(size)
 {
@@ -28,8 +29,8 @@ bool TwistLog::allFilledAndBelowThreshold(double threshold)
 
   return std::all_of(log_.begin(), log_.end(),
                      [threshold](const geometry_msgs::Twist &t) {
-                       return (t.linear.x < threshold) &&
-                              (t.linear.y < threshold) &&
-                              (t.linear.z < threshold);
+                       return (std::abs(t.linear.x) < threshold) &&
+                              (std::abs(t.linear.y) < threshold) &&
+                              (std::abs(t.linear.z) < threshold);
                      });
 }

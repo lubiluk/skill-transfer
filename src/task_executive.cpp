@@ -81,7 +81,7 @@ public:
     // Save twist to log
     velocity_log_.push(gripper_twist);
 
-    checkProgress();
+    checkMeasuredVelocityStop();
   }
 
   void setGripperTwistAnalysisCB(const geometry_msgs::TwistConstPtr &msg)
@@ -93,7 +93,7 @@ public:
     // Save twist to log
     command_log_.push(*msg);
 
-    checkProgress();
+    checkDesiredVelocityStop();
   }
   
   void toolContactSensorStateAnalysisCB(const gazebo_msgs::ContactsStatePtr
@@ -103,19 +103,11 @@ public:
     if (!running_)
       return;
       
-    const auto &phase = task_.getCurrentPhase();
-      
-    if ( !phase.stop_condition.contact )
+    // Continue only when there's a contact
+    if (msg->states.size() == 0) 
       return;
-      
-    if (goal_distance_ > phase.stop_activation_distance) 
-      return;
-      
-    if (msg->states.size() > 0) 
-    {
-      ROS_INFO_STREAM("Contact stop");
-      completeStage();
-    }
+    
+    checkContactStop();
   }
 
 protected:
@@ -158,19 +150,50 @@ protected:
     running_ = false;
   }
 
-  void checkProgress()
+// Stop Conditions
+
+  void checkDesiredVelocityStop()
   {
     const auto &phase = task_.getCurrentPhase();
   
     if (goal_distance_ > phase.stop_activation_distance) 
       return;
     
-    if (!velocity_log_.allFilledAndBelowThreshold(phase.stop_condition.measured_velocity_min) &&
-        !command_log_.allFilledAndBelowThreshold(phase.stop_condition.desired_velocity_min))
+    if (!command_log_.allFilledAndBelowThreshold(phase.stop_condition.desired_velocity_min))
       return;
       
-    ROS_INFO("Velocity/Command stop");
+    ROS_INFO("Desired Velocity Stop");
 
+    completeStage();
+  }
+  
+  void checkMeasuredVelocityStop()
+  {
+    const auto &phase = task_.getCurrentPhase();
+  
+    if (goal_distance_ > phase.stop_activation_distance) 
+      return;
+    
+    if (!velocity_log_.allFilledAndBelowThreshold(phase.stop_condition.measured_velocity_min))
+      return;
+      
+    ROS_INFO("Measured Velocity Stop");
+
+    completeStage();
+  }
+  
+  void checkContactStop()
+  {
+    const auto &phase = task_.getCurrentPhase();
+      
+    if ( !phase.stop_condition.contact )
+      return;
+      
+    if (goal_distance_ > phase.stop_activation_distance) 
+      return;
+      
+    ROS_INFO_STREAM("Contact Stop");
+    
     completeStage();
   }
   
