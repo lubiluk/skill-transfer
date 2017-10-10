@@ -1,7 +1,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 #include <ros/ros.h>
-#include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/subscribe_options.h>
 #include <geometry_msgs/Twist.h>

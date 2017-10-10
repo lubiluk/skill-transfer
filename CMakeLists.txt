@@ -40,8 +40,19 @@ add_action_files(DIRECTORY action FILES
   MoveArm.action
 )
 
+## Add messages
+add_message_files(
+  FILES
+  ControllerPoints.msg
+)
+
 ## Generate messages
-generate_messages(DEPENDENCIES std_msgs actionlib_msgs)
+generate_messages(
+  DEPENDENCIES 
+  std_msgs 
+  actionlib_msgs
+  geometry_msgs
+)
 
 ## Define catkin exports
 catkin_package(
@@ -83,6 +94,10 @@ add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 ## Force controller Gazebo plugin
 add_library(force_controller_plugin src/force_controller_plugin.cpp)
 target_link_libraries(force_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## Controller visualization Gazebo plugin
+#add_library(controller_visualization_plugin src/controller_visualization_plugin.cpp)
+#target_link_libraries(controller_visualization_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Install scripts and executables
 # install(PROGRAMS
