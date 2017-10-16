@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="skill_transfer" type="constraint_controller" name="constraint_controller"/>
+  <node pkg="skill_transfer" type="task_executive" name="task_executive"
+        output="screen">
+    <param name="task_file" type="string" value="$(find skill_transfer)/tasks/scooping_grains.yaml" />
+    <param name="motion_directory" type="string" value="$(find skill_transfer)/" />
+  </node>
+</launch>

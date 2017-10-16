@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find skill_transfer)/launch/scooping_world.launch"/>
+  <include file="$(find gazebo2rviz)/launch/gazebo2rviz.launch"/>
+  <node name="rviz" pkg="rviz" type="rviz"/>
+</launch>

@@ -41,12 +41,16 @@
             <pose>-0.459675 0.976666 1.362517 0 0 0</pose>
             
             <plugin name="grip" filename="libGripPlugin.so">
-              <link>simple_knife::link</link>
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>simple_knife::link</childLinkName>
             </plugin>
             
             <plugin name="force_controller" filename="libforce_controller_plugin.so">
               <linkName>link</linkName>
               <topicName>set_gripper_twist</topicName>
+              <P>4.0</P>
+              <I>0.0</I>
+              <D>0.0</D>
             </plugin>
         </include>
 
@@ -61,8 +65,9 @@
             <uri>model://butter_box</uri>
             <pose>-0.226387 0.981918 1.325094 0 0 0</pose>
             <plugin name="stick" filename="libStickPlugin.so">
-              <link>simple_knife::link</link>
-              <force>10</force>
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>simple_knife::link</childLinkName>
+              <force>5</force>
             </plugin>
         </include>
 
