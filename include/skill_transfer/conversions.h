@@ -57,7 +57,7 @@ inline std::vector<double> eigenVectorToStdVector(const Eigen::VectorXd &v)
 {
   // FIXME: where to put this?
   std::vector<double> result;
-  for (Eigen::Index i = 0; i < v.rows(); ++i)
+  for (int i = 0; i < v.rows(); ++i)
     result.push_back(v(i));
 
   return result;

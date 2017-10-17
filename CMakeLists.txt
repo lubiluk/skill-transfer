@@ -28,12 +28,12 @@ find_package(Boost REQUIRED COMPONENTS
 find_package(gazebo REQUIRED)
 
 # YAML library
-#find_library(YAML_CPP_LIBRARIES yaml-cpp)
-#if(NOT YAML_CPP_LIBRARIES)
+find_library(YAML_CPP_LIBRARIES yaml-cpp)
+if(NOT YAML_CPP_LIBRARIES)
   # If yaml-cpp not found in the system, try finding it as a user CMake-generated project
   find_package(yaml-cpp REQUIRED)
   include_directories(${YAML_CPP_INCLUDE_DIRS})
-#endif(NOT YAML_CPP_LIBRARIES)
+endif(NOT YAML_CPP_LIBRARIES)
 
 
 ## Add actions
@@ -86,7 +86,6 @@ add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${cat
 ## Task executive
 add_executable(task_executive 
   src/task_executive.cpp 
-  src/file_sequence.cpp
   src/twist_log.cpp
   src/task.cpp
 )
