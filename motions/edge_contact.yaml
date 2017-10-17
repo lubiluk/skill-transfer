@@ -123,7 +123,7 @@ scope:
       transform-vector:
         - frame-mul: [gripper-frame, tool-gripper-frame]
         - {vector3: [-0.0610747, -0.0003, -0.024996]}       
-  - utility-point: {transform-vector: [utility-frame, {vector3: [-0.152094, 0.0526113, 0.0499648]}]}
+  - utility-point: {transform-vector: [utility-frame, {vector3: [0.252094, 0.20526113, 0.10499648]}]}
 
   # expressions used in constraints 
   - distance: {vector-sub: [utility-point, tool-point]}
