@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   gazebo_msgs
   gazebo_ros
+  sensor_msgs
 )
 
 ## Find Boost
@@ -52,6 +53,7 @@ generate_messages(
   std_msgs 
   actionlib_msgs
   geometry_msgs
+  sensor_msgs
 )
 
 ## Define catkin exports

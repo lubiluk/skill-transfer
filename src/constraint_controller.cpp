@@ -2,8 +2,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <skill_transfer/MoveArmAction.h>
 #include <geometry_msgs/Twist.h>
-#include <gazebo_msgs/LinkStates.h>
-#include <gazebo_msgs/LinkState.h>
+#include <sensor_msgs/JointState.h>
 #include <visualization_msgs/Marker.h>
 #include <giskard_core/giskard_core.hpp>
 #include "skill_transfer/conversions.h"
@@ -21,9 +20,10 @@ public:
     as_.registerPreemptCallback(boost::bind(&ConstraintController::preemptCB, this));
 
     //subscribe to the data topic of interest
-    sub_ = nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::analysisCB, this);
+    sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::analysisCB, this);
     
-    pub_ = nh_.advertise<geometry_msgs::Twist>("/set_gripper_twist", 1);
+    pub_ = nh_.advertise<sensor_msgs::JointState>("/pr2/commands", 1);
+    pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/gripper_twist", 1);
     // TODO: Make an independent node from this
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
@@ -57,15 +57,28 @@ public:
     as_.setPreempted();
   }
 
-  void analysisCB(const gazebo_msgs::LinkStatesConstPtr &msg)
+  void analysisCB(const sensor_msgs::JointStateConstPtr &msg)
   {
 
     // Link state map
-    auto link_state = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
+    auto link_state = toMap<std::string, double>(msg->name, msg->position);
 
-    auto knife_world_pose = link_state.find(tool_link_name_)->second;
-    auto gripper_world_pose = link_state.find(gripper_link_name_)->second;
-    auto frying_pan_world_pose = link_state.find(utility_link_name_)->second;
+    auto torso_lift_joint_position = link_state.find("torso_lift_joint")->second;
+    auto l_shoulder_pan_joint_position = link_state.find("l_shoulder_pan_joint")->second;
+    auto l_shoulder_lift_joint_position = link_state.find("l_shoulder_lift_joint")->second;
+    auto l_upper_arm_roll_joint_position = link_state.find("l_upper_arm_roll_joint")->second;
+    auto l_elbow_flex_joint_position = link_state.find("l_elbow_flex_joint")->second;
+    auto l_forearm_roll_joint_position = link_state.find("l_forearm_roll_joint")->second;
+    auto l_wrist_flex_joint_position = link_state.find("l_wrist_flex_joint")->second;
+    auto l_wrist_roll_joint_position = link_state.find("l_wrist_roll_joint")->second;
+    auto r_shoulder_pan_joint_position = link_state.find("r_shoulder_pan_joint")->second;
+    auto r_shoulder_lift_joint_position = link_state.find("r_shoulder_lift_joint")->second;
+    auto r_upper_arm_roll_joint_position = link_state.find("r_upper_arm_roll_joint")->second;
+    auto r_elbow_flex_joint_position = link_state.find("r_elbow_flex_joint")->second;
+    auto r_forearm_roll_joint_position = link_state.find("r_forearm_roll_joint")->second;
+    auto r_wrist_flex_joint_position = link_state.find("r_wrist_flex_joint")->second;
+    auto r_wrist_roll_joint_position = link_state.find("r_wrist_roll_joint")->second;
+
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -73,19 +86,22 @@ public:
     {
       // Prepare controller inputs
 
-      KDL::Frame knife_world_frame;
-      tf::poseMsgToKDL(knife_world_pose, knife_world_frame);
-
-      KDL::Frame gripper_world_frame;
-      tf::poseMsgToKDL(gripper_world_pose, gripper_world_frame);
-
-      // Knife in gripper space
-      auto knife_gripper_frame = gripper_world_frame.Inverse() * knife_world_frame;
-
-      Eigen::VectorXd inputs(18);
-      inputs.segment(0, 6) = msgPoseToEigenVector(gripper_world_pose);
-      inputs.segment(6, 6) = msgPoseToEigenVector(frying_pan_world_pose);
-      inputs.segment(12, 6) = kdlFrameToEigenVector(knife_gripper_frame);
+      Eigen::VectorXd inputs(15);
+      inputs(0) = torso_lift_joint_position;
+      inputs(1) = l_shoulder_pan_joint_position;
+      inputs(2) = l_shoulder_lift_joint_position;
+      inputs(3) = l_upper_arm_roll_joint_position;
+      inputs(4) = l_elbow_flex_joint_position;
+      inputs(5) = l_forearm_roll_joint_position;
+      inputs(6) = l_wrist_flex_joint_position;
+      inputs(7) = l_wrist_roll_joint_position;
+      inputs(8) = r_shoulder_pan_joint_position;
+      inputs(9) = r_shoulder_lift_joint_position;
+      inputs(10) = r_upper_arm_roll_joint_position;
+      inputs(11) = r_elbow_flex_joint_position;
+      inputs(12) = r_forearm_roll_joint_position;
+      inputs(13) = r_wrist_flex_joint_position;
+      inputs(14) = r_wrist_roll_joint_position;
 
       // Start the controller if it's a new one
       if (!controller_started_)
@@ -110,9 +126,11 @@ public:
       
       // Insert the Jacobian to the message as twist
       const Eigen::VectorXd jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
-      auto cmd = eigenVectorToMsgTwist(jacobian);
+      auto gripper_twist = eigenVectorToMsgTwist(jacobian);
+      auto cmd = eigenVectorToMsgJointState(controller_.get_command());
 
       pub_.publish(cmd);
+      pub_gripper_.publish(gripper_twist);
 
       // TODO: Rather than distance this should generically post all defined positions      
       // Calculate distance for feedback
@@ -138,7 +156,7 @@ public:
     }
     else
     {
-      geometry_msgs::Twist cmd;
+      sensor_msgs::JointState cmd;
 
       pub_.publish(cmd);
     } 
@@ -152,6 +170,7 @@ protected:
   std::string action_name_;
   ros::Subscriber sub_;
   ros::Publisher pub_;
+  ros::Publisher pub_gripper_;
   ros::Publisher pub_viz_;
   std::string constraints_;
   giskard_core::QPController controller_;

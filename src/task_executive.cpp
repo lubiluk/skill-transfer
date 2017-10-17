@@ -42,7 +42,7 @@ public:
 
     link_state_sub_ = nh_.subscribe("/gazebo/link_states", 1,
                                     &TaskExecutive::linkStateAnalysisCB, this);
-    set_link_state_sub_ = nh_.subscribe("/set_gripper_twist", 1,
+    set_link_state_sub_ = nh_.subscribe("/gripper_twist", 1,
                                         &TaskExecutive::setGripperTwistAnalysisCB, this);
                                         
     tool_contact_sensor_state_sub_ = nh_.subscribe("/tool_contact_sensor_state", 1,

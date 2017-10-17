@@ -23,8 +23,8 @@ inline KDL::Jacobian getJacobian(const giskard_core::QPController &controller,
   controlled_frame->setInputValues(eigenVectorToStdVector(observables));
   controlled_frame->value();
 
-  KDL::Jacobian jac(6);
-  for (size_t i = 0; i < 6; ++i)
+  KDL::Jacobian jac(15);
+  for (size_t i = 0; i < 15; ++i)
     jac.setColumn(i, controlled_frame->derivative(i));
 
   return jac;
