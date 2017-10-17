@@ -152,7 +152,7 @@ public:
       // Visualization
       pub_viz_.publish(createPointMarker(controller_, "tool-point", "world"));
       pub_viz_.publish(createPointMarker(controller_, "utility-point", "world"));
-      pub_viz_.publish(createPointDirectionMarker(controller_, "tool-point", "distance", "world"));
+      pub_viz_.publish(createPointDirectionMarker(controller_, "tool-point", "distance", "map"));
     }
     else
     {

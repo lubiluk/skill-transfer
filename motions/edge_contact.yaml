@@ -116,7 +116,7 @@ scope:
   - utility-frame:
       right_ee # TODO multiply by calibration offset
   - tool-gripper-frame:
-      left_ee # TODO multiply by calibration offset
+      {frame: [{axis-angle: [unit_x, 0]}, {vector3: [0, 0, 0]}]} # TODO multiply by calibration offset
 
   # definition of features
   - tool-point: 
