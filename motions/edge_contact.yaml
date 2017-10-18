@@ -117,8 +117,8 @@ scope:
       right_ee # TODO multiply by calibration offset
   - tool-gripper-frame:
       frame:
-        - quaternion: [0,0,0,1] # x, y, z, w
-        - vector3: [0,0,0] # x, y, z
+        - quaternion: [0.0548, 0.0623, 0.7481, -0.6584] # x, y, z, w
+        - vector3: [-0.114, -0.008, -0.011] # x, y, z
 
   # definition of features
   - tool-point: 
