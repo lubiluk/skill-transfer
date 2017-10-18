@@ -156,7 +156,24 @@ public:
     }
     else
     {
-      sensor_msgs::JointState cmd;
+      Eigen::VectorXd inputs(15);
+      inputs(0) = 0.0;
+      inputs(1) = 0.0;
+      inputs(2) = 0.0;
+      inputs(3) = 0.0;
+      inputs(4) = 0.0;
+      inputs(5) = 0.0;
+      inputs(6) = 0.0;
+      inputs(7) = 0.0;
+      inputs(8) = 0.0;
+      inputs(9) = 0.0;
+      inputs(10) = 0.0;
+      inputs(11) = 0.0;
+      inputs(12) = 0.0;
+      inputs(13) = 0.0;
+      inputs(14) = 0.0;
+      
+      auto cmd = eigenVectorToMsgJointState(controller_.get_command());
 
       pub_.publish(cmd);
     } 
