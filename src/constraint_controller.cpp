@@ -173,7 +173,7 @@ public:
       inputs(13) = 0.0;
       inputs(14) = 0.0;
       
-      auto cmd = eigenVectorToMsgJointState(controller_.get_command());
+      auto cmd = eigenVectorToMsgJointState(inputs);
 
       pub_.publish(cmd);
     } 
