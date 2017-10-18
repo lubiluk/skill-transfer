@@ -22,11 +22,11 @@ motion-phases:
     # Ignore stop conditions until the distance 
     # from the target configuration is less than this
     stop-activation-distance: 0.1
-  - name: "Scrape Off"
-    file: "motions/scrape_off.yaml"
-    stop:
-      measured-velocity-min-threshold: 0.001
-      desired-velocity-min-threshold: 0.001
-      contact: false
-    stop-activation-distance: 0.1
+#  - name: "Scrape Off"
+#    file: "motions/scrape_off.yaml"
+#    stop:
+#      measured-velocity-min-threshold: 0.001
+#      desired-velocity-min-threshold: 0.001
+#      contact: false
+#    stop-activation-distance: 0.1
     
