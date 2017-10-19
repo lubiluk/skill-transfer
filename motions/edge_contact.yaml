@@ -114,18 +114,22 @@ scope:
   - gripper-frame:
       left_ee
   - utility-frame:
-      right_ee # TODO multiply by calibration offset
+     frame-mul:
+       - right_ee  
+       - frame:
+          - quaternion: [-0.171777970707, -0.685860866607, -0.0174027448572, 0.706954273563]
+          - vector3: [0.06, 0.11, 0]
   - tool-gripper-frame:
       frame:
-        - quaternion: [0.0548, 0.0623, 0.7481, -0.6584] # x, y, z, w
-        - vector3: [-0.114, -0.008, -0.011] # x, y, z
+        - quaternion: [-0.0500550264148, 0.705614610626, 0.700932017793, -0.0910868927763] # x, y, z, w
+        - vector3: [0.14, 0.028, -0.02] # x, y, z
 
   # definition of features
   - tool-point: 
       transform-vector:
         - frame-mul: [gripper-frame, tool-gripper-frame]
-        - {vector3: [0.1, 0, 0]}       
-  - utility-point: {transform-vector: [utility-frame, {vector3: [0, 0, 0]}]}
+        - {vector3: [-0.028, 0.002, 0.01]}       
+  - utility-point: {transform-vector: [utility-frame, {vector3: [0.0, 0.14, 0.044]}]}
 
   # expressions used in constraints 
   - distance: {vector-sub: [utility-point, tool-point]}
