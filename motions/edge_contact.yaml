@@ -129,16 +129,16 @@ scope:
       transform-vector:
         - frame-mul: [gripper-frame, tool-gripper-frame]
         - {vector3: [-0.028, 0.002, 0.01]}       
-  - utility-point: {transform-vector: [utility-frame, {vector3: [0.0, 0.14, 0.044]}]}
+  - utility-point: {transform-vector: [utility-frame, {vector3: [0.018, 0.1334, 0.045]}]}
 
   # expressions used in constraints 
   - distance: {vector-sub: [utility-point, tool-point]}
   
   - l_goal_rot: 
       rotation-mul: 
-        - {axis-angle: [unit_z, 0]}
+        - {axis-angle: [unit_z, -1.57]}
         - {axis-angle: [unit_y, 0]}
-        - {axis-angle: [unit_x, 0]}
+        - {axis-angle: [unit_x, 1.57]}
   - l_rot: {orientation-of: left_ee}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 

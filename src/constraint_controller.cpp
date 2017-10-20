@@ -138,21 +138,27 @@ public:
           controller_.get_scope().find_vector_expression("tool-point");
       const KDL::Expression<KDL::Vector>::Ptr direction_exp =
           controller_.get_scope().find_vector_expression("utility-point");
+      const KDL::Expression<KDL::Vector>::Ptr distance_exp =
+          controller_.get_scope().find_vector_expression("distance");
           
-          
-      auto point = point_exp->value();
-      auto direction = direction_exp->value();
-      auto distance = (direction - point).Norm();
+      // KDL::Vector tool_point = point_exp->value();
+      // KDL::Vector utility_point = direction_exp->value();
+      auto distance_vector = distance_exp->value();
+
+      //double distance = (utility_point - tool_point).Norm();
+      double distance = distance_vector.Norm();
       
+      //ROS_INFO_STREAM("Distance: " << distance << " " << distance2);
+
       feedback_.distance = distance;
       
       as_.publishFeedback(feedback_);
           
 
       // Visualization
-      pub_viz_.publish(createPointMarker(controller_, "tool-point", "world"));
-      pub_viz_.publish(createPointMarker(controller_, "utility-point", "world"));
-      pub_viz_.publish(createPointDirectionMarker(controller_, "tool-point", "distance", "map"));
+      pub_viz_.publish(createPointMarker(controller_, "tool-point", "base_footprint"));
+      pub_viz_.publish(createPointMarker(controller_, "utility-point", "base_footprint"));
+      pub_viz_.publish(createPointDirectionMarker(controller_, "tool-point", "distance", "base_footprint"));
     }
     else
     {

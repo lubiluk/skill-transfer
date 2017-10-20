@@ -5,5 +5,5 @@
     <param name="task_file" type="string" value="$(find skill_transfer)/tasks/scraping_butter.yaml" />
     <param name="motion_directory" type="string" value="$(find skill_transfer)/" />
   </node>
-  <node pkg="tf" type="static_transform_publisher" name="map_to_world" args="0 0 0 0 0 0 map world 100" />
+  <node pkg="tf" type="static_transform_publisher" name="map_to_world" args="0 0 0 0 0 0 world base_link 100"/>
 </launch>
