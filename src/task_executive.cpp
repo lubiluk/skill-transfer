@@ -5,7 +5,6 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <skill_transfer/MoveArmAction.h>
-#include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/ContactsState.h>
 #include <geometry_msgs/Twist.h>
 
@@ -40,8 +39,8 @@ public:
     ac_.waitForServer();
     ROS_INFO("Action server started.");
 
-    link_state_sub_ = nh_.subscribe("/gazebo/link_states", 1,
-                                    &TaskExecutive::linkStateAnalysisCB, this);
+    link_state_sub_ = nh_.subscribe("/gripper_twist_measured", 1,
+                                    &TaskExecutive::gripperTwistMeasuredAnalysisCB, this);
     set_link_state_sub_ = nh_.subscribe("/gripper_twist", 1,
                                         &TaskExecutive::setGripperTwistAnalysisCB, this);
                                         
@@ -70,16 +69,13 @@ public:
     goal_distance_ = feedback->distance;
   }
 
-  void linkStateAnalysisCB(const gazebo_msgs::LinkStatesConstPtr &msg)
+  void gripperTwistMeasuredAnalysisCB(const geometry_msgs::TwistConstPtr &msg)
   {
     if (!running_)
       return;
 
-    auto link_twists = toMap<std::string, geometry_msgs::Twist>(msg->name, msg->twist);
-    auto gripper_twist = link_twists[task_.scene_objects.gripper_link_name];
-
     // Save twist to log
-    velocity_log_.push(gripper_twist);
+    velocity_log_.push(*msg);
 
     checkMeasuredVelocityStop();
   }

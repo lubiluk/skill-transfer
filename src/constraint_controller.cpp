@@ -24,6 +24,7 @@ public:
     
     pub_ = nh_.advertise<sensor_msgs::JointState>("/pr2/commands", 1);
     pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/gripper_twist", 1);
+    pub_gripper_measured_ = nh_.advertise<geometry_msgs::Twist>("/gripper_twist_measured", 1);
     // TODO: Make an independent node from this
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
@@ -62,6 +63,7 @@ public:
 
     // Link state map
     auto link_state = toMap<std::string, double>(msg->name, msg->position);
+    auto link_state_vel = toMap<std::string, double>(msg->name, msg->velocity);    
 
     auto torso_lift_joint_position = link_state.find("torso_lift_joint")->second;
     auto l_shoulder_pan_joint_position = link_state.find("l_shoulder_pan_joint")->second;
@@ -79,6 +81,21 @@ public:
     auto r_wrist_flex_joint_position = link_state.find("r_wrist_flex_joint")->second;
     auto r_wrist_roll_joint_position = link_state.find("r_wrist_roll_joint")->second;
 
+    auto torso_lift_joint_velocity = link_state_vel.find("torso_lift_joint")->second;
+    auto l_shoulder_pan_joint_velocity = link_state_vel.find("l_shoulder_pan_joint")->second;
+    auto l_shoulder_lift_joint_velocity = link_state_vel.find("l_shoulder_lift_joint")->second;
+    auto l_upper_arm_roll_joint_velocity = link_state_vel.find("l_upper_arm_roll_joint")->second;
+    auto l_elbow_flex_joint_velocity = link_state_vel.find("l_elbow_flex_joint")->second;
+    auto l_forearm_roll_joint_velocity = link_state_vel.find("l_forearm_roll_joint")->second;
+    auto l_wrist_flex_joint_velocity = link_state_vel.find("l_wrist_flex_joint")->second;
+    auto l_wrist_roll_joint_velocity = link_state_vel.find("l_wrist_roll_joint")->second;
+    auto r_shoulder_pan_joint_velocity = link_state_vel.find("r_shoulder_pan_joint")->second;
+    auto r_shoulder_lift_joint_velocity = link_state_vel.find("r_shoulder_lift_joint")->second;
+    auto r_upper_arm_roll_joint_velocity = link_state_vel.find("r_upper_arm_roll_joint")->second;
+    auto r_elbow_flex_joint_velocity = link_state_vel.find("r_elbow_flex_joint")->second;
+    auto r_forearm_roll_joint_velocity = link_state_vel.find("r_forearm_roll_joint")->second;
+    auto r_wrist_flex_joint_velocity = link_state_vel.find("r_wrist_flex_joint")->second;
+    auto r_wrist_roll_joint_velocity = link_state_vel.find("r_wrist_roll_joint")->second;
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -102,6 +119,23 @@ public:
       inputs(12) = r_forearm_roll_joint_position;
       inputs(13) = r_wrist_flex_joint_position;
       inputs(14) = r_wrist_roll_joint_position;
+
+      Eigen::VectorXd velocities(15);
+      velocities(0) = torso_lift_joint_velocity;
+      velocities(1) = l_shoulder_pan_joint_velocity;
+      velocities(2) = l_shoulder_lift_joint_velocity;
+      velocities(3) = l_upper_arm_roll_joint_velocity;
+      velocities(4) = l_elbow_flex_joint_velocity;
+      velocities(5) = l_forearm_roll_joint_velocity;
+      velocities(6) = l_wrist_flex_joint_velocity;
+      velocities(7) = l_wrist_roll_joint_velocity;
+      velocities(8) = r_shoulder_pan_joint_velocity;
+      velocities(9) = r_shoulder_lift_joint_velocity;
+      velocities(10) = r_upper_arm_roll_joint_velocity;
+      velocities(11) = r_elbow_flex_joint_velocity;
+      velocities(12) = r_forearm_roll_joint_velocity;
+      velocities(13) = r_wrist_flex_joint_velocity;
+      velocities(14) = r_wrist_roll_joint_velocity;
 
       // Start the controller if it's a new one
       if (!controller_started_)
@@ -127,10 +161,12 @@ public:
       // Insert the Jacobian to the message as twist
       const Eigen::VectorXd jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
       auto gripper_twist = eigenVectorToMsgTwist(jacobian);
+      auto gripper_twist_measured = eigenVectorToMsgTwist(getJacobian(controller_, "gripper-frame", inputs).data * velocities);
       auto cmd = eigenVectorToMsgJointState(controller_.get_command());
 
       pub_.publish(cmd);
       pub_gripper_.publish(gripper_twist);
+      pub_gripper_measured_.publish(gripper_twist_measured);
 
       // TODO: Rather than distance this should generically post all defined positions      
       // Calculate distance for feedback
@@ -194,6 +230,7 @@ protected:
   ros::Subscriber sub_;
   ros::Publisher pub_;
   ros::Publisher pub_gripper_;
+  ros::Publisher pub_gripper_measured_;
   ros::Publisher pub_viz_;
   std::string constraints_;
   giskard_core::QPController controller_;
