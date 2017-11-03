@@ -16,16 +16,18 @@ public:
                                            action_name_(name)
   {
     //register the goal and feeback callbacks
-    as_.registerGoalCallback(boost::bind(&ConstraintController::goalCB, this));
-    as_.registerPreemptCallback(boost::bind(&ConstraintController::preemptCB, this));
+    as_.registerGoalCallback(boost::bind(&ConstraintController::onGoal, this));
+    as_.registerPreemptCallback(boost::bind(&ConstraintController::onPreempt, this));
 
     //subscribe to the data topic of interest
-    sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::analysisCB, this);
+    sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::onJointStatesMsg, this);
     
+    // Topic for real PR2 commands (joint velocities)
     pub_ = nh_.advertise<sensor_msgs::JointState>("/pr2/commands", 1);
-    pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/gripper_twist", 1);
-    pub_gripper_measured_ = nh_.advertise<geometry_msgs::Twist>("/gripper_twist_measured", 1);
-    // TODO: Make an independent node from this
+    // Topic for simulation and executive node, since they only
+    // care about the end effector velocity and not about joint velocities
+    pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/set_ee_twist", 1);
+    // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
     as_.start();
@@ -35,7 +37,7 @@ public:
   {
   }
 
-  void goalCB()
+  void onGoal()
   {
     // Accept goal and get new constraints
     const auto goal = as_.acceptNewGoal();
@@ -51,51 +53,51 @@ public:
     controller_ = generateController(constraints_);
   }
 
-  void preemptCB()
+  void onPreempt()
   {
     ROS_INFO("%s: Preempted", action_name_.c_str());
     // set the action state to preempted
     as_.setPreempted();
   }
 
-  void analysisCB(const sensor_msgs::JointStateConstPtr &msg)
+  void onJointStatesMsg(const sensor_msgs::JointStateConstPtr &msg)
   {
 
     // Link state map
-    auto link_state = toMap<std::string, double>(msg->name, msg->position);
-    auto link_state_vel = toMap<std::string, double>(msg->name, msg->velocity);    
+    auto joint_positions = toMap<std::string, double>(msg->name, msg->position);
+    auto joint_velocities = toMap<std::string, double>(msg->name, msg->velocity);    
 
-    auto torso_lift_joint_position = link_state.find("torso_lift_joint")->second;
-    auto l_shoulder_pan_joint_position = link_state.find("l_shoulder_pan_joint")->second;
-    auto l_shoulder_lift_joint_position = link_state.find("l_shoulder_lift_joint")->second;
-    auto l_upper_arm_roll_joint_position = link_state.find("l_upper_arm_roll_joint")->second;
-    auto l_elbow_flex_joint_position = link_state.find("l_elbow_flex_joint")->second;
-    auto l_forearm_roll_joint_position = link_state.find("l_forearm_roll_joint")->second;
-    auto l_wrist_flex_joint_position = link_state.find("l_wrist_flex_joint")->second;
-    auto l_wrist_roll_joint_position = link_state.find("l_wrist_roll_joint")->second;
-    auto r_shoulder_pan_joint_position = link_state.find("r_shoulder_pan_joint")->second;
-    auto r_shoulder_lift_joint_position = link_state.find("r_shoulder_lift_joint")->second;
-    auto r_upper_arm_roll_joint_position = link_state.find("r_upper_arm_roll_joint")->second;
-    auto r_elbow_flex_joint_position = link_state.find("r_elbow_flex_joint")->second;
-    auto r_forearm_roll_joint_position = link_state.find("r_forearm_roll_joint")->second;
-    auto r_wrist_flex_joint_position = link_state.find("r_wrist_flex_joint")->second;
-    auto r_wrist_roll_joint_position = link_state.find("r_wrist_roll_joint")->second;
+    auto torso_lift_joint_position = joint_positions.find("torso_lift_joint")->second;
+    auto l_shoulder_pan_joint_position = joint_positions.find("l_shoulder_pan_joint")->second;
+    auto l_shoulder_lift_joint_position = joint_positions.find("l_shoulder_lift_joint")->second;
+    auto l_upper_arm_roll_joint_position = joint_positions.find("l_upper_arm_roll_joint")->second;
+    auto l_elbow_flex_joint_position = joint_positions.find("l_elbow_flex_joint")->second;
+    auto l_forearm_roll_joint_position = joint_positions.find("l_forearm_roll_joint")->second;
+    auto l_wrist_flex_joint_position = joint_positions.find("l_wrist_flex_joint")->second;
+    auto l_wrist_roll_joint_position = joint_positions.find("l_wrist_roll_joint")->second;
+    auto r_shoulder_pan_joint_position = joint_positions.find("r_shoulder_pan_joint")->second;
+    auto r_shoulder_lift_joint_position = joint_positions.find("r_shoulder_lift_joint")->second;
+    auto r_upper_arm_roll_joint_position = joint_positions.find("r_upper_arm_roll_joint")->second;
+    auto r_elbow_flex_joint_position = joint_positions.find("r_elbow_flex_joint")->second;
+    auto r_forearm_roll_joint_position = joint_positions.find("r_forearm_roll_joint")->second;
+    auto r_wrist_flex_joint_position = joint_positions.find("r_wrist_flex_joint")->second;
+    auto r_wrist_roll_joint_position = joint_positions.find("r_wrist_roll_joint")->second;
 
-    auto torso_lift_joint_velocity = link_state_vel.find("torso_lift_joint")->second;
-    auto l_shoulder_pan_joint_velocity = link_state_vel.find("l_shoulder_pan_joint")->second;
-    auto l_shoulder_lift_joint_velocity = link_state_vel.find("l_shoulder_lift_joint")->second;
-    auto l_upper_arm_roll_joint_velocity = link_state_vel.find("l_upper_arm_roll_joint")->second;
-    auto l_elbow_flex_joint_velocity = link_state_vel.find("l_elbow_flex_joint")->second;
-    auto l_forearm_roll_joint_velocity = link_state_vel.find("l_forearm_roll_joint")->second;
-    auto l_wrist_flex_joint_velocity = link_state_vel.find("l_wrist_flex_joint")->second;
-    auto l_wrist_roll_joint_velocity = link_state_vel.find("l_wrist_roll_joint")->second;
-    auto r_shoulder_pan_joint_velocity = link_state_vel.find("r_shoulder_pan_joint")->second;
-    auto r_shoulder_lift_joint_velocity = link_state_vel.find("r_shoulder_lift_joint")->second;
-    auto r_upper_arm_roll_joint_velocity = link_state_vel.find("r_upper_arm_roll_joint")->second;
-    auto r_elbow_flex_joint_velocity = link_state_vel.find("r_elbow_flex_joint")->second;
-    auto r_forearm_roll_joint_velocity = link_state_vel.find("r_forearm_roll_joint")->second;
-    auto r_wrist_flex_joint_velocity = link_state_vel.find("r_wrist_flex_joint")->second;
-    auto r_wrist_roll_joint_velocity = link_state_vel.find("r_wrist_roll_joint")->second;
+    auto torso_lift_joint_velocity = joint_velocities.find("torso_lift_joint")->second;
+    auto l_shoulder_pan_joint_velocity = joint_velocities.find("l_shoulder_pan_joint")->second;
+    auto l_shoulder_lift_joint_velocity = joint_velocities.find("l_shoulder_lift_joint")->second;
+    auto l_upper_arm_roll_joint_velocity = joint_velocities.find("l_upper_arm_roll_joint")->second;
+    auto l_elbow_flex_joint_velocity = joint_velocities.find("l_elbow_flex_joint")->second;
+    auto l_forearm_roll_joint_velocity = joint_velocities.find("l_forearm_roll_joint")->second;
+    auto l_wrist_flex_joint_velocity = joint_velocities.find("l_wrist_flex_joint")->second;
+    auto l_wrist_roll_joint_velocity = joint_velocities.find("l_wrist_roll_joint")->second;
+    auto r_shoulder_pan_joint_velocity = joint_velocities.find("r_shoulder_pan_joint")->second;
+    auto r_shoulder_lift_joint_velocity = joint_velocities.find("r_shoulder_lift_joint")->second;
+    auto r_upper_arm_roll_joint_velocity = joint_velocities.find("r_upper_arm_roll_joint")->second;
+    auto r_elbow_flex_joint_velocity = joint_velocities.find("r_elbow_flex_joint")->second;
+    auto r_forearm_roll_joint_velocity = joint_velocities.find("r_forearm_roll_joint")->second;
+    auto r_wrist_flex_joint_velocity = joint_velocities.find("r_wrist_flex_joint")->second;
+    auto r_wrist_roll_joint_velocity = joint_velocities.find("r_wrist_roll_joint")->second;
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -151,7 +153,6 @@ public:
       }
 
       // Get new calculations from the controller
-      // FIXME: get nWSR from parameter server
       if (!controller_.update(inputs, 100))
       {
         throw std::runtime_error("Failed to update controller.");
@@ -159,14 +160,13 @@ public:
 
       
       // Insert the Jacobian to the message as twist
-      const Eigen::VectorXd jacobian = getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
-      auto gripper_twist = eigenVectorToMsgTwist(jacobian);
-      auto gripper_twist_measured = eigenVectorToMsgTwist(getJacobian(controller_, "gripper-frame", inputs).data * velocities);
+      const Eigen::VectorXd desired_velocity = 
+              getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
+      auto ee_twist_desired = eigenVectorToMsgTwist(desired_velocity);
       auto cmd = eigenVectorToMsgJointState(controller_.get_command());
 
       pub_.publish(cmd);
-      pub_gripper_.publish(gripper_twist);
-      pub_gripper_measured_.publish(gripper_twist_measured);
+      pub_gripper_.publish(ee_twist_desired);
 
       // TODO: Rather than distance this should generically post all defined positions      
       // Calculate distance for feedback

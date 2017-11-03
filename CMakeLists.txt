@@ -96,6 +96,10 @@ add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 add_library(force_controller_plugin src/force_controller_plugin.cpp)
 target_link_libraries(force_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
+## Force controller Gazebo plugin
+add_library(position_controller_plugin src/position_controller_plugin.cpp)
+target_link_libraries(position_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
 ## Controller visualization Gazebo plugin
 #add_library(controller_visualization_plugin src/controller_visualization_plugin.cpp)
 #target_link_libraries(controller_visualization_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

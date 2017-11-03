@@ -39,13 +39,13 @@ public:
     ac_.waitForServer();
     ROS_INFO("Action server started.");
 
-    link_state_sub_ = nh_.subscribe("/gripper_twist_measured", 1,
-                                    &TaskExecutive::gripperTwistMeasuredAnalysisCB, this);
-    set_link_state_sub_ = nh_.subscribe("/gripper_twist", 1,
-                                        &TaskExecutive::setGripperTwistAnalysisCB, this);
+    link_state_sub_ = nh_.subscribe("/ee_twist", 1,
+                                    &TaskExecutive::onEeTwistMsg, this);
+    set_link_state_sub_ = nh_.subscribe("/set_ee_twist", 1,
+                                        &TaskExecutive::onSetEeTwistMsg, this);
                                         
     tool_contact_sensor_state_sub_ = nh_.subscribe("/tool_contact_sensor_state", 1,
-                                                   &TaskExecutive::toolContactSensorStateAnalysisCB, this);
+                                                   &TaskExecutive::onToolContactSensorStateMsg, this);
   }
 
   ~TaskExecutive()
@@ -57,19 +57,19 @@ public:
     sendNextGoal();
   }
 
-  void finishCB(const actionlib::SimpleClientGoalState &state,
+  void onFinish(const actionlib::SimpleClientGoalState &state,
                 const skill_transfer::MoveArmResultConstPtr &result)
   {
     ROS_INFO("Finished in state [%s]", state.toString().c_str());
     ros::shutdown();
   }
 
-  void feedbackCB(const skill_transfer::MoveArmFeedbackConstPtr &feedback)
+  void onFeedback(const skill_transfer::MoveArmFeedbackConstPtr &feedback)
   {
     goal_distance_ = feedback->distance;
   }
 
-  void gripperTwistMeasuredAnalysisCB(const geometry_msgs::TwistConstPtr &msg)
+  void onEeTwistMsg(const geometry_msgs::TwistConstPtr &msg)
   {
     if (!running_)
       return;
@@ -80,7 +80,7 @@ public:
     checkMeasuredVelocityStop();
   }
 
-  void setGripperTwistAnalysisCB(const geometry_msgs::TwistConstPtr &msg)
+  void onSetEeTwistMsg(const geometry_msgs::TwistConstPtr &msg)
   {
     // Do not track velocities until the motion starts
     if (!running_)
@@ -92,7 +92,7 @@ public:
     checkDesiredVelocityStop();
   }
   
-  void toolContactSensorStateAnalysisCB(const gazebo_msgs::ContactsStatePtr
+  void onToolContactSensorStateMsg(const gazebo_msgs::ContactsStatePtr
    &msg)
   {
     // Do not track contact until the motion starts
@@ -133,9 +133,9 @@ protected:
     ROS_INFO("Sending new goal.");
 
     ac_.sendGoal(goal,
-                 boost::bind(&TaskExecutive::finishCB, this, _1, _2),
+                 boost::bind(&TaskExecutive::onFinish, this, _1, _2),
                  actionlib::SimpleActionClient<skill_transfer::MoveArmAction>::SimpleActiveCallback(),
-                 boost::bind(&TaskExecutive::feedbackCB, this, _1));
+                 boost::bind(&TaskExecutive::onFeedback, this, _1));
 
     running_ = true;
   }
