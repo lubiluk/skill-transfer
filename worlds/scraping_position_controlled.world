@@ -25,52 +25,73 @@
             <uri>model://ground_plane</uri>
         </include>
 
-        <include>
-            <uri>model://table</uri>
-            <pose>-0.071633 0.854817 0 0 0 -1.57694</pose>
-            <static>true</static>
-        </include>
+<!--        <include>-->
+<!--            <uri>model://table</uri>-->
+<!--            <pose>-0.071633 0.854817 0 0 0 -1.57694</pose>-->
+<!--            <static>true</static>-->
+<!--        </include>-->
 
         <include>
-            <uri>model://simple_knife</uri>
-            <pose>-0.351127 0.976666 1.331360 1.57694 0 3.14159</pose>
+            <uri>model://iai_spatula</uri>
+            <pose>0 0.5 1 0 0 0</pose>
+        </include>
+        
+        <include>
+            <uri>model://iai_big_bowl</uri>
+            <pose>0 -0.5 1 0 0 0</pose>
         </include>
 
+        <!-- Left Gripper -->
         <include>
             <uri>model://gripper</uri>
-            <pose>0.74151 0.0447376 1.14843 0 0 0</pose>
+            <pose>0 0.5 1.5 0 0 0</pose>
             
-<!--            <plugin name="grip" filename="libGripPlugin.so">-->
-<!--              <parentLinkName>link</parentLinkName>-->
-<!--              <childLinkName>simple_knife::link</childLinkName>-->
-<!--            </plugin>-->
-            
-            <plugin name="force_controller" filename="libposition_controller_plugin.so">
+            <plugin name="l_force_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
               <baseFrameName>base_link</baseFrameName>
               <targetFrameName>l_gripper_tool_frame</targetFrameName>
-              <P>100.0</P>
-              <I>0.0</I>
+              <P>50.0</P>
+              <I>50.0</I>
               <D>50.0</D>
             </plugin>
-        </include>
-
-        <include>
-            <uri>model://simple_frying_pan</uri>
-            <pose>-0.131927 0.924515 1.015023 0 0 0</pose>
-             <static>false</static> 
-        </include>
-
-
-        <include>
-            <uri>model://butter_box</uri>
-            <pose>-0.226387 0.981918 1.325094 0 0 0</pose>
-            <plugin name="stick" filename="libStickPlugin.so">
+            
+            <plugin name="l_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
-              <childLinkName>simple_knife::link</childLinkName>
-              <force>5</force>
+              <childLinkName>iai_spatula::link</childLinkName>
+              <relativePose>0.14 0.028 -0.002 -1.57 3.20 0.20</relativePose>
             </plugin>
         </include>
+
+        <!-- Right Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <pose>0 -0.5 1.5 0 0 0</pose>
+            
+            <plugin name="r_force_controller" filename="libposition_controller_plugin.so">
+              <linkName>link</linkName>
+              <baseFrameName>base_link</baseFrameName>
+              <targetFrameName>r_gripper_tool_frame</targetFrameName>
+              <P>50.0</P>
+              <I>50.0</I>
+              <D>50.0</D>
+            </plugin>
+            
+            <plugin name="r_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>iai_big_bowl::link</childLinkName>
+              <relativePose>0.06 0.11 0 -1.57 -1.35 1.3</relativePose>
+            </plugin>
+        </include>
+
+<!--        <include>-->
+<!--            <uri>model://butter_box</uri>-->
+<!--            <pose>-0.226387 0.981918 1.325094 0 0 0</pose>-->
+<!--            <plugin name="stick" filename="libStickPlugin.so">-->
+<!--              <parentLinkName>link</parentLinkName>-->
+<!--              <childLinkName>iai_spatula::link</childLinkName>-->
+<!--              <force>5</force>-->
+<!--            </plugin>-->
+<!--        </include>-->
 
         <gui>
             <camera name='user_camera'>
