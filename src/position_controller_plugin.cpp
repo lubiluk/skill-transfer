@@ -36,7 +36,7 @@ public:
     // SDF values
     this->link_name_ = _sdf->GetElement("linkName")->Get<std::string>();
     this->target_frame_name_ = _sdf->GetElement("targetFrameName")->Get<std::string>();
-    this->base_frame_name_ = _sdf->GetElement("baseFrameName")->Get<std::string>();
+    this->reference_frame_name_ = _sdf->GetElement("referenceFrameName")->Get<std::string>();
     this->P_ = _sdf->GetElement("P")->Get<double>();
     this->I_ = _sdf->GetElement("I")->Get<double>();
     this->D_ = _sdf->GetElement("D")->Get<double>();
@@ -75,7 +75,7 @@ public:
     try 
     {
       transformStamped = tfBuffer.lookupTransform(
-        this->base_frame_name_, this->target_frame_name_, ros::Time(0));  
+        this->reference_frame_name_, this->target_frame_name_, ros::Time(0));  
     }
     catch (tf2::TransformException &ex) 
     {
@@ -111,7 +111,7 @@ public:
 private:
   std::string link_name_;
   std::string target_frame_name_;
-  std::string base_frame_name_;
+  std::string reference_frame_name_;
   ros::NodeHandle nh_;
   ros::CallbackQueue queue_;
   std::thread queue_thread_;

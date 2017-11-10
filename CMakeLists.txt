@@ -79,6 +79,7 @@ include_directories(
 ## Constraint controller
 add_executable(constraint_controller 
   src/constraint_controller.cpp
+  src/giskard_adapter.cpp
 )
 target_link_libraries(constraint_controller ${catkin_LIBRARIES})
 add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

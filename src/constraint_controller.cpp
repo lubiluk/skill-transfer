@@ -6,14 +6,17 @@
 #include <visualization_msgs/Marker.h>
 #include <giskard_core/giskard_core.hpp>
 #include "skill_transfer/conversions.h"
-#include "skill_transfer/giskard_utils.h"
-#include "skill_transfer/giskard_viz.h"
+#include "skill_transfer/giskard_adapter.h"
+#include <vector>
+#include <string>
+#include <algorithm>
 
 class ConstraintController
 {
 public:
   ConstraintController(std::string name) : as_(nh_, name, false),
-                                           action_name_(name)
+                                           action_name_(name),
+                                           giskard_adapter_(100)
   {
     //register the goal and feeback callbacks
     as_.registerGoalCallback(boost::bind(&ConstraintController::onGoal, this));
@@ -47,10 +50,8 @@ public:
     utility_link_name_ = goal->utility_link_name;  
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
-    // ROS_INFO_STREAM(constraints_);
-    // Clear the previous state
-    controller_started_ = false;
-    controller_ = generateController(constraints_);
+    
+    giskard_adapter_.createController(constraints_);
   }
 
   void onPreempt()
@@ -62,42 +63,42 @@ public:
 
   void onJointStatesMsg(const sensor_msgs::JointStateConstPtr &msg)
   {
-
     // Link state map
-    auto joint_positions = toMap<std::string, double>(msg->name, msg->position);
-    auto joint_velocities = toMap<std::string, double>(msg->name, msg->velocity);    
-
-    auto torso_lift_joint_position = joint_positions.find("torso_lift_joint")->second;
-    auto l_shoulder_pan_joint_position = joint_positions.find("l_shoulder_pan_joint")->second;
-    auto l_shoulder_lift_joint_position = joint_positions.find("l_shoulder_lift_joint")->second;
-    auto l_upper_arm_roll_joint_position = joint_positions.find("l_upper_arm_roll_joint")->second;
-    auto l_elbow_flex_joint_position = joint_positions.find("l_elbow_flex_joint")->second;
-    auto l_forearm_roll_joint_position = joint_positions.find("l_forearm_roll_joint")->second;
-    auto l_wrist_flex_joint_position = joint_positions.find("l_wrist_flex_joint")->second;
-    auto l_wrist_roll_joint_position = joint_positions.find("l_wrist_roll_joint")->second;
-    auto r_shoulder_pan_joint_position = joint_positions.find("r_shoulder_pan_joint")->second;
-    auto r_shoulder_lift_joint_position = joint_positions.find("r_shoulder_lift_joint")->second;
-    auto r_upper_arm_roll_joint_position = joint_positions.find("r_upper_arm_roll_joint")->second;
-    auto r_elbow_flex_joint_position = joint_positions.find("r_elbow_flex_joint")->second;
-    auto r_forearm_roll_joint_position = joint_positions.find("r_forearm_roll_joint")->second;
-    auto r_wrist_flex_joint_position = joint_positions.find("r_wrist_flex_joint")->second;
-    auto r_wrist_roll_joint_position = joint_positions.find("r_wrist_roll_joint")->second;
-
-    auto torso_lift_joint_velocity = joint_velocities.find("torso_lift_joint")->second;
-    auto l_shoulder_pan_joint_velocity = joint_velocities.find("l_shoulder_pan_joint")->second;
-    auto l_shoulder_lift_joint_velocity = joint_velocities.find("l_shoulder_lift_joint")->second;
-    auto l_upper_arm_roll_joint_velocity = joint_velocities.find("l_upper_arm_roll_joint")->second;
-    auto l_elbow_flex_joint_velocity = joint_velocities.find("l_elbow_flex_joint")->second;
-    auto l_forearm_roll_joint_velocity = joint_velocities.find("l_forearm_roll_joint")->second;
-    auto l_wrist_flex_joint_velocity = joint_velocities.find("l_wrist_flex_joint")->second;
-    auto l_wrist_roll_joint_velocity = joint_velocities.find("l_wrist_roll_joint")->second;
-    auto r_shoulder_pan_joint_velocity = joint_velocities.find("r_shoulder_pan_joint")->second;
-    auto r_shoulder_lift_joint_velocity = joint_velocities.find("r_shoulder_lift_joint")->second;
-    auto r_upper_arm_roll_joint_velocity = joint_velocities.find("r_upper_arm_roll_joint")->second;
-    auto r_elbow_flex_joint_velocity = joint_velocities.find("r_elbow_flex_joint")->second;
-    auto r_forearm_roll_joint_velocity = joint_velocities.find("r_forearm_roll_joint")->second;
-    auto r_wrist_flex_joint_velocity = joint_velocities.find("r_wrist_flex_joint")->second;
-    auto r_wrist_roll_joint_velocity = joint_velocities.find("r_wrist_roll_joint")->second;
+    auto joint_positions_map = toMap<std::string, double>(msg->name, msg->position);
+    auto joint_velocities_map = toMap<std::string, double>(msg->name, msg->velocity); 
+    
+    std::vector<std::string> joint_names {
+      "torso_lift_joint",
+      "l_shoulder_pan_joint",
+      "l_shoulder_lift_joint",
+      "l_upper_arm_roll_joint",
+      "l_elbow_flex_joint",
+      "l_forearm_roll_joint",
+      "l_wrist_flex_joint",
+      "l_wrist_roll_joint",
+      "r_shoulder_pan_joint",
+      "r_shoulder_lift_joint",
+      "r_upper_arm_roll_joint",
+      "r_elbow_flex_joint",
+      "r_forearm_roll_joint",
+      "r_wrist_flex_joint",
+      "r_wrist_roll_joint"
+    };
+    
+    auto joint_count = joint_names.size();
+    
+    std::vector<double> joint_positions(joint_count);
+    std::vector<double> joint_velocities(joint_count);
+    
+    std::transform(joint_names.begin(), joint_names.end(), joint_positions.begin(),
+      [&joint_positions_map](std::string &n) {
+        return joint_positions_map.find(n)->second;
+      });   
+      
+    std::transform(joint_names.begin(), joint_names.end(), joint_velocities.begin(),
+      [&joint_velocities_map](std::string &n) {
+        return joint_velocities_map.find(n)->second;
+      });    
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -105,117 +106,56 @@ public:
     {
       // Prepare controller inputs
 
-      Eigen::VectorXd inputs(15);
-      inputs(0) = torso_lift_joint_position;
-      inputs(1) = l_shoulder_pan_joint_position;
-      inputs(2) = l_shoulder_lift_joint_position;
-      inputs(3) = l_upper_arm_roll_joint_position;
-      inputs(4) = l_elbow_flex_joint_position;
-      inputs(5) = l_forearm_roll_joint_position;
-      inputs(6) = l_wrist_flex_joint_position;
-      inputs(7) = l_wrist_roll_joint_position;
-      inputs(8) = r_shoulder_pan_joint_position;
-      inputs(9) = r_shoulder_lift_joint_position;
-      inputs(10) = r_upper_arm_roll_joint_position;
-      inputs(11) = r_elbow_flex_joint_position;
-      inputs(12) = r_forearm_roll_joint_position;
-      inputs(13) = r_wrist_flex_joint_position;
-      inputs(14) = r_wrist_roll_joint_position;
+      Eigen::VectorXd inputs(joint_count);
+      
+      for(int i = 0; i < joint_count; ++i)
+      {
+        inputs(i) = joint_positions[i];
+      }
 
-      Eigen::VectorXd velocities(15);
-      velocities(0) = torso_lift_joint_velocity;
-      velocities(1) = l_shoulder_pan_joint_velocity;
-      velocities(2) = l_shoulder_lift_joint_velocity;
-      velocities(3) = l_upper_arm_roll_joint_velocity;
-      velocities(4) = l_elbow_flex_joint_velocity;
-      velocities(5) = l_forearm_roll_joint_velocity;
-      velocities(6) = l_wrist_flex_joint_velocity;
-      velocities(7) = l_wrist_roll_joint_velocity;
-      velocities(8) = r_shoulder_pan_joint_velocity;
-      velocities(9) = r_shoulder_lift_joint_velocity;
-      velocities(10) = r_upper_arm_roll_joint_velocity;
-      velocities(11) = r_elbow_flex_joint_velocity;
-      velocities(12) = r_forearm_roll_joint_velocity;
-      velocities(13) = r_wrist_flex_joint_velocity;
-      velocities(14) = r_wrist_roll_joint_velocity;
+      Eigen::VectorXd velocities(joint_count);
+      
+      for(int i = 0; i < joint_count; ++i)
+      {
+        velocities(i) = joint_velocities[i];
+      }
 
       // Start the controller if it's a new one
-      if (!controller_started_)
+      if (!giskard_adapter_.controller_started_)
       {
-        // FIXME: get nWSR from parameter server
-        if (!controller_.start(inputs, 100))
-        {
-          throw std::runtime_error("Failed to start controller.");
-        }
-        
-        ROS_INFO("starting controller");
-        controller_started_ = true;
+        giskard_adapter_.startController(inputs);
       }
 
       // Get new calculations from the controller
-      if (!controller_.update(inputs, 100))
-      {
-        throw std::runtime_error("Failed to update controller.");
-      }
+      giskard_adapter_.updateController(inputs);
 
-      
-      // Insert the Jacobian to the message as twist
-      const Eigen::VectorXd desired_velocity = 
-              getJacobian(controller_, "gripper-frame", inputs).data * controller_.get_command();
-      auto ee_twist_desired = eigenVectorToMsgTwist(desired_velocity);
-      auto cmd = eigenVectorToMsgJointState(controller_.get_command());
+      const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "gripper-frame");
+      const auto cmd = giskard_adapter_.getDesiredJointVelocityMsg();
 
       pub_.publish(cmd);
       pub_gripper_.publish(ee_twist_desired);
 
-      // TODO: Rather than distance this should generically post all defined positions      
-      // Calculate distance for feedback
-      const KDL::Expression<KDL::Vector>::Ptr point_exp =
-          controller_.get_scope().find_vector_expression("tool-point");
-      const KDL::Expression<KDL::Vector>::Ptr direction_exp =
-          controller_.get_scope().find_vector_expression("utility-point");
-      const KDL::Expression<KDL::Vector>::Ptr distance_exp =
-          controller_.get_scope().find_vector_expression("distance");
-          
-      // KDL::Vector tool_point = point_exp->value();
-      // KDL::Vector utility_point = direction_exp->value();
-      auto distance_vector = distance_exp->value();
-
-      //double distance = (utility_point - tool_point).Norm();
-      double distance = distance_vector.Norm();
-      
-      //ROS_INFO_STREAM("Distance: " << distance << " " << distance2);
-
-      feedback_.distance = distance;
-      
+      feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);
-          
-
+      
       // Visualization
-      pub_viz_.publish(createPointMarker(controller_, "tool-point", "base_footprint"));
-      pub_viz_.publish(createPointMarker(controller_, "utility-point", "base_footprint"));
-      pub_viz_.publish(createPointDirectionMarker(controller_, "tool-point", "distance", "base_footprint"));
+      const auto viz_msgs = giskard_adapter_.getVisualizationMsgs();
+      
+      for (const auto &m : viz_msgs)
+      {
+        pub_viz_.publish(m);
+      }
     }
     else
     {
-      Eigen::VectorXd inputs(15);
-      inputs(0) = 0.0;
-      inputs(1) = 0.0;
-      inputs(2) = 0.0;
-      inputs(3) = 0.0;
-      inputs(4) = 0.0;
-      inputs(5) = 0.0;
-      inputs(6) = 0.0;
-      inputs(7) = 0.0;
-      inputs(8) = 0.0;
-      inputs(9) = 0.0;
-      inputs(10) = 0.0;
-      inputs(11) = 0.0;
-      inputs(12) = 0.0;
-      inputs(13) = 0.0;
-      inputs(14) = 0.0;
+      Eigen::VectorXd velocities(joint_count);
       
-      auto cmd = eigenVectorToMsgJointState(inputs);
+      for(int i = 0; i < joint_count; ++i)
+      {
+        velocities(i) = 0.0;
+      }
+      
+      auto cmd = eigenVectorToMsgJointState(velocities);
 
       pub_.publish(cmd);
     } 
@@ -233,12 +173,11 @@ protected:
   ros::Publisher pub_gripper_measured_;
   ros::Publisher pub_viz_;
   std::string constraints_;
-  giskard_core::QPController controller_;
-  bool controller_started_;
   skill_transfer::MoveArmFeedback feedback_;
   std::string gripper_link_name_;
   std::string tool_link_name_;
   std::string utility_link_name_;
+  GiskardAdapter giskard_adapter_;
 };
 
 int main(int argc, char **argv)
