@@ -10,6 +10,6 @@ To run scraping:
   
 3. Launch the task:
 
-  `roslaunch skill_transfer scraping_task.launch sim:=false`
+   `roslaunch skill_transfer scraping_task.launch sim:=false`
   
    `sim:=true` would mean we don't want to simulate PR2 and use flying grippers directly
