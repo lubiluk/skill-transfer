@@ -76,13 +76,21 @@ include_directories(
   ${YAML_CPP_INCLUDE_DIRS}
 )
 
-## Constraint controller
-add_executable(constraint_controller 
-  src/constraint_controller.cpp
+## Constraint controller for PR2 robot
+add_executable(constraint_controller_robot 
+  src/constraint_controller_robot.cpp
   src/giskard_adapter.cpp
 )
-target_link_libraries(constraint_controller ${catkin_LIBRARIES})
-add_dependencies(constraint_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(constraint_controller_robot ${catkin_LIBRARIES})
+add_dependencies(constraint_controller_robot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Constraint controller for gazebo simulator
+add_executable(constraint_controller_simulator 
+  src/constraint_controller_simulator.cpp
+  src/giskard_adapter.cpp
+)
+target_link_libraries(constraint_controller_simulator ${catkin_LIBRARIES})
+add_dependencies(constraint_controller_simulator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Task executive
 add_executable(task_executive 

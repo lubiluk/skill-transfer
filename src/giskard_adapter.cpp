@@ -45,8 +45,21 @@ geometry_msgs::Twist GiskardAdapter::getDesiredFrameTwistMsg(
 {
   const Eigen::VectorXd desired_velocity = 
     getJacobian(controller_, frame_name, inputs).data * controller_.get_command();
+    
+    ROS_INFO_STREAM("controller_.get_command() " << controller_.get_command());
                           
-  return eigenVectorToMsgTwist(desired_velocity);
+                          
+  const auto t = controller_.get_command();
+  geometry_msgs::Twist result;
+
+  result.linear.x = t(6);
+  result.linear.y = t(7);
+  result.linear.z = t(8);
+  result.angular.x = t(9);
+  result.angular.y = t(10);
+  result.angular.z = t(11);
+
+  return result;
 }
 
 sensor_msgs::JointState GiskardAdapter::getDesiredJointVelocityMsg()

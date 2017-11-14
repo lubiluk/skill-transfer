@@ -65,7 +65,6 @@ inline std::vector<double> eigenVectorToStdVector(const Eigen::VectorXd &v)
 
 inline geometry_msgs::Twist eigenVectorToMsgTwist(const Eigen::VectorXd &t)
 {
-  // FIXME: where to put this?
   if (t.rows() != 6)
     throw std::runtime_error("Did not receive vector representing a twist with 6 values.");
 
@@ -83,7 +82,6 @@ inline geometry_msgs::Twist eigenVectorToMsgTwist(const Eigen::VectorXd &t)
 
 inline sensor_msgs::JointState eigenVectorToMsgJointState(const Eigen::VectorXd &t)
 {
-  // FIXME: where to put this?
   if (t.rows() != 15)
     throw std::runtime_error("Did not receive vector representing a twist with 6 values.");
 

@@ -1,0 +1,121 @@
+scope:
+  # definition of some nice short-cuts
+  - unit-x: {vector3: [1, 0, 0]}
+  - unit-y: {vector3: [0, 1, 0]}
+  - unit-z: {vector3: [0, 0, 1]}
+  - identity-rot: {axis-angle: [unit-x, 0]} 
+  - zero-vec: {vector3: [0, 0, 0]}
+  
+  # defintion of EE FK
+  - left_ee:
+      frame-mul:
+        - frame: [identity-rot, {vector3: [{input-var: 0}, 0, 0]}]
+        - frame: [identity-rot, {vector3: [0, {input-var: 1}, 0]}]
+        - frame: [identity-rot, {vector3: [0, 0, {input-var: 2}]}]
+        - frame: [{axis-angle: [unit-z, {input-var: 3}]}, zero-vec]
+        - frame: [{axis-angle: [unit-y, {input-var: 4}]}, zero-vec]
+        - frame: [{axis-angle: [unit-x, {input-var: 5}]}, zero-vec]
+        
+  - right_ee:
+      frame-mul:
+        - frame: [identity-rot, {vector3: [{input-var: 0}, 0, 0]}]
+        - frame: [identity-rot, {vector3: [0, {input-var: 1}, 0]}]
+        - frame: [identity-rot, {vector3: [0, 0, {input-var: 2}]}]
+        - frame: [{axis-angle: [unit-z, {input-var: 3}]}, zero-vec]
+        - frame: [{axis-angle: [unit-y, {input-var: 4}]}, zero-vec]
+        - frame: [{axis-angle: [unit-x, {input-var: 5}]}, zero-vec]
+      
+  # control params
+  - rot_p_gain: 3.0
+  - rot_thresh: 0.1
+  - weight_rot_control: 1
+  
+  # some constants
+  - controllable-weight: 0.001 # mu * 1
+  - constraint-weight: 10.001 # mu + 10
+  
+  # definition of object frames 
+  - gripper-frame:
+      left_ee
+  - utility-frame:
+     frame-mul:
+       - right_ee  
+       - frame:
+          - quaternion: [-0.171777970707, -0.685860866607, -0.0174027448572, 0.706954273563]
+          - vector3: [0.06, 0.11, 0]
+  - tool-gripper-frame:
+      frame:
+        - quaternion: [-0.0500550264148, 0.705614610626, 0.700932017793, -0.0910868927763] # x, y, z, w
+        - vector3: [0.14, 0.028, -0.02] # x, y, z
+
+  # definition of features
+  - tool-point: 
+      transform-vector:
+        - frame-mul: [gripper-frame, tool-gripper-frame]
+        - {vector3: [-0.028, 0.002, 0.01]}       
+  - utility-point: {transform-vector: [utility-frame, {vector3: [0.018, 0.1334, 0.045]}]}
+
+  # expressions used in constraints 
+  - distance: {vector-sub: [utility-point, tool-point]}
+  
+  - l_goal_rot: 
+      rotation-mul: 
+        - {axis-angle: [unit-z, -1.57]}
+        - {axis-angle: [unit-y, 0]}
+        - {axis-angle: [unit-x, 1.57]}
+  - l_rot: {orientation-of: left_ee}
+  - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
+  - l_rot_scaling: 
+      double-if:
+      - {double-sub: [rot_thresh, l_rot_error]}
+      - 1
+      - {double-div: [rot_thresh, l_rot_error]}
+  - l_intermediate_goal_rot:
+      slerp:
+      - l_rot
+      - l_goal_rot
+      - l_rot_scaling
+  - l_rot_control:
+      scale-vector: [rot_p_gain, {rotate-vector: [l_rot, {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_intermediate_goal_rot]}}]}]
+
+controllable-constraints:
+  # left arm joints
+  - controllable-constraint: [0, 0, controllable-weight, 0, gripper_pos_x]
+  - controllable-constraint: [0, 0, controllable-weight, 1, gripper_pos_y]
+  - controllable-constraint: [0, 0, controllable-weight, 2, gripper_pos_z]
+  - controllable-constraint: [0, 0, controllable-weight, 3, gripper_rot_x]
+  - controllable-constraint: [0, 0, controllable-weight, 4, gripper_rot_y]
+  - controllable-constraint: [0, 0, controllable-weight, 5, gripper_rot_z]
+  # right arm joints
+  - controllable-constraint: [-0.3, 0.3, controllable-weight, 6, gripper_pos_x]
+  - controllable-constraint: [-0.3, 0.3, controllable-weight, 7, gripper_pos_y]
+  - controllable-constraint: [-0.3, 0.3, controllable-weight, 8, gripper_pos_z]
+  - controllable-constraint: [-0.5, 0.5, controllable-weight, 9, gripper_rot_x]
+  - controllable-constraint: [-0.5, 0.5, controllable-weight, 10, gripper_rot_y]
+  - controllable-constraint: [-0.5, 0.5, controllable-weight, 11, gripper_rot_z]
+
+soft-constraints: 
+  - soft-constraint: 
+      - {double-sub: [-0.007, {x-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {x-coord: distance}]} # control law for upper boundary
+      - constraint-weight # weight of this constraint
+      - {x-coord: distance} # expression used for Jacobian calcuation
+      - contact_x # name of expression reported
+  - soft-constraint: 
+      - {double-sub: [-0.007, {y-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {y-coord: distance}]} # control law for upper boundary
+      - constraint-weight # weight of this constraint
+      - {y-coord: distance} # expression used for Jacobian calcuation
+      - contact_y # name of expression reported
+  - soft-constraint: 
+      - {double-sub: [-0.007, {z-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {z-coord: distance}]} # control law for upper boundary
+      - constraint-weight # weight of this constraint
+      - {z-coord: distance} # expression used for Jacobian calcuation
+      - contact_z # name of expression reported
+  - soft-constraint: [{x-coord: l_rot_control}, {x-coord: l_rot_control}, weight_rot_control, {x-coord: {rot-vector: l_rot}}, left EE x-rot control slack]
+  - soft-constraint: [{y-coord: l_rot_control}, {y-coord: l_rot_control}, weight_rot_control, {y-coord: {rot-vector: l_rot}}, left EE y-rot control slack]
+  - soft-constraint: [{z-coord: l_rot_control}, {z-coord: l_rot_control}, weight_rot_control, {z-coord: {rot-vector: l_rot}}, left EE z-rot control slack]
+
+hard-constraints: [] # no hard constraints used in this motion
+

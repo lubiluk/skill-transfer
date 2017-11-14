@@ -10,7 +10,7 @@ objects:
 motion-phases:
   - name: "Position Above"
     # Giskard file
-    file: "motions/position_above.yaml"
+    file: "position_above.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
@@ -24,7 +24,7 @@ motion-phases:
     stop-activation-distance: 0.15
   - name: "Edge Contact"
     # Giskard file
-    file: "motions/edge_contact.yaml"
+    file: "edge_contact.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
@@ -37,7 +37,7 @@ motion-phases:
     # from the target configuration is less than this
     stop-activation-distance: 0.015
   - name: "Scrape Off"
-    file: "motions/scrape_off.yaml"
+    file: "scrape_off.yaml"
     stop:
       measured-velocity-min-threshold: 0.02
       desired-velocity-min-threshold: 0.02

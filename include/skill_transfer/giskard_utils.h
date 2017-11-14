@@ -22,9 +22,11 @@ inline KDL::Jacobian getJacobian(const giskard_core::QPController &controller,
 
   controlled_frame->setInputValues(eigenVectorToStdVector(observables));
   controlled_frame->value();
+  
+  const auto size = observables.size();
 
-  KDL::Jacobian jac(15);
-  for (size_t i = 0; i < 15; ++i)
+  KDL::Jacobian jac(size);
+  for (size_t i = 0; i < size; ++i)
     jac.setColumn(i, controlled_frame->derivative(i));
 
   return jac;
