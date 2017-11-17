@@ -44,6 +44,7 @@
         <!-- Left Gripper -->
         <include>
             <uri>model://gripper</uri>
+            <name>left_ee</name>
             <pose>0 0.5 1 0 0 0</pose>
             
             <plugin name="l_force_controller" filename="libforce_controller_plugin.so">
@@ -64,6 +65,7 @@
         <!-- Right Gripper -->
         <include>
             <uri>model://gripper</uri>
+            <name>right_ee</name>
             <pose>0 -0.5 1 0 0 0</pose>
             
 <!--            <plugin name="r_force_controller" filename="libposition_controller_plugin.so">-->

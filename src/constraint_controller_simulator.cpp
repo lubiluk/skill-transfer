@@ -63,8 +63,8 @@ public:
     // Link state map
     auto link_states_map = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
     
-    const auto left_ee_pose = link_states_map.find("left_ee")->second;
-    const auto right_ee_pose = link_states_map.find("right_ee")->second; 
+    const auto left_ee_pose = link_states_map.find("left_ee::link")->second;
+    const auto right_ee_pose = link_states_map.find("right_ee::link")->second; 
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -74,7 +74,7 @@ public:
       Eigen::VectorXd inputs(12);
       inputs.segment(0, 6) = msgPoseToEigenVector(left_ee_pose);
       inputs.segment(6, 6) = msgPoseToEigenVector(right_ee_pose);
-
+      
       // Start the controller if it's a new one
       if (!giskard_adapter_.controller_started_)
       {
@@ -84,9 +84,9 @@ public:
       // Get new calculations from the controller
       giskard_adapter_.updateController(inputs);
       
-      const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "gripper-frame");
+      const auto ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "gripper-frame");
     
-      pub_ee_.publish(ee_twist_desired);
+      pub_ee_.publish(ee_twist_desired_msg);
 
       feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);

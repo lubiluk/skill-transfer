@@ -18,17 +18,25 @@ scope:
         
   - right_ee:
       frame-mul:
-        - frame: [identity-rot, {vector3: [{input-var: 0}, 0, 0]}]
-        - frame: [identity-rot, {vector3: [0, {input-var: 1}, 0]}]
-        - frame: [identity-rot, {vector3: [0, 0, {input-var: 2}]}]
-        - frame: [{axis-angle: [unit-z, {input-var: 3}]}, zero-vec]
-        - frame: [{axis-angle: [unit-y, {input-var: 4}]}, zero-vec]
-        - frame: [{axis-angle: [unit-x, {input-var: 5}]}, zero-vec]
+        - frame: [identity-rot, {vector3: [{input-var: 6}, 0, 0]}]
+        - frame: [identity-rot, {vector3: [0, {input-var: 7}, 0]}]
+        - frame: [identity-rot, {vector3: [0, 0, {input-var: 8}]}]
+        - frame: [{axis-angle: [unit-z, {input-var: 9}]}, zero-vec]
+        - frame: [{axis-angle: [unit-y, {input-var: 10}]}, zero-vec]
+        - frame: [{axis-angle: [unit-x, {input-var: 11}]}, zero-vec]
       
   # control params
   - rot_p_gain: 3.0
   - rot_thresh: 0.1
   - weight_rot_control: 1
+  - l_trans_vel_min: -0.3
+  - l_trans_vel_max: 0.3
+  - l_rot_vel_min: -0.5
+  - l_rot_vel_max: 0.5
+  - r_trans_vel_min: 0
+  - r_trans_vel_max: 0
+  - r_rot_vel_min: 0
+  - r_rot_vel_max: 0
   
   # some constants
   - controllable-weight: 0.001 # mu * 1
@@ -80,19 +88,19 @@ scope:
 
 controllable-constraints:
   # left arm joints
-  - controllable-constraint: [0, 0, controllable-weight, 0, gripper_pos_x]
-  - controllable-constraint: [0, 0, controllable-weight, 1, gripper_pos_y]
-  - controllable-constraint: [0, 0, controllable-weight, 2, gripper_pos_z]
-  - controllable-constraint: [0, 0, controllable-weight, 3, gripper_rot_x]
-  - controllable-constraint: [0, 0, controllable-weight, 4, gripper_rot_y]
-  - controllable-constraint: [0, 0, controllable-weight, 5, gripper_rot_z]
+  - controllable-constraint: [l_trans_vel_min, l_trans_vel_max, controllable-weight, 0, l_gripper_pos_x]
+  - controllable-constraint: [l_trans_vel_min, l_trans_vel_max, controllable-weight, 1, l_gripper_pos_y]
+  - controllable-constraint: [l_trans_vel_min, l_trans_vel_max, controllable-weight, 2, l_gripper_pos_z]
+  - controllable-constraint: [l_rot_vel_min, l_rot_vel_max, controllable-weight, 3, l_gripper_rot_x]
+  - controllable-constraint: [l_rot_vel_min, l_rot_vel_max, controllable-weight, 4, l_gripper_rot_y]
+  - controllable-constraint: [l_rot_vel_min, l_rot_vel_max, controllable-weight, 5, l_gripper_rot_z]
   # right arm joints
-  - controllable-constraint: [-0.3, 0.3, controllable-weight, 6, gripper_pos_x]
-  - controllable-constraint: [-0.3, 0.3, controllable-weight, 7, gripper_pos_y]
-  - controllable-constraint: [-0.3, 0.3, controllable-weight, 8, gripper_pos_z]
-  - controllable-constraint: [-0.5, 0.5, controllable-weight, 9, gripper_rot_x]
-  - controllable-constraint: [-0.5, 0.5, controllable-weight, 10, gripper_rot_y]
-  - controllable-constraint: [-0.5, 0.5, controllable-weight, 11, gripper_rot_z]
+  - controllable-constraint: [r_trans_vel_min, r_trans_vel_max, controllable-weight, 6, r_gripper_pos_x]
+  - controllable-constraint: [r_trans_vel_min, r_trans_vel_max, controllable-weight, 7, r_gripper_pos_y]
+  - controllable-constraint: [r_trans_vel_min, r_trans_vel_max, controllable-weight, 8, r_gripper_pos_z]
+  - controllable-constraint: [r_rot_vel_min, r_rot_vel_max, controllable-weight, 9, r_gripper_rot_x]
+  - controllable-constraint: [r_rot_vel_min, r_rot_vel_max, controllable-weight, 10, r_gripper_rot_y]
+  - controllable-constraint: [r_rot_vel_min, r_rot_vel_max, controllable-weight, 11, r_gripper_rot_z]
 
 soft-constraints: 
   - soft-constraint: 

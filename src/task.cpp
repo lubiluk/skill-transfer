@@ -3,6 +3,7 @@
 #include <yaml-cpp/yaml.h>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <iostream>
 
 Task::Task() : current_phase_index_(0)
 {
@@ -55,6 +56,10 @@ std::string Task::getCurrentPhaseSpec()
   const auto &phase = phases[current_phase_index_];
   boost::filesystem::path dir_path(motion_directory_path);
   const auto path = dir_path / phase.file_path;
+  
+  if (!boost::filesystem::exists(path)) {
+    throw std::runtime_error("File not found: " + path.string());
+  }
   
   boost::filesystem::ifstream file(path);
   std::stringstream buffer;
