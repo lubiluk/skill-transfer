@@ -26,7 +26,8 @@ public:
     sub_ = nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::onLinkStatesMsg, this);
     // Topic for simulation and executive node, since they only
     // care about the end effector velocity and not about joint velocities
-    pub_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_ee_twist", 1);
+    pub_l_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
+    pub_r_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_r_ee_twist", 1);
     // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
@@ -84,9 +85,11 @@ public:
       // Get new calculations from the controller
       giskard_adapter_.updateController(inputs);
       
-      const auto ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "gripper-frame");
+      const auto l_ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
+      const auto r_ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "right_ee");
     
-      pub_ee_.publish(ee_twist_desired_msg);
+      pub_l_ee_.publish(l_ee_twist_desired_msg);
+      pub_r_ee_.publish(r_ee_twist_desired_msg);
 
       feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);
@@ -102,7 +105,8 @@ public:
     else
     {
       const geometry_msgs::Twist cmd;
-      pub_ee_.publish(cmd);
+      pub_l_ee_.publish(cmd);
+      pub_r_ee_.publish(cmd);
     } 
 
     // ROS_INFO_STREAM("Twist: " << cmd.twist);
@@ -113,8 +117,8 @@ protected:
   actionlib::SimpleActionServer<skill_transfer::MoveArmAction> as_;
   std::string action_name_;
   ros::Subscriber sub_;
-  ros::Publisher pub_ee_;
-  ros::Publisher pub_ee_measured_;
+  ros::Publisher pub_l_ee_;
+  ros::Publisher pub_r_ee_;
   ros::Publisher pub_viz_;
   std::string constraints_;
   skill_transfer::MoveArmFeedback feedback_;

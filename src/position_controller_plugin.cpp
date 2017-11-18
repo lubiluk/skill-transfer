@@ -55,9 +55,9 @@ public:
     this->pid_linear_x_ = common::PID(P_, I_, D_, 1000, -1000);
     this->pid_linear_y_ = common::PID(P_, I_, D_, 1000, -1000);
     this->pid_linear_z_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_x_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_y_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_z_ = common::PID(P_, I_, D_, 1000, -1000);
+    this->pid_angular_x_ = common::PID(P_*10, I_, D_*10, 1000, -1000);
+    this->pid_angular_y_ = common::PID(P_*10, I_, D_*10, 1000, -1000);
+    this->pid_angular_z_ = common::PID(P_*10, I_, D_*10, 1000, -1000);
   }
   
   void UpdateChild(const common::UpdateInfo &_info)
@@ -85,27 +85,34 @@ public:
     
     const auto current_pose = this->link_->GetWorldPose();
     const math::Pose desired_pose = math::Pose(
-      math::Vector3(transformStamped.transform.translation.x, transformStamped.transform.translation.y, transformStamped.transform.translation.z), 
-      math::Quaternion(transformStamped.transform.rotation.w, transformStamped.transform.rotation.x, transformStamped.transform.rotation.y, transformStamped.transform.rotation.z));
+      math::Vector3(transformStamped.transform.translation.x, 
+                    transformStamped.transform.translation.y, 
+                    transformStamped.transform.translation.z), 
+      math::Quaternion(transformStamped.transform.rotation.w, 
+                       transformStamped.transform.rotation.x, 
+                       transformStamped.transform.rotation.y, 
+                       transformStamped.transform.rotation.z)
+    );
     math::Vector3 force;
     math::Vector3 torque;
     
-//    force.x = this->pid_linear_x_.Update(current_pose.pos.x - desired_pose.pos.x, _delta_time);
-//    force.y = this->pid_linear_y_.Update(current_pose.pos.y - desired_pose.pos.y, _delta_time);
-//    force.z = this->pid_linear_z_.Update(current_pose.pos.z - desired_pose.pos.z, _delta_time);
+    force.x = this->pid_linear_x_.Update(current_pose.pos.x - desired_pose.pos.x, _delta_time);
+    force.y = this->pid_linear_y_.Update(current_pose.pos.y - desired_pose.pos.y, _delta_time);
+    force.z = this->pid_linear_z_.Update(current_pose.pos.z - desired_pose.pos.z, _delta_time);
     
 //    ROS_INFO_STREAM("Current pos: " << current_pose.pos.x << " " << current_pose.pos.y << " " << current_pose.pos.z);
 //    ROS_INFO_STREAM("Desired pos: " << desired_pose.pos.x << " " << desired_pose.pos.y << " " << desired_pose.pos.z);
 //    ROS_INFO_STREAM("Error: " << current_pose.pos.y - desired_pose.pos.y);
-////    
-//    torque.x = this->pid_angular_x_.Update(current_pose.rot.x - transformStamped.transform.rotation.x, _delta_time);
-//    torque.y = this->pid_angular_y_.Update(current_pose.rot.y - transformStamped.transform.rotation.y, _delta_time);
-//    torque.z = this->pid_angular_z_.Update(current_pose.rot.z - transformStamped.transform.rotation.z, _delta_time);
-//    
-//    this->link_->SetForce(force);
-//    this->link_->SetTorque(torque);
+//    ROS_INFO_STREAM("Force: " << force);
+    
+    torque.x = this->pid_angular_x_.Update(current_pose.rot.x - transformStamped.transform.rotation.x, _delta_time);
+    torque.y = this->pid_angular_y_.Update(current_pose.rot.y - transformStamped.transform.rotation.y, _delta_time);
+    torque.z = this->pid_angular_z_.Update(current_pose.rot.z - transformStamped.transform.rotation.z, _delta_time);
+    
+    this->link_->SetForce(force);
+    this->link_->SetTorque(torque);
 
-    this->link_->SetWorldPose(desired_pose);
+//    this->link_->SetWorldPose(desired_pose);
   }
   
 private:

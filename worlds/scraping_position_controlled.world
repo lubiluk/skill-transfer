@@ -46,12 +46,12 @@
             <uri>model://gripper</uri>
             <pose>0 0.5 1 0 0 0</pose>
             
-            <plugin name="l_force_controller" filename="libposition_controller_plugin.so">
+            <plugin name="l_position_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
               <referenceFrameName>base_link</referenceFrameName>
               <targetFrameName>l_gripper_tool_frame</targetFrameName>
-              <P>50.0</P>
-              <I>50.0</I>
+              <P>400.0</P>
+              <I>0.0</I>
               <D>50.0</D>
             </plugin>
             
@@ -67,12 +67,12 @@
             <uri>model://gripper</uri>
             <pose>0 -0.5 1 0 0 0</pose>
             
-            <plugin name="r_force_controller" filename="libposition_controller_plugin.so">
+            <plugin name="r_position_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
               <referenceFrameName>base_link</referenceFrameName>
               <targetFrameName>r_gripper_tool_frame</targetFrameName>
-              <P>50.0</P>
-              <I>50.0</I>
+              <P>400.0</P>
+              <I>0.0</I>
               <D>50.0</D>
             </plugin>
             

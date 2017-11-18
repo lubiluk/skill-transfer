@@ -42,10 +42,10 @@ add_action_files(DIRECTORY action FILES
 )
 
 ## Add messages
-add_message_files(
-  FILES
-  ControllerPoints.msg
-)
+#add_message_files(
+#  FILES
+#  ControllerPoints.msg
+#)
 
 ## Generate messages
 generate_messages(
@@ -102,8 +102,8 @@ target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Force controller Gazebo plugin
-add_library(force_controller_plugin src/force_controller_plugin.cpp)
-target_link_libraries(force_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+add_library(velocity_controller_plugin src/velocity_controller_plugin.cpp)
+target_link_libraries(velocity_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Force controller Gazebo plugin
 add_library(position_controller_plugin src/position_controller_plugin.cpp)

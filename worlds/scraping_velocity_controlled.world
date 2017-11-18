@@ -47,12 +47,12 @@
             <name>left_ee</name>
             <pose>0 0.5 1 0 0 0</pose>
             
-            <plugin name="l_force_controller" filename="libforce_controller_plugin.so">
+            <plugin name="l_force_controller" filename="libvelocity_controller_plugin.so">
               <linkName>link</linkName>
-              <topicName>set_ee_twist</topicName>
-              <P>400.0</P>
+              <topicName>set_l_ee_twist</topicName>
+              <P>100.0</P>
               <I>0.0</I>
-              <D>0.0</D>
+              <D>25</D>
             </plugin>
             
             <plugin name="l_grip" filename="libGripPlugin.so">
@@ -68,13 +68,13 @@
             <name>right_ee</name>
             <pose>0 -0.5 1 0 0 0</pose>
             
-<!--            <plugin name="r_force_controller" filename="libposition_controller_plugin.so">-->
-<!--              <linkName>link</linkName>-->
-<!--              <topicName>set_gripper_twist</topicName>-->
-<!--              <P>4.0</P>-->
-<!--              <I>0.0</I>-->
-<!--              <D>0.0</D>-->
-<!--            </plugin>-->
+            <plugin name="r_force_controller" filename="libposition_controller_plugin.so">
+              <linkName>link</linkName>
+              <topicName>set_r_gripper_twist</topicName>
+              <P>100.0</P>
+              <I>0.0</I>
+              <D>25.0</D>
+            </plugin>
             
             <plugin name="r_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
