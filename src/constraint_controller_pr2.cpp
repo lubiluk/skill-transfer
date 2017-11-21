@@ -2,7 +2,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <skill_transfer/MoveArmAction.h>
 #include <geometry_msgs/Twist.h>
-#include <gazebo_msgs/LinkStates.h>
+#include <sensor_msgs/JointState.h>
 #include <visualization_msgs/Marker.h>
 #include <giskard_core/giskard_core.hpp>
 #include "skill_transfer/conversions.h"
@@ -23,11 +23,13 @@ public:
     as_.registerPreemptCallback(boost::bind(&ConstraintController::onPreempt, this));
 
     //subscribe to the data topic of interest
-    sub_ = nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::onLinkStatesMsg, this);
+    sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::onJointStatesMsg, this);
+    
+    // Topic for real PR2 commands (joint velocities)
+    pub_ = nh_.advertise<sensor_msgs::JointState>("/pr2/commands", 1);
     // Topic for simulation and executive node, since they only
     // care about the end effector velocity and not about joint velocities
-    pub_l_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
-    pub_r_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_r_ee_twist", 1);
+    pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
     // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 
@@ -43,9 +45,6 @@ public:
     // Accept goal and get new constraints
     const auto goal = as_.acceptNewGoal();
     constraints_ = goal->constraints;
-    gripper_link_name_ = goal->gripper_link_name;
-    tool_link_name_ = goal->tool_link_name;
-    utility_link_name_ = goal->utility_link_name;  
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
     
@@ -59,23 +58,65 @@ public:
     as_.setPreempted();
   }
 
-  void onLinkStatesMsg(const gazebo_msgs::LinkStatesConstPtr &msg)
+  void onJointStatesMsg(const sensor_msgs::JointStateConstPtr &msg)
   {
     // Link state map
-    auto link_states_map = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
+    auto joint_positions_map = toMap<std::string, double>(msg->name, msg->position);
+    auto joint_velocities_map = toMap<std::string, double>(msg->name, msg->velocity); 
     
-    const auto left_ee_pose = link_states_map.find("left_ee::link")->second;
-    const auto right_ee_pose = link_states_map.find("right_ee::link")->second; 
+    std::vector<std::string> joint_names {
+      "torso_lift_joint",
+      "l_shoulder_pan_joint",
+      "l_shoulder_lift_joint",
+      "l_upper_arm_roll_joint",
+      "l_elbow_flex_joint",
+      "l_forearm_roll_joint",
+      "l_wrist_flex_joint",
+      "l_wrist_roll_joint",
+      "r_shoulder_pan_joint",
+      "r_shoulder_lift_joint",
+      "r_upper_arm_roll_joint",
+      "r_elbow_flex_joint",
+      "r_forearm_roll_joint",
+      "r_wrist_flex_joint",
+      "r_wrist_roll_joint"
+    };
+    
+    auto joint_count = joint_names.size();
+    
+    std::vector<double> joint_positions(joint_count);
+    std::vector<double> joint_velocities(joint_count);
+    
+    std::transform(joint_names.begin(), joint_names.end(), joint_positions.begin(),
+      [&joint_positions_map](std::string &n) {
+        return joint_positions_map.find(n)->second;
+      });   
+      
+    std::transform(joint_names.begin(), joint_names.end(), joint_velocities.begin(),
+      [&joint_velocities_map](std::string &n) {
+        return joint_velocities_map.find(n)->second;
+      });    
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
     if (as_.isActive())
     {
       // Prepare controller inputs
-      Eigen::VectorXd inputs(12);
-      inputs.segment(0, 6) = msgPoseToEigenVector(left_ee_pose);
-      inputs.segment(6, 6) = msgPoseToEigenVector(right_ee_pose);
+
+      Eigen::VectorXd inputs(joint_count);
       
+      for(int i = 0; i < joint_count; ++i)
+      {
+        inputs(i) = joint_positions[i];
+      }
+
+      Eigen::VectorXd velocities(joint_count);
+      
+      for(int i = 0; i < joint_count; ++i)
+      {
+        velocities(i) = joint_velocities[i];
+      }
+
       // Start the controller if it's a new one
       if (!giskard_adapter_.controller_started_)
       {
@@ -84,12 +125,12 @@ public:
 
       // Get new calculations from the controller
       giskard_adapter_.updateController(inputs);
-      
-      const auto l_ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
-      const auto r_ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "right_ee");
-    
-      pub_l_ee_.publish(l_ee_twist_desired_msg);
-      pub_r_ee_.publish(r_ee_twist_desired_msg);
+
+      const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "gripper-frame");
+      const auto cmd = giskard_adapter_.getDesiredJointVelocityMsg();
+
+      pub_.publish(cmd);
+      pub_gripper_.publish(ee_twist_desired);
 
       feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);
@@ -104,9 +145,16 @@ public:
     }
     else
     {
-      const geometry_msgs::Twist cmd;
-      pub_l_ee_.publish(cmd);
-      pub_r_ee_.publish(cmd);
+      Eigen::VectorXd velocities(joint_count);
+      
+      for(int i = 0; i < joint_count; ++i)
+      {
+        velocities(i) = 0.0;
+      }
+      
+      auto cmd = eigenVectorToMsgJointState(velocities);
+
+      pub_.publish(cmd);
     } 
 
     // ROS_INFO_STREAM("Twist: " << cmd.twist);
@@ -117,14 +165,12 @@ protected:
   actionlib::SimpleActionServer<skill_transfer::MoveArmAction> as_;
   std::string action_name_;
   ros::Subscriber sub_;
-  ros::Publisher pub_l_ee_;
-  ros::Publisher pub_r_ee_;
+  ros::Publisher pub_;
+  ros::Publisher pub_gripper_;
+  ros::Publisher pub_gripper_measured_;
   ros::Publisher pub_viz_;
   std::string constraints_;
   skill_transfer::MoveArmFeedback feedback_;
-  std::string gripper_link_name_;
-  std::string tool_link_name_;
-  std::string utility_link_name_;
   GiskardAdapter giskard_adapter_;
 };
 

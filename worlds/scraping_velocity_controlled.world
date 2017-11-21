@@ -66,7 +66,7 @@
         <include>
             <uri>model://gripper</uri>
             <name>right_ee</name>
-            <pose>0 -0.5 1 0 0 0</pose>
+            <pose>0 -0.5 1 1.547368 1.402341 1.343703</pose>
             
             <plugin name="r_force_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
@@ -95,7 +95,7 @@
 
         <gui>
             <camera name='user_camera'>
-                <pose>0.892691 1.54384 1.57989 -1.4918e-17 0.375643 -2.675</pose>
+                <pose>1.700789 1.175709 1.670612 0 0.375643 -2.675000</pose>
                 <view_controller>orbit</view_controller>
             </camera>
         </gui>

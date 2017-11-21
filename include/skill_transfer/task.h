@@ -1,14 +1,9 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <yaml-cpp/yaml.h>
 #include <vector>
 #include <string>
-
-struct SceneObjects {
-  std::string gripper_link_name;
-  std::string tool_link_name;
-  std::string utility_link_name;
-};
 
 struct StopCondition {
   double measured_velocity_min;
@@ -28,9 +23,8 @@ class Task
 public:
   Task();
   
-  void load(std::string file_path);
+  void load(std::string task_file_path, std::string motion_template_file_path);
   std::string name;
-  SceneObjects scene_objects;
   std::vector<MotionPhase> phases;
   std::string motion_directory_path;
   
@@ -41,6 +35,7 @@ public:
   
 private:
   unsigned int current_phase_index_;
+  YAML::Node motion_template_;
 };
 
 #endif // TASK_H

@@ -1,27 +1,21 @@
 #include "skill_transfer/task.h"
 
-#include <yaml-cpp/yaml.h>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <iostream>
 
 Task::Task() : current_phase_index_(0)
 {
 
 }
 
-void Task::load(std::string file_name)
+void Task::load(std::string task_file_path, std::string motion_template_file_path)
 {
-  YAML::Node spec = YAML::LoadFile(file_name);
-  
+  const YAML::Node spec = YAML::LoadFile(task_file_path);
+  this->motion_template_ = YAML::LoadFile(motion_template_file_path);
+   
   this->name = spec["name"].as<std::string>();
   
   const auto &objectSpecs = spec["objects"];
-  
-  this->scene_objects.gripper_link_name = objectSpecs["gripper-link-name"].as<std::string>();
-  this->scene_objects.tool_link_name = objectSpecs["tool-link-name"].as<std::string>();
-  this->scene_objects.utility_link_name = objectSpecs["utility-link-name"].as<std::string>();
-  
   const auto &phaseSpecs = spec["motion-phases"];
   
   for (std::size_t i=0; i < phaseSpecs.size(); ++i) {
@@ -61,11 +55,25 @@ std::string Task::getCurrentPhaseSpec()
     throw std::runtime_error("File not found: " + path.string());
   }
   
-  boost::filesystem::ifstream file(path);
-  std::stringstream buffer;
-  buffer << file.rdbuf();
+  const YAML::Node phase_spec = YAML::LoadFile(path.string());
+  auto motion_spec = YAML::Clone(motion_template_);
   
-  return buffer.str();
+  // Merge the template and the motion spec
+  auto motion_spec_scope = motion_spec["scope"];
+  YAML::Node scope = phase_spec["scope"];
+  const auto constraints = phase_spec["soft-constraints"];
+  
+  for(const auto n : scope) {
+    motion_spec_scope.push_back(n);
+  }
+  
+  motion_spec["soft-constraints"] = constraints;
+  
+  YAML::Emitter out;
+  
+  out << motion_spec;
+  
+  return std::string {out.c_str()};
 }
 
 MotionPhase Task::getCurrentPhase()

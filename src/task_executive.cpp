@@ -29,8 +29,14 @@ public:
       throw std::runtime_error("Could not find parameter 'motion_directory' in namespace '" + nh_.getNamespace() + "'.");
     }
     
+    std::string motiom_template_file_path;
+    if ( !nh_.getParam("motiom_template_file_path", motiom_template_file_path) )
+    {
+      throw std::runtime_error("Could not find parameter 'motiom_template_file' in namespace '" + nh_.getNamespace() + "'.");
+    }
+    
     task_.motion_directory_path = motion_directory;
-    task_.load(task_file_path_);
+    task_.load(task_file_path_, motiom_template_file_path);
     
     ROS_INFO_STREAM("Task: " << task_.name);
     ROS_INFO_STREAM("Phases: " << task_.phases.size());
@@ -41,7 +47,7 @@ public:
 
     link_state_sub_ = nh_.subscribe("/ee_twist", 1,
                                     &TaskExecutive::onEeTwistMsg, this);
-    set_link_state_sub_ = nh_.subscribe("/set_ee_twist", 1,
+    set_link_state_sub_ = nh_.subscribe("/set_l_ee_twist", 1,
                                         &TaskExecutive::onSetEeTwistMsg, this);
                                         
     tool_contact_sensor_state_sub_ = nh_.subscribe("/tool_contact_sensor_state", 1,
@@ -125,9 +131,6 @@ protected:
     command_log_.clear();
 
     skill_transfer::MoveArmGoal goal;
-    goal.gripper_link_name = task_.scene_objects.gripper_link_name;
-    goal.tool_link_name = task_.scene_objects.tool_link_name;
-    goal.utility_link_name = task_.scene_objects.utility_link_name;
     goal.constraints = task_.getCurrentPhaseSpec();
 
     ROS_INFO("Sending new goal.");

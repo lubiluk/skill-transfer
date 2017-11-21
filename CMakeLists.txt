@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   gazebo_ros
   sensor_msgs
+  SDFormat
 )
 
 ## Find Boost
@@ -76,27 +77,28 @@ include_directories(
   ${YAML_CPP_INCLUDE_DIRS}
 )
 
-## Constraint controller for PR2 robot
-add_executable(constraint_controller_robot 
-  src/constraint_controller_robot.cpp
+## Constraint controller for PR2 pr2
+add_executable(constraint_controller_pr2 
+  src/constraint_controller_pr2.cpp
   src/giskard_adapter.cpp
 )
-target_link_libraries(constraint_controller_robot ${catkin_LIBRARIES})
-add_dependencies(constraint_controller_robot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(constraint_controller_pr2 ${catkin_LIBRARIES})
+add_dependencies(constraint_controller_pr2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Constraint controller for gazebo simulator
-add_executable(constraint_controller_simulator 
-  src/constraint_controller_simulator.cpp
+## Constraint controller for gazebo free_ees
+add_executable(constraint_controller_free_ees 
+  src/constraint_controller_free_ees.cpp
   src/giskard_adapter.cpp
 )
-target_link_libraries(constraint_controller_simulator ${catkin_LIBRARIES})
-add_dependencies(constraint_controller_simulator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(constraint_controller_free_ees ${catkin_LIBRARIES})
+add_dependencies(constraint_controller_free_ees ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Task executive
 add_executable(task_executive 
   src/task_executive.cpp 
   src/twist_log.cpp
   src/task.cpp
+  
 )
 target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
