@@ -31,6 +31,9 @@ bool TwistLog::allFilledAndBelowThreshold(double threshold)
                      [threshold](const geometry_msgs::Twist &t) {
                        return (std::abs(t.linear.x) < threshold) &&
                               (std::abs(t.linear.y) < threshold) &&
-                              (std::abs(t.linear.z) < threshold);
+                              (std::abs(t.linear.z) < threshold) &&
+                              (std::abs(t.angular.x) < threshold) &&
+                              (std::abs(t.angular.y) < threshold) &&
+                              (std::abs(t.angular.z) < threshold);
                      });
 }
