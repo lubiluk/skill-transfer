@@ -35,7 +35,7 @@ motion-phases:
       contact: true
     # Ignore stop conditions until the distance 
     # from the target configuration is less than this
-    stop-activation-distance: 0.015
+    stop-activation-distance: 0.15
   - name: "Scrape Off"
     file: "scrape_off.yaml"
     stop:
