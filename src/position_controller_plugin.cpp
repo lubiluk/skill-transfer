@@ -55,9 +55,9 @@ public:
     this->pid_linear_x_ = common::PID(P_, I_, D_, 1000, -1000);
     this->pid_linear_y_ = common::PID(P_, I_, D_, 1000, -1000);
     this->pid_linear_z_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_x_ = common::PID(P_*10, I_, D_*10, 1000, -1000);
-    this->pid_angular_y_ = common::PID(P_*10, I_, D_*10, 1000, -1000);
-    this->pid_angular_z_ = common::PID(P_*10, I_, D_*10, 1000, -1000);
+    this->pid_angular_x_ = common::PID(P_, I_, D_, 1000, -1000);
+    this->pid_angular_y_ = common::PID(P_, I_, D_, 1000, -1000);
+    this->pid_angular_z_ = common::PID(P_, I_, D_, 1000, -1000);
   }
   
   void UpdateChild(const common::UpdateInfo &_info)

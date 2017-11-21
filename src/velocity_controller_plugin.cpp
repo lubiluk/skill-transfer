@@ -13,7 +13,7 @@ namespace gazebo
 class ForceControllerPlugin : public ModelPlugin
 {
 public:
-  ForceControllerPlugin() : ModelPlugin(), P_(0.0), I_(0.0), D_(0.0)
+  ForceControllerPlugin() : ModelPlugin()
   {
   }
   
@@ -35,9 +35,16 @@ public:
     // SDF values
     this->link_name_ = _sdf->GetElement("linkName")->Get<std::string>();
     this->topic_name_ = _sdf->GetElement("topicName")->Get<std::string>();
-    this->P_ = _sdf->GetElement("P")->Get<double>();
-    this->I_ = _sdf->GetElement("I")->Get<double>();
-    this->D_ = _sdf->GetElement("D")->Get<double>();
+    
+    const auto gains = _sdf->GetElement("gains");
+    const auto linearGains = gains->GetElement("linear");
+    this->linear_P_ = linearGains->GetElement("P")->Get<double>();
+    this->linear_I_ = linearGains->GetElement("I")->Get<double>();
+    this->linear_D_ = linearGains->GetElement("D")->Get<double>();
+    const auto angularGains = gains->GetElement("angular");
+    this->angular_P_ = angularGains->GetElement("P")->Get<double>();
+    this->angular_I_ = angularGains->GetElement("I")->Get<double>();
+    this->angular_D_ = angularGains->GetElement("D")->Get<double>();
     
     // Link
     this->link_ = _parent->GetLink(this->link_name_);
@@ -57,12 +64,12 @@ public:
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&ForceControllerPlugin::UpdateChild, this, _1));
     
-    this->pid_linear_x_ = common::PID(P_, I_, D_);
-    this->pid_linear_y_ = common::PID(P_, I_, D_);
-    this->pid_linear_z_ = common::PID(P_, I_, D_);
-    this->pid_angular_x_ = common::PID(P_, I_, D_);
-    this->pid_angular_y_ = common::PID(P_, I_, D_);
-    this->pid_angular_z_ = common::PID(P_, I_, D_);
+    this->pid_linear_x_ = common::PID(linear_P_, linear_I_, linear_D_);
+    this->pid_linear_y_ = common::PID(linear_P_, linear_I_, linear_D_);
+    this->pid_linear_z_ = common::PID(linear_P_, linear_I_, linear_D_);
+    this->pid_angular_x_ = common::PID(angular_P_, angular_I_, angular_D_);
+    this->pid_angular_y_ = common::PID(angular_P_, angular_I_, angular_D_);
+    this->pid_angular_z_ = common::PID(angular_P_, angular_I_, angular_D_);
   }
   
   void UpdateObjectVelocity(const geometry_msgs::Twist::ConstPtr& _msg)
@@ -80,6 +87,9 @@ public:
   void UpdateChild(const common::UpdateInfo &_info)
   {
     const auto current_sim_time = _info.simTime;
+    
+    if (current_sim_time < 1) return;
+    
     const auto delta_sim_time = current_sim_time - this->previous_sim_time_;
     
     UpdateObjectForces(delta_sim_time);
@@ -126,9 +136,12 @@ private:
   common::PID pid_angular_z_;
   common::Time previous_sim_time_;
   // Setup a P-controller
-  double P_;
-  double I_;
-  double D_;
+  double linear_P_;
+  double linear_I_;
+  double linear_D_;
+  double angular_P_;
+  double angular_I_;
+  double angular_D_;
   
   void QueueThread()
   {
