@@ -31,19 +31,19 @@
         </include>
         
         <include>
-            <uri>model://butter_box</uri>
-            <pose>0.208221 0.534198 0.991390 1.634659 1.569999 -0.001148</pose>
-            <plugin name="stick" filename="libStickPlugin.so">
-              <parentLinkName>link</parentLinkName>
-              <childLinkName>iai_spatula::link</childLinkName>
-              <force>5</force>
-            </plugin>
-        </include>
-        
-        <include>
             <uri>model://iai_big_bowl</uri>
             <pose>0.024164 -0.383989 0.959287 -0.017186 -0.000884 -0.101566</pose>
         </include>
+        
+        <plugin name="grains_factory" filename="libGrainsFactoryPlugin.so">
+            <pose>0.024164 -0.383989 0.959287 0 0 0</pose>
+            <mass>0.001</mass>
+            <radius>0.015</radius>
+            <quantity>100</quantity>
+            <friction>0.4</friction>
+            <friction2>0.4</friction2>
+            <velocity_decay>0.3</velocity_decay>
+        </plugin>
 
         <!-- Left Gripper -->
         <include>

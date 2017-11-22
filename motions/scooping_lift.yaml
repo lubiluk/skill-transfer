@@ -1,0 +1,74 @@
+scope:
+  # weights
+  - controllable-weight: 0.001 # mu * 1
+  - constraint-weight: 10.001 # mu + 10
+  
+  # definition of object frames 
+  - gripper-frame:
+      left_ee
+  - utility-frame:
+     frame-mul:
+       - right_ee  
+       - frame:
+          - quaternion: [-0.171777970707, -0.685860866607, -0.0174027448572, 0.706954273563]
+          - vector3: [0.06, 0.11, 0]
+  - tool-gripper-frame:
+      frame:
+        - quaternion: [-0.0500550264148, 0.705614610626, 0.700932017793, -0.0910868927763] # x, y, z, w
+        - vector3: [0.14, 0.028, -0.02] # x, y, z
+  - tool-frame:
+      frame-mul: [gripper-frame, tool-gripper-frame]
+
+  # definition of features
+  - tool-point: 
+      transform-vector:
+        - tool-frame
+        - {vector3: [-0.1149, -0.005, -0.0118]}       
+  - utility-point: {transform-vector: [utility-frame, {vector3: [0.018, -0.04, 0.245]}]}
+
+  # expressions used in constraints 
+  - distance: {vector-sub: [utility-point, tool-point]}
+  
+  - l_goal_rot: 
+      rotation-mul: 
+        - {axis-angle: [unit-z, 1.57]}
+        - {axis-angle: [unit-y, -0.3]}
+        - {axis-angle: [unit-x, 3.14]}
+  - l_rot: {orientation-of: tool-frame}
+  - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
+  - l_rot_scaling: 
+      double-if:
+      - {double-sub: [rot_thresh, l_rot_error]}
+      - 1
+      - {double-div: [rot_thresh, l_rot_error]}
+  - l_intermediate_goal_rot:
+      slerp:
+      - l_rot
+      - l_goal_rot
+      - l_rot_scaling
+  - l_rot_control:
+      scale-vector: [rot_p_gain, {rotate-vector: [l_rot, {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_intermediate_goal_rot]}}]}]
+
+soft-constraints: 
+  - soft-constraint: 
+      - {double-sub: [-0.005, {x-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.005, {x-coord: distance}]} # control law for upper boundary
+      - constraint-weight # weight of this constraint
+      - {x-coord: distance} # expression used for Jacobian calcuation
+      - contact_x # name of expression reported
+  - soft-constraint: 
+      - {double-sub: [-0.005, {y-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.005, {y-coord: distance}]} # control law for upper boundary
+      - constraint-weight # weight of this constraint
+      - {y-coord: distance} # expression used for Jacobian calcuation
+      - contact_y # name of expression reported
+  - soft-constraint: 
+      - {double-sub: [-0.005, {z-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.005, {z-coord: distance}]} # control law for upper boundary
+      - constraint-weight # weight of this constraint
+      - {z-coord: distance} # expression used for Jacobian calcuation
+      - contact_z # name of expression reported
+  - soft-constraint: [{x-coord: l_rot_control}, {x-coord: l_rot_control}, weight_rot_control, {x-coord: {rot-vector: l_rot}}, left EE x-rot control slack]
+  - soft-constraint: [{y-coord: l_rot_control}, {y-coord: l_rot_control}, weight_rot_control, {y-coord: {rot-vector: l_rot}}, left EE y-rot control slack]
+  - soft-constraint: [{z-coord: l_rot_control}, {z-coord: l_rot_control}, weight_rot_control, {z-coord: {rot-vector: l_rot}}, left EE z-rot control slack]
+

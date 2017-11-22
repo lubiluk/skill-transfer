@@ -1,25 +1,60 @@
 name: "Scooping Grains"
 
-# List of objecs taking part in the task
-objects:
-  gripper-link-name: "gripper::link"
-  tool-link-name: "ladle::link"
-  utility-link-name: "bowl::link"
-
 # The following motion phases will be executed in a sequence
 motion-phases:
-  - name: "contact"
+  - name: "Position Above"
     # Giskard file
-    file: "motions/liquid_contact.yaml"
+    file: "scooping_position_above.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
-      measured-velocity-min-threshold: 0.0001
+      measured-velocity-min-threshold: 0.02
       # When desired (set by the controller) gripper velocity drops below this threshold
-      desired-velocity-min-threshold: 0.0001
+      desired-velocity-min-threshold: 0.02
       # Stop on contact
       contact: true
     # Ignore stop conditions until the distance 
     # from the target configuration is less than this
-    stop-activation-distance: 0.1
-    
+    stop-activation-distance: 0.15
+  - name: "Insert"
+    # Giskard file
+    file: "scooping_insert.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: false
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.15
+  - name: "Scoop"
+    # Giskard file
+    file: "scooping_scoop.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: false
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.15
+  - name: "Lift"
+    # Giskard file
+    file: "scooping_lift.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: false
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.15
