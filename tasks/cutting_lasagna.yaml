@@ -1,0 +1,46 @@
+name: "Cutting Lasagna"
+
+# The following motion phases will be executed in a sequence
+motion-phases:
+  - name: "Position Above"
+    # Giskard file
+    file: "cutting_position_above.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: false
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.15
+  - name: "Cut"
+    # Giskard file
+    file: "cutting_cut.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: true
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.15
+  - name: "Lift"
+    # Giskard file
+    file: "cutting_position_above.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: false
+    # Ignore stop conditions until the distance 
+    # from the target configuration is less than this
+    stop-activation-distance: 0.15

@@ -1,0 +1,101 @@
+<sdf version="1.6">
+    <world name="scraping">
+
+        <physics type="ode">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1</real_time_factor>
+            <real_time_update_rate>1000</real_time_update_rate>
+            <bullet>
+                <solver>
+                    <iters>70</iters>
+                </solver>
+            </bullet>
+            <ode>
+                <solver>
+                    <iters>70</iters>
+                </solver>
+            </ode>
+        </physics>
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://table</uri>
+            <pose>0 0 0 0 0 -1.57694</pose>
+            <static>true</static>
+        </include>
+
+        <include>
+            <uri>model://iai_spatula</uri>
+            <pose>0.140489 0.527566 0.997957 1.571605 -0.058101 -2.939758</pose>
+        </include>
+        
+        <!-- Left Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>left_ee</name>
+            <pose>0 0.5 1.5 0 0 0</pose>
+            
+            <plugin name="l_force_controller" filename="libvelocity_controller_plugin.so">
+              <linkName>link</linkName>
+              <topicName>set_l_ee_twist</topicName>
+              <gains>
+                <linear>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </linear>
+                <angular>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </angular>
+              </gains>
+            </plugin>
+            
+            <plugin name="l_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>iai_spatula::link</childLinkName>
+              <relativePose>0.14 0.028 -0.002 -1.57 3.20 0.20</relativePose>
+            </plugin>
+        </include>
+
+        <!-- Right Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>right_ee</name>
+            <pose>0 -0.216717 1.035794 1.547368 1.402341 1.343703</pose>
+            
+            <plugin name="r_force_controller" filename="libvelocity_controller_plugin.so">
+              <linkName>link</linkName>
+              <topicName>set_r_gripper_twist</topicName>
+              <gains>
+                <linear>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </linear>
+                <angular>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </angular>
+              </gains>
+            </plugin>
+        </include>
+
+        <gui>
+            <camera name='user_camera'>
+                <pose>1.700789 1.175709 1.670612 0 0.375643 -2.675000</pose>
+                <view_controller>orbit</view_controller>
+            </camera>
+        </gui>
+
+    </world>
+</sdf>
