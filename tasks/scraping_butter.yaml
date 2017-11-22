@@ -4,7 +4,7 @@ name: "Scraping Butter"
 motion-phases:
   - name: "Position Above"
     # Giskard file
-    file: "position_above.yaml"
+    file: "scraping_position_above.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
@@ -18,7 +18,7 @@ motion-phases:
     stop-activation-distance: 0.15
   - name: "Edge Contact"
     # Giskard file
-    file: "edge_contact.yaml"
+    file: "scraping_edge_contact.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
@@ -31,7 +31,7 @@ motion-phases:
     # from the target configuration is less than this
     stop-activation-distance: 0.15
   - name: "Scrape Off"
-    file: "scrape_off.yaml"
+    file: "scraping_scrape_off.yaml"
     stop:
       measured-velocity-min-threshold: 0.02
       desired-velocity-min-threshold: 0.02
