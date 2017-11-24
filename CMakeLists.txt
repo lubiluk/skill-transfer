@@ -98,7 +98,7 @@ add_executable(task_executive
   src/task_executive.cpp 
   src/twist_log.cpp
   src/task.cpp
-  
+  src/experiment.cpp
 )
 target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -1,0 +1,20 @@
+name: Scraping Butter 1
+
+# Object scans a.k.a. object knowledge base
+tool-3d-scan: iai_spatula.ply
+target-object-3d-scan: iai_big_bowl.ply
+
+# Transformation from the end effector to the tool
+tool-grasp:
+  frame: 
+    - quaternion: [-0.171777970707, -0.685860866607, -0.0174027448572, 0.706954273563]
+    - vector3: [0.06, 0.11, 0]
+  
+# Transformation from the end effector to the target object
+target-object-grasp: 
+  frame:
+    - quaternion: [-0.0500550264148, 0.705614610626, 0.700932017793, -0.0910868927763] # x, y, z, w
+    - vector3: [0.14, 0.028, -0.02] # x, y, z
+
+# Task to execute a.k.a. motion knowledge base
+task: scraping_butter.yaml

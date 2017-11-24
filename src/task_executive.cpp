@@ -1,6 +1,7 @@
 #include "skill_transfer/conversions.h"
 #include "skill_transfer/twist_log.h"
 #include "skill_transfer/task.h"
+#include "skill_transfer/experiment.h"
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
@@ -17,9 +18,9 @@ public:
                     command_log_(10)
   {
     // Get task specifications
-    if ( !nh_.getParam("task_file", task_file_path_) )
+    if ( !nh_.getParam("task_directory", task_directory_path_) )
     {
-      throw std::runtime_error("Could not find parameter 'task_file' in namespace '" + nh_.getNamespace() + "'.");
+      throw std::runtime_error("Could not find parameter 'task_directory' in namespace '" + nh_.getNamespace() + "'.");
     }
     
     std::string motion_directory;
@@ -35,8 +36,18 @@ public:
       throw std::runtime_error("Could not find parameter 'motiom_template_file' in namespace '" + nh_.getNamespace() + "'.");
     }
     
+    if ( !nh_.getParam("experiment_file_path", experiment_file_path_) )
+    {
+      throw std::runtime_error("Could not find parameter 'experiment_file_path' in namespace '" + nh_.getNamespace() + "'.");
+    }
+    
+    ROS_INFO_STREAM("Loading experiment: " << experiment_file_path_);
+    experiment_.load(experiment_file_path_);
+    
+    const auto task_file_path = task_directory_path_ + experiment_.task_file_name;
+    ROS_INFO_STREAM("Loading task: " << task_file_path);
     task_.motion_directory_path = motion_directory;
-    task_.load(task_file_path_, motiom_template_file_path);
+    task_.load(task_file_path, motiom_template_file_path);
     
     ROS_INFO_STREAM("Task: " << task_.name);
     ROS_INFO_STREAM("Phases: " << task_.phases.size());
@@ -122,8 +133,10 @@ protected:
   TwistLog velocity_log_;
   TwistLog command_log_;
   double goal_distance_;
-  std::string task_file_path_;
+  std::string task_directory_path_;
   Task task_;
+  std::string experiment_file_path_;
+  Experiment experiment_;
 
   void sendNextGoal()
   {
