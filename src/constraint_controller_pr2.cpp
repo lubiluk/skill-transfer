@@ -126,7 +126,7 @@ public:
       // Get new calculations from the controller
       giskard_adapter_.updateController(inputs);
 
-      const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "gripper-frame");
+      const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
       const auto cmd = giskard_adapter_.getDesiredJointVelocityMsg();
 
       pub_.publish(cmd);

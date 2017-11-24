@@ -12,7 +12,7 @@ motion-phases:
       # When desired (set by the controller) gripper velocity drops below this threshold
       desired-velocity-min-threshold: 0.02
       # Stop on contact
-      contact: true
+      contact: false
     # Ignore stop conditions until the distance 
     # from the target configuration is less than this
     stop-activation-distance: 0.15

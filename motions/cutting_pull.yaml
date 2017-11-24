@@ -21,7 +21,7 @@ scope:
   - tool-point: 
       transform-vector: [tool-frame, {vector3: [-0.1149, -0.005, -0.0118]}]       
   - target-object-point: 
-      transform-vector: [target-object-frame, {vector3: [0.018, 0.02, 0.245]}]
+      transform-vector: [target-object-frame, {vector3: [-0.2, 0.02, 0.02]}]
 
   # expressions used in constraints 
   - distance: {vector-sub: [target-object-point, tool-point]}

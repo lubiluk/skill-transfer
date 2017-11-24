@@ -26,13 +26,13 @@ motion-phases:
       # When desired (set by the controller) gripper velocity drops below this threshold
       desired-velocity-min-threshold: 0.02
       # Stop on contact
-      contact: true
+      contact: false
     # Ignore stop conditions until the distance 
     # from the target configuration is less than this
     stop-activation-distance: 0.15
-  - name: "Lift"
+  - name: "Pull"
     # Giskard file
-    file: "cutting_position_above.yaml"
+    file: "cutting_pull.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold

@@ -1,21 +1,21 @@
 <sdf version="1.6">
     <world name="scraping">
 
-        <physics type="ode">
-            <max_step_size>0.001</max_step_size>
-            <real_time_factor>1</real_time_factor>
-            <real_time_update_rate>1000</real_time_update_rate>
-            <bullet>
-                <solver>
-                    <iters>70</iters>
-                </solver>
-            </bullet>
-            <ode>
-                <solver>
-                    <iters>70</iters>
-                </solver>
-            </ode>
-        </physics>
+<!--        <physics type="ode">-->
+<!--            <max_step_size>0.001</max_step_size>-->
+<!--            <real_time_factor>1</real_time_factor>-->
+<!--            <real_time_update_rate>1000</real_time_update_rate>-->
+<!--            <bullet>-->
+<!--                <solver>-->
+<!--                    <iters>70</iters>-->
+<!--                </solver>-->
+<!--            </bullet>-->
+<!--            <ode>-->
+<!--                <solver>-->
+<!--                    <iters>70</iters>-->
+<!--                </solver>-->
+<!--            </ode>-->
+<!--        </physics>-->
 
         <include>
             <uri>model://sun</uri>
@@ -35,6 +35,16 @@
             <uri>model://iai_spatula</uri>
             <pose>0.140489 0.527566 0.997957 1.571605 -0.058101 -2.939758</pose>
         </include>
+        
+        <plugin name="lasagna_factory" filename="libLasagnaFactoryPlugin.so">
+          <pose>0.045527 -0.018058 1.035 0 0 0</pose>
+          <size>8 8 2</size>
+          <radius>0.01</radius>
+          <friction>0.1</friction>
+          <friction2>0.1</friction2>
+          <jointDamping>10</jointDamping>
+          <jointFriction>5</jointFriction>
+        </plugin>
         
         <!-- Left Gripper -->
         <include>

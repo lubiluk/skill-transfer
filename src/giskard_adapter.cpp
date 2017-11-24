@@ -68,7 +68,7 @@ std::vector<visualization_msgs::Marker> GiskardAdapter::getVisualizationMsgs()
 {
   return std::vector<visualization_msgs::Marker> {
     createPointMarker(controller_, "tool-point", "base_footprint"),
-    createPointMarker(controller_, "utility-point", "base_footprint"),
+    createPointMarker(controller_, "target-object-point", "base_footprint"),
     createPointDirectionMarker(controller_, "tool-point", "distance", "base_footprint")
   };
 }
