@@ -29,7 +29,7 @@ public:
   std::string motion_directory_path;
   
   bool hasNextPhase();
-  std::string getCurrentPhaseSpec();
+  YAML::Node getCurrentPhaseSpecNode();
   MotionPhase getCurrentPhase();
   void completeCurrentPhase();
   

@@ -45,7 +45,7 @@ bool Task::hasNextPhase()
   return current_phase_index_ < phases.size();
 }
 
-std::string Task::getCurrentPhaseSpec()
+YAML::Node Task::getCurrentPhaseSpecNode()
 {
   const auto &phase = phases[current_phase_index_];
   boost::filesystem::path dir_path(motion_directory_path);
@@ -69,11 +69,7 @@ std::string Task::getCurrentPhaseSpec()
   
   motion_spec["soft-constraints"] = constraints;
   
-  YAML::Emitter out;
-  
-  out << motion_spec;
-  
-  return std::string {out.c_str()};
+  return motion_spec;
 }
 
 MotionPhase Task::getCurrentPhase()

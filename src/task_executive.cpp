@@ -8,6 +8,7 @@
 #include <skill_transfer/MoveArmAction.h>
 #include <gazebo_msgs/ContactsState.h>
 #include <geometry_msgs/Twist.h>
+#include <yaml-cpp/yaml.h>
 
 class TaskExecutive
 {
@@ -142,11 +143,43 @@ protected:
   {
     velocity_log_.clear();
     command_log_.clear();
+    
+    // Get current phase spec and fill in necessary information
+    auto goal_node = task_.getCurrentPhaseSpecNode();
+    auto scope = goal_node["scope"];
+    
+    // Fill in grasps
+    YAML::Node tool_grasp_scope_node;
+    tool_grasp_scope_node["tool-grasp"] = experiment_.tool_grasp_node;
+    
+    YAML::Node target_object_grasp_scope_node;
+    target_object_grasp_scope_node["target-object-grasp"] = experiment_.target_object_grasp_node;
+    
+    // Put grasps in the front of the scope
+    // Is there a better way of doing that?
+    YAML::Node new_scope;
+    new_scope.push_back(tool_grasp_scope_node);
+    new_scope.push_back(target_object_grasp_scope_node);
+    
+    for (const auto n : scope)
+    {
+      new_scope.push_back(n);
+    }
+    
+    // Replace scope
+    goal_node["scope"] = new_scope;
+    
+    // Convert spec to string
+    YAML::Emitter out;
+    out << goal_node;
+    const std::string spec{out.c_str()};
 
+    // Create and send goal
     skill_transfer::MoveArmGoal goal;
-    goal.constraints = task_.getCurrentPhaseSpec();
+    goal.constraints = spec;
 
     ROS_INFO("Sending new goal.");
+//    ROS_INFO_STREAM(spec);
 
     ac_.sendGoal(goal,
                  boost::bind(&TaskExecutive::onFinish, this, _1, _2),
