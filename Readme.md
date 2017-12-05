@@ -1,15 +1,97 @@
-To run scraping:
+### IROS 2018
+# Skill Transfer
 
-1. Launch PR2 simulator:
+ROS package that realises transfer of manipulation skills from known objects and situations to new, unseen objects and their setups.
 
-   `roslaunch giskard_pr2 interactive_markers.launch sim:=true`
-  
-2. Launch Gazebo:
+## Requirements
 
-   `roslaunch skill_transfer scraping_world_pr2.launch`
-  
-3. Launch the task:
+This package is **Developed and Tested on ROS Kinetic**.
+For use with Gazebo simulator additional Gazebo models and plugins are needed. These can be found here: https://github.com/lubiluk/iros-2018-gazebo
+At it's core, the system makes use of Giskard library for robot control: https://github.com/SemRoCo/giskard_core
 
-   `roslaunch skill_transfer scraping_task.launch sim:=false`
-  
-   `sim:=true` would mean we don't want to simulate PR2 and use flying grippers directly
+## Architecture
+
+The package consists of multiple ROS nodes that work collectively for achieving the desired effects. They communicate in roughly following manner:
+
+```
+[EdgeDetector][ToolPointDetector] <--> [TaskExecutive] --> [ConstraintController] --> <Actuators>
+```
+
+*TaskExecutive* is the main node that supervises the whole process and sends requests to all other nodes.
+
+*EdgeDetector* finds object edges and desired contact points on them.
+
+~~*ToolPointDetector* finds important contact points on tools.~~ (Not implemented yet)
+
+*ConstraintController* uses Giskard internally, translates motion description files into desired joint velocities.
+
+### The Process
+
+The whole process begins with *TaskExecutive* reading an experiment YAML file. 
+Checks what points of the objects should be perceived, e.g container edge and asks vision nodes (*EdgeDetector*) for those.
+Afterwards it the moiton sequence begins. *TaksExecutive* loads robot template file and in each task phase combines that template with motion constraints file. Also adds there grasping transformations and object points obtained from vision nodes. 
+Such prepared motion phase file is then sent to *ConstraintController* for execution. While that happens *TaskExecutive* observes the state of the robot and decides when to finish one phase and begin the next one according to the task specification file.
+When all motion phases are done the task is considered as finished.
+
+### Configuration files
+
+There are configuration files that describe different levels of the system: motions, tasks, experiments. All files are YAML.
+
+*robot template* specifies the kinematic chain of a robot.
+
+*motion phase* specifies motion in terms of constraints that should be satified.
+
+*tasks* contains a sequence of motion phases and appropriate stop conditions that toghether form a full task description.
+
+*experiments* specifies a task to be executed, objects that take part in the task, callibrated grasp transformations and visual features that should be resolved.
+
+### Supported tasks
+
+1. Scraping butter off a tool into a container
+2. Scooping a substance (e.g. grains) from a container
+3. Cutting an object on a flat object/surface
+
+## Installation
+
+* Install ROS, create Catkin workspace, cd to *src*
+  ```
+  mkdir -p ~/catkin_ws/src
+  cd ~/catkin_ws
+  catkin init
+  cd src
+  ```
+* Clone this repository (in *src* directory of the workspace)
+* Clone Gazebo models and plugins repository: https://github.com/lubiluk/iros-2018-gazebo
+* Build Gazebo plugins:
+  ```
+  mkdir build
+  cd build
+  cmake ..
+  make
+  ```
+* Configure Gazebo model and plugin paths
+* Follow the instructions to install Giskard core: https://github.com/SemRoCo/giskard_core
+* Build your catkin workspace
+  `catkin build` when using *catkin_tools* (recommended)
+  or `catkin_make`
+* Install Matlab executable
+  ```
+  sudo edge_detector/edge_detector.install
+  ```
+
+## Running
+
+### Running with Gazebo simulator
+
+1. Launch the Gazebo world
+   `roslaunch skill_transfer scraping_world_free_ees.launch`
+
+2. Launch the experiment
+   `roslaunch skill_transfer run_experiment.launch pr2:=false experiment:=experiments/scraping_1.yaml`
+
+### Running with Gazebo and iai_naive_kinematics PR2 simulator
+...
+
+### Running with real robot
+...
+
