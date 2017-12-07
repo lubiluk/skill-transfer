@@ -40,6 +40,7 @@ endif(NOT YAML_CPP_LIBRARIES)
 ## Add actions
 add_action_files(DIRECTORY action FILES 
   MoveArm.action
+  FindEdge.action
 )
 
 ## Add messages
@@ -110,6 +111,17 @@ target_link_libraries(velocity_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LI
 ## Force controller Gazebo plugin
 add_library(position_controller_plugin src/position_controller_plugin.cpp)
 target_link_libraries(position_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## Edge detector
+add_executable(edge_detector 
+  src/edge_detector.cpp
+)
+target_link_libraries(edge_detector ${catkin_LIBRARIES})
+add_dependencies(edge_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## TF broadcaster Gazebo plugin
+add_library(tf_broadcaster_plugin src/tf_broadcaster_plugin.cpp)
+target_link_libraries(tf_broadcaster_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Controller visualization Gazebo plugin
 #add_library(controller_visualization_plugin src/controller_visualization_plugin.cpp)

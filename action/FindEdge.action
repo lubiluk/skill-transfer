@@ -1,0 +1,7 @@
+# Point to which we should find the closest edge point
+string point_cloud_file_name
+geometry_msgs/Point reference_point
+---
+geometry_msgs/Point edge_point
+---
+

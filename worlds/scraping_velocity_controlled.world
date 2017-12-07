@@ -73,6 +73,11 @@
               <childLinkName>iai_spatula::link</childLinkName>
               <relativePose>0.14 0.028 -0.002 -1.57 3.20 0.20</relativePose>
             </plugin>
+            
+            <plugin name="l_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
+              <linkName>link</linkName>
+              <frameName>l_gripper_tool_frame</frameName>
+            </plugin>
         </include>
 
         <!-- Right Gripper -->
@@ -102,6 +107,11 @@
               <parentLinkName>link</parentLinkName>
               <childLinkName>iai_big_bowl::link</childLinkName>
               <relativePose>0.06 0.11 0 -1.57 -1.35 1.3</relativePose>
+            </plugin>
+            
+            <plugin name="r_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
+              <linkName>link</linkName>
+              <frameName>r_gripper_tool_frame</frameName>
             </plugin>
         </include>
 

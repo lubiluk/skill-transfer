@@ -78,6 +78,7 @@ There are configuration files that describe different levels of the system: moti
   ```
   sudo edge_detector/edge_detector.install
   ```
+  Add edge_detector application directory to your *PATH*
 
 ## Running
 

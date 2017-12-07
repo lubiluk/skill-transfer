@@ -7,12 +7,12 @@ scope:
   - target-object-frame:
       frame-mul:
         - right_ee  
-        - tool-grasp # This has to be provided
+        - target-object-grasp # This has to be provided
         
   - tool-frame:
       frame-mul:
         - left_ee
-        - target-object-grasp # This has to be provided
+        - tool-grasp # This has to be provided
 
   # definition of features
   - tool-point: 

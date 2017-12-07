@@ -1,5 +1,8 @@
 name: "Scraping Butter"
 
+resolve:
+  - "edge-point"
+
 # The following motion phases will be executed in a sequence
 motion-phases:
   - name: "Position Above"

@@ -27,6 +27,7 @@ public:
   std::string name;
   std::vector<MotionPhase> phases;
   std::string motion_directory_path;
+  std::vector<std::string> resolve;
   
   bool hasNextPhase();
   YAML::Node getCurrentPhaseSpecNode();

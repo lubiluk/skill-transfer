@@ -7,18 +7,20 @@ scope:
   - target-object-frame:
       frame-mul:
         - right_ee  
-        - tool-grasp # This has to be provided
+        - target-object-grasp # This has to be provided
         
   - tool-frame:
       frame-mul:
         - left_ee
-        - target-object-grasp # This has to be provided
+        - tool-grasp # This has to be provided
 
   # definition of features
   - tool-point: 
       transform-vector: [tool-frame, {vector3: [-0.028, 0.002, 0.01]}]       
   - target-object-point: 
-      transform-vector: [target-object-frame, {vector3: [0.018, 0.1334, 0.045]}]
+      transform-vector: 
+        - target-object-frame 
+        - edge-point # This has to be provided
 
   # distance definition
   - distance: {vector-sub: [target-object-point, tool-point]}
