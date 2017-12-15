@@ -46,7 +46,7 @@ public:
     
     ROS_INFO_STREAM("Reference point: " << reference_point.x << " " << reference_point.y << " " << reference_point.z);
     
-    const auto command = boost::format("run_edge_detector.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" 1 1 > edge.txt") 
+    const auto command = boost::format("run_edge_detector.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" > edge.txt") 
                          % point_cloud_path % reference_point.x % reference_point.y % reference_point.z;
     
     ROS_INFO_STREAM("Command: " << command);
