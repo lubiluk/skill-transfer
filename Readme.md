@@ -64,6 +64,7 @@ There are configuration files that describe different levels of the system: moti
   wstool merge https://raw.githubusercontent.com/lubiluk/iros2018/master/rosinstall/catkin.rosinstall
   wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_core/master/rosinstall/catkin.rosinstall
   wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_examples/master/rosinstall/catkin.rosinstall
+  wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_pr2/master/rosinstall/catkin_indigo.rosinstall
   wstool update
   rosdep install --ignore-src --from-paths .
   cd ..
