@@ -92,7 +92,7 @@ There are configuration files that describe different levels of the system: moti
 
 2. In a new terminal, launch the experiment
    ```
-   roscd iros2018
+   roscd skill_transfer
    roslaunch skill_transfer run_experiment.launch pr2:=false experiment:=experiments/scraping_1.yaml
    ```
 

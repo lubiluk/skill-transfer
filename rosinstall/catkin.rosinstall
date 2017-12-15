@@ -1,5 +1,5 @@
 - git: 
-    local-name: iros2018
+    local-name: skill_transfer
     uri: https://github.com/lubiluk/iros2018
     version: master
 - git: 
