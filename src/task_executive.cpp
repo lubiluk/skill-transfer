@@ -102,7 +102,15 @@ public:
 
   void start()
   {
+    ROS_INFO("Press any key to begin object feature recognition");
+  
+    std::getchar(); 
+  
     findTargetObjectEdgePoint();
+    
+    ROS_INFO("Press any key to begin the motion");
+    
+    std::getchar();
   
     sendNextGoal();
   }

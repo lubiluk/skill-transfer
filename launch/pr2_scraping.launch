@@ -1,0 +1,32 @@
+<launch>
+  <arg name="sim" default="true" />
+  <arg name="plot" default="false" />
+  <arg name="rviz" default="true" />
+
+  <include file="$(find iai_pr2_description)/launch/upload_pr2.launch" />
+
+  <node pkg="iai_naive_kinematics_sim" type="simulator" 
+        name="pr2" output="screen">
+    <rosparam command="load"
+        file="$(find skill_transfer)/initial_poses/pr2_scraping.yaml" />
+    <remap from="~joint_states" to="/joint_states" />
+  </node>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" />
+  
+  <include file="$(find iai_pr2_sim)/launch/fake_localization.launch" />
+
+  <!-- TODO: instructions to start real pr2 -->
+
+  <include file="$(find giskard_pr2)/launch/whole_body_controller.launch" >
+    <arg name="sim" value="$(arg sim)" />
+  </include>
+
+  <include file="$(find giskard_pr2)/launch/gui.launch" >
+    <arg name="plot" value="$(arg plot)" />
+    <arg name="sim" value="$(arg sim)" />
+    <arg name="rviz" value="$(arg rviz)" />
+  </include>
+  
+</launch>

@@ -1,8 +1,8 @@
 scope:
   # definition of some nice short-cuts
-  - unit_x: {vector3: [1, 0, 0]}
-  - unit_y: {vector3: [0, 1, 0]}
-  - unit_z: {vector3: [0, 0, 1]}
+  - unit-x: {vector3: [1, 0, 0]}
+  - unit-y: {vector3: [0, 1, 0]}
+  - unit-z: {vector3: [0, 0, 1]}
   
   # definition of joint input variables
   - torso_lift_joint: {input-var: 0}
@@ -23,39 +23,39 @@ scope:
   
   # definition of joint transforms
   - torso_lift:
-      frame: [{axis-angle: [unit_x, 0]}, {vector3: [-0.05, 0, {double-add: [0.739675, torso_lift_joint]}]}]
+      frame: [{axis-angle: [unit-x, 0]}, {vector3: [-0.05, 0, {double-add: [0.739675, torso_lift_joint]}]}]
   - l_shoulder_pan:
-      frame: [{axis-angle: [unit_z, l_shoulder_pan_joint]}, {vector3: [0.0, 0.188, 0.0]}]
+      frame: [{axis-angle: [unit-z, l_shoulder_pan_joint]}, {vector3: [0.0, 0.188, 0.0]}]
   - l_shoulder_lift:
-      frame: [{axis-angle: [unit_y, l_shoulder_lift_joint]}, {vector3: [0.1, 0, 0]}]
+      frame: [{axis-angle: [unit-y, l_shoulder_lift_joint]}, {vector3: [0.1, 0, 0]}]
   - l_upper_arm_roll:
-      frame: [{axis-angle: [unit_x, l_upper_arm_roll_joint]}, {vector3: [0, 0, 0]}]
+      frame: [{axis-angle: [unit-x, l_upper_arm_roll_joint]}, {vector3: [0, 0, 0]}]
   - l_elbow_flex:
-      frame: [{axis-angle: [unit_y, l_elbow_flex_joint]}, {vector3: [0.4, 0, 0]}]
+      frame: [{axis-angle: [unit-y, l_elbow_flex_joint]}, {vector3: [0.4, 0, 0]}]
   - l_forearm_roll:
-      frame: [{axis-angle: [unit_x, l_forearm_roll_joint]}, {vector3: [0, 0, 0]}]
+      frame: [{axis-angle: [unit-x, l_forearm_roll_joint]}, {vector3: [0, 0, 0]}]
   - l_wrist_flex:
-      frame: [{axis-angle: [unit_y, l_wrist_flex_joint]}, {vector3: [0.321, 0, 0]}]
+      frame: [{axis-angle: [unit-y, l_wrist_flex_joint]}, {vector3: [0.321, 0, 0]}]
   - l_wrist_roll:
-      frame: [{axis-angle: [unit_x, l_wrist_roll_joint]}, {vector3: [0, 0, 0]}]
+      frame: [{axis-angle: [unit-x, l_wrist_roll_joint]}, {vector3: [0, 0, 0]}]
   - l_gripper_offset:
-      frame: [{axis-angle: [unit_x, 0]}, {vector3: [0.2156, 0, 0]}]
+      frame: [{axis-angle: [unit-x, 0]}, {vector3: [0.2156, 0, 0]}]
   - r_shoulder_pan:
-      frame: [{axis-angle: [unit_z, r_shoulder_pan_joint]}, {vector3: [0, -0.188, 0]}]
+      frame: [{axis-angle: [unit-z, r_shoulder_pan_joint]}, {vector3: [0, -0.188, 0]}]
   - r_shoulder_lift:
-      frame: [{axis-angle: [unit_y, r_shoulder_lift_joint]}, {vector3: [0.1, 0, 0]}]
+      frame: [{axis-angle: [unit-y, r_shoulder_lift_joint]}, {vector3: [0.1, 0, 0]}]
   - r_upper_arm_roll: 
-      frame: [{axis-angle: [unit_x, r_upper_arm_roll_joint]}, {vector3: [0, 0, 0]}]
+      frame: [{axis-angle: [unit-x, r_upper_arm_roll_joint]}, {vector3: [0, 0, 0]}]
   - r_elbow_flex:
-      frame: [{axis-angle: [unit_y, r_elbow_flex_joint]}, {vector3: [0.4, 0, 0]}]
+      frame: [{axis-angle: [unit-y, r_elbow_flex_joint]}, {vector3: [0.4, 0, 0]}]
   - r_forearm_roll:
-      frame: [{axis-angle: [unit_x, r_forearm_roll_joint]}, {vector3: [0, 0, 0]}]
+      frame: [{axis-angle: [unit-x, r_forearm_roll_joint]}, {vector3: [0, 0, 0]}]
   - r_wrist_flex:
-      frame: [{axis-angle: [unit_y, r_wrist_flex_joint]}, {vector3: [0.321, 0, 0]}]
+      frame: [{axis-angle: [unit-y, r_wrist_flex_joint]}, {vector3: [0.321, 0, 0]}]
   - r_wrist_roll:
-      frame: [{axis-angle: [unit_x, r_wrist_roll_joint]}, {vector3: [0, 0, 0]}]
+      frame: [{axis-angle: [unit-x, r_wrist_roll_joint]}, {vector3: [0, 0, 0]}]
   - r_gripper_offset:
-      frame: [{axis-angle: [unit_x, 0]}, {vector3: [0.18, 0, 0]}]
+      frame: [{axis-angle: [unit-x, 0]}, {vector3: [0.18, 0, 0]}]
 
   # definition of elbow FK
   - left_elbow:

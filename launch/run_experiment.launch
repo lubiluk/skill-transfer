@@ -11,7 +11,7 @@
   <node pkg="skill_transfer" type="task_executive" name="task_executive" output="screen">
     <param name="experiment_file_path" type="string" value="$(find skill_transfer)/$(arg experiment)" />
     <param name="task_directory" type="string" value="$(find skill_transfer)/tasks/" />
-    <param name="motion_directory" type="string" value="$(find skill_transfer)/motions/" unless="$(arg pr2)" />
+    <param name="motion_directory" type="string" value="$(find skill_transfer)/motions/" />
     <param name="motiom_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/pr2.yaml" if="$(arg pr2)"/>
     <param name="motiom_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/free_ees.yaml" unless="$(arg pr2)"/>
   </node>

@@ -1,0 +1,83 @@
+simulated_joints:
+  - head_pan_joint
+  - head_tilt_joint
+  - torso_lift_joint
+  - l_elbow_flex_joint
+  - l_forearm_roll_joint
+  - l_shoulder_lift_joint 
+  - l_shoulder_pan_joint
+  - l_upper_arm_roll_joint
+  - l_wrist_flex_joint
+  - l_wrist_roll_joint
+  - r_elbow_flex_joint
+  - r_forearm_roll_joint
+  - r_shoulder_lift_joint 
+  - r_shoulder_pan_joint
+  - r_upper_arm_roll_joint
+  - r_wrist_flex_joint
+  - r_wrist_roll_joint
+  - laser_tilt_mount_joint
+  - r_gripper_l_finger_joint
+  - r_gripper_r_finger_joint
+  - l_gripper_l_finger_joint
+  - l_gripper_r_finger_joint
+  - l_gripper_l_finger_tip_joint
+  - l_gripper_r_finger_tip_joint
+  - r_gripper_l_finger_tip_joint
+  - r_gripper_r_finger_tip_joint
+  - fl_caster_l_wheel_joint
+  - fl_caster_r_wheel_joint
+  - fr_caster_l_wheel_joint
+  - fr_caster_r_wheel_joint
+  - bl_caster_l_wheel_joint
+  - bl_caster_r_wheel_joint
+  - br_caster_l_wheel_joint
+  - br_caster_r_wheel_joint
+  - fl_caster_rotation_joint
+  - fr_caster_rotation_joint
+  - bl_caster_rotation_joint
+  - br_caster_rotation_joint
+
+controlled_joints:
+  - head_pan_joint
+  - head_tilt_joint
+  - torso_lift_joint
+  - l_elbow_flex_joint
+  - l_forearm_roll_joint
+  - l_shoulder_lift_joint 
+  - l_shoulder_pan_joint
+  - l_upper_arm_roll_joint
+  - l_wrist_flex_joint
+  - l_wrist_roll_joint
+  - r_elbow_flex_joint
+  - r_forearm_roll_joint
+  - r_shoulder_lift_joint 
+  - r_shoulder_pan_joint
+  - r_upper_arm_roll_joint
+  - r_wrist_flex_joint
+  - r_wrist_roll_joint
+  - r_gripper_l_finger_joint
+  - r_gripper_r_finger_joint
+  - l_gripper_l_finger_joint
+  - l_gripper_r_finger_joint
+start_config:
+  torso_lift_joint: 0.3007849430842053
+  head_pan_joint: -0.016552842705291115
+  head_tilt_joint: 0.7287556667322448
+  r_upper_arm_roll_joint: -1.3351230294970737
+  r_shoulder_pan_joint: -1.0489713192626062
+  r_shoulder_lift_joint: -0.0337662888586017
+  r_forearm_roll_joint: 4.954040580711836
+  r_elbow_flex_joint: -1.6954641064176876
+  r_wrist_flex_joint: -1.5742733400117634
+  r_wrist_roll_joint: -2.398480044745123
+  l_elbow_flex_joint: -1.1000206816083982
+  l_forearm_roll_joint: 0.8018847264145844
+  l_shoulder_lift_joint: 0.09913986734189655
+  l_shoulder_pan_joint: 0.5244532801685695
+  l_upper_arm_roll_joint: 0.5151343804663929
+  l_wrist_flex_joint: -0.6394288886084176
+  l_wrist_roll_joint: 6.7505988913485035
+projection_mode: false
+sim_frequency: 100
+watchdog_period: 0.1

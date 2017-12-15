@@ -52,12 +52,12 @@ public:
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&ForceControllerPlugin::UpdateChild, this, _1));
     
-    this->pid_linear_x_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_linear_y_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_linear_z_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_x_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_y_ = common::PID(P_, I_, D_, 1000, -1000);
-    this->pid_angular_z_ = common::PID(P_, I_, D_, 1000, -1000);
+    this->pid_linear_x_ = common::PID(P_, I_, D_);
+    this->pid_linear_y_ = common::PID(P_, I_, D_);
+    this->pid_linear_z_ = common::PID(P_, I_, D_);
+    this->pid_angular_x_ = common::PID(P_, I_, D_);
+    this->pid_angular_y_ = common::PID(P_, I_, D_);
+    this->pid_angular_z_ = common::PID(P_, I_, D_);
   }
   
   void UpdateChild(const common::UpdateInfo &_info)
@@ -110,9 +110,9 @@ public:
     torque.z = this->pid_angular_z_.Update(current_pose.rot.z - transformStamped.transform.rotation.z, _delta_time);
     
     this->link_->SetForce(force);
-    this->link_->SetTorque(torque);
+//    this->link_->SetTorque(torque);
 
-//    this->link_->SetWorldPose(desired_pose);
+    this->link_->SetWorldPose(desired_pose);
   }
   
 private:
