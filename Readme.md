@@ -70,21 +70,30 @@ There are configuration files that describe different levels of the system: moti
   catkin build
   source ~/catkin_ws/devel/setup.bash  
   ```
-* Install Matlab executable
+* Install Matlab executable from here:
+  https://github.com/pauloabelha/enzymes/blob/master/Bremen/edge_detector/for_redistribution/edge_detector_installer.install
   ```
   sudo edge_detector/edge_detector.install
   ```
-  Add edge_detector application directory to your *PATH*
+  Add edge_detector application directory to your *PATH*, so you can run it with only following command:
+  ```
+  run_edge_detector.sh
+  ```
 
 ## Running
 
 ### Running with Gazebo simulator
 
-1. Launch the Gazebo world
-   `roslaunch skill_transfer scraping_world_free_ees.launch`
+1. Launch the Gazebo world and keep it running
+   ```
+   roslaunch skill_transfer scraping_world_free_ees.launch
+   ```
 
-2. Launch the experiment
-   `roslaunch skill_transfer run_experiment.launch pr2:=false experiment:=experiments/scraping_1.yaml`
+2. In a new terminal, launch the experiment
+   ```
+   roscd iros2018
+   roslaunch skill_transfer run_experiment.launch pr2:=false experiment:=experiments/scraping_1.yaml
+   ```
 
 ### Running with Gazebo and iai_naive_kinematics PR2 simulator
 ...

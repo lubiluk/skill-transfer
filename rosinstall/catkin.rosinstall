@@ -1,4 +1,8 @@
 - git: 
+    local-name: iros2018
+    uri: https://github.com/lubiluk/iros2018
+    version: master
+- git: 
     local-name: giskard_ros
     uri: https://github.com/SemRoCo/giskard_ros.git
     version: master
