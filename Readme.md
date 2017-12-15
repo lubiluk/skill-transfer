@@ -54,22 +54,20 @@ There are configuration files that describe different levels of the system: moti
 ## Installation
 * First, follow the instructions of iros2018-gazebo repository:
   https://github.com/lubiluk/iros2018-gazebo
-* Install ROS, create Catkin workspace, cd to *src*
+* Install ROS, then:
   ```
   mkdir -p ~/catkin_ws/src
   cd ~/catkin_ws
   catkin init
   cd src
+  wstool init
+  wstool merge https://raw.githubusercontent.com/lubiluk/iros2018/master/rosinstall/catkin.rosinstall
+  wstool update
+  rosdep install --ignore-src --from-paths .
+  cd ..
+  catkin build
+  source ~/catkin_ws/devel/setup.bash  
   ```
-* Clone this repository (in *src* directory of the workspace)
-  ```
-  cd ~/catkin_ws/src
-  git clone https://github.com/lubiluk/iros2018
-  ```
-* Follow the instructions to install Giskard core: https://github.com/SemRoCo/giskard_core
-* Build your catkin workspace
-  `catkin build` when using *catkin_tools* (recommended)
-  or `catkin_make`
 * Install Matlab executable
   ```
   sudo edge_detector/edge_detector.install

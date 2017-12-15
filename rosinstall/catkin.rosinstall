@@ -1,0 +1,16 @@
+- git: 
+    local-name: giskard_ros
+    uri: https://github.com/SemRoCo/giskard_ros.git
+    version: master
+- git: 
+    local-name: giskard_ros_utils
+    uri: https://github.com/SemRoCo/giskard_ros_utils.git
+    version: master
+- git: 
+    local-name: pysdf
+    uri: https://github.com/lubiluk/pysdf
+    version: shallow-search
+- git: 
+    local-name: gazebo2rviz
+    uri: https://github.com/lubiluk/gazebo2rviz
+    version: fixing
