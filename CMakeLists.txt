@@ -16,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   gazebo_ros
   sensor_msgs
-  SDFormat
 )
 
 ## Find Boost
