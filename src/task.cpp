@@ -2,6 +2,8 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <algorithm>
+
 
 Task::Task() : current_phase_index_(0)
 {
@@ -81,4 +83,12 @@ void Task::completeCurrentPhase()
 {
   current_phase_index_ += 1;
 }
+
+bool Task::resolveContains(std::string key)
+{
+  const auto &r = resolve;
+    
+  return std::find(r.begin(), r.end(), key) != r.end();
+}
+
 

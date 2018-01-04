@@ -102,11 +102,7 @@ public:
 
   void start()
   {
-    ROS_INFO("Press any key to begin object feature recognition");
-  
-    std::getchar(); 
-  
-    findTargetObjectEdgePoint();
+    resolveObjectFeatures();
     
     ROS_INFO("Press any key to begin the motion");
     
@@ -370,16 +366,19 @@ protected:
     YAML::Node target_object_grasp_scope_node;
     target_object_grasp_scope_node["target-object-grasp"] = experiment_.target_object_grasp_node;
     
-    // Edge point
-    YAML::Node edge_point_scope_node;
-    edge_point_scope_node["edge-point"] = edge_point_node_;
-    
     // Put new data in the front of the scope
     // Is there a better way of doing that?
     YAML::Node new_scope;
     new_scope.push_back(tool_grasp_scope_node);
     new_scope.push_back(target_object_grasp_scope_node);
-    new_scope.push_back(edge_point_scope_node);
+    
+    // Edge point
+    if (task_.resolveContains("edge-point")) 
+    {
+      YAML::Node edge_point_scope_node;
+      edge_point_scope_node["edge-point"] = edge_point_node_;
+      new_scope.push_back(edge_point_scope_node);
+    }
     
     for (const auto n : scope)
     {
@@ -395,6 +394,18 @@ protected:
     std::string spec{out.c_str()};
     
     return spec;
+  }
+  
+  void resolveObjectFeatures()
+  {
+    if (task_.resolveContains("edge-point")) 
+    {
+      ROS_INFO("Press any key to begin object feature recognition");
+  
+      std::getchar(); 
+    
+      findTargetObjectEdgePoint();
+    }
   }
 };
 

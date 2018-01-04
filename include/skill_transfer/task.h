@@ -33,6 +33,7 @@ public:
   YAML::Node getCurrentPhaseSpecNode();
   MotionPhase getCurrentPhase();
   void completeCurrentPhase();
+  bool resolveContains(std::string key);
   
 private:
   unsigned int current_phase_index_;
