@@ -37,7 +37,7 @@
         </include>
         
         <plugin name="lasagna_factory" filename="libLasagnaFactoryPlugin.so">
-          <pose>0.045527 -0.018058 1.035 0 0 0</pose>
+          <pose>0 0 1.035 0 0 0</pose>
           <size>8 8 2</size>
           <radius>0.01</radius>
           <friction>0.1</friction>

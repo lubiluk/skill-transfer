@@ -25,9 +25,9 @@ motion-phases:
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
-      measured-velocity-min-threshold: 0.02
+      measured-velocity-min-threshold: 0.002
       # When desired (set by the controller) gripper velocity drops below this threshold
-      desired-velocity-min-threshold: 0.02
+      desired-velocity-min-threshold: 0.002
       # Stop on contact
       contact: false
     # Ignore stop conditions until the distance 

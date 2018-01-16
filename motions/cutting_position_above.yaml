@@ -5,20 +5,22 @@ scope:
   
   # definition of object frames 
   - target-object-frame:
-      frame-mul:
-        - right_ee  
-        - tool-grasp # This has to be provided
+      frame:
+        - quaternion: [0, 0, 0, 1]
+        - vector3: [0, 0, 1.03] 
         
   - tool-frame:
       frame-mul:
         - left_ee
-        - target-object-grasp # This has to be provided
+        - tool-grasp # This has to be provided
 
   # definition of features
   - tool-point: 
-      transform-vector: [tool-frame, {vector3: [-0.1149, -0.005, -0.0118]}]       
+      transform-vector: [tool-frame, {vector3: [-0.07, -0.04, -0.002]}]       
   - target-object-point: 
-      transform-vector: [target-object-frame, {vector3: [0.018, 0.02, 0.245]}]
+      transform-vector: 
+        - target-object-frame
+        - {vector3: [0, 0, 0.3]} # 20 cm above the object
 
   # expressions used in constraints 
   - distance: {vector-sub: [target-object-point, tool-point]}
