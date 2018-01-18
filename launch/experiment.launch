@@ -9,7 +9,7 @@
   </node>
   
   <node pkg="skill_transfer" type="task_executive" name="task_executive" output="screen">
-    <param name="experiment_file_path" type="string" value="$(find skill_transfer)/$(arg experiment)" />
+    <param name="experiment_file_path" type="string" value="$(find skill_transfer)/experiments/$(arg experiment).yaml" />
     <param name="task_directory" type="string" value="$(find skill_transfer)/tasks/" />
     <param name="motion_directory" type="string" value="$(find skill_transfer)/motions/" />
     <param name="motiom_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/pr2.yaml" if="$(arg pr2)"/>
