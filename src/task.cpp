@@ -17,7 +17,8 @@ void Task::load(std::string task_file_path, std::string motion_template_file_pat
    
   this->name = spec["name"].as<std::string>();
   
-  const auto &objectSpecs = spec["objects"];
+  this->resolve = spec["resolve"].as<std::vector<std::string>>();
+
   const auto &phaseSpecs = spec["motion-phases"];
   
   for (std::size_t i=0; i < phaseSpecs.size(); ++i) {
@@ -86,9 +87,7 @@ void Task::completeCurrentPhase()
 
 bool Task::resolveContains(std::string key)
 {
-  const auto &r = resolve;
-    
-  return std::find(r.begin(), r.end(), key) != r.end();
+  return std::find(resolve.begin(), resolve.end(), key) != resolve.end();
 }
 
 
