@@ -1,6 +1,6 @@
 - git: 
     local-name: skill_transfer
-    uri: https://github.com/lubiluk/iros2018
+    uri: https://github.com/lubiluk/skill_transfer.git
     version: master
 - git: 
     local-name: giskard_ros
