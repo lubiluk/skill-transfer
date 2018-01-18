@@ -103,14 +103,6 @@ add_executable(task_executive
 target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Force controller Gazebo plugin
-add_library(velocity_controller_plugin src/velocity_controller_plugin.cpp)
-target_link_libraries(velocity_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-
-## Force controller Gazebo plugin
-add_library(position_controller_plugin src/position_controller_plugin.cpp)
-target_link_libraries(position_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-
 ## Edge detector
 add_executable(edge_detector 
   src/edge_detector.cpp
@@ -118,8 +110,19 @@ add_executable(edge_detector
 target_link_libraries(edge_detector ${catkin_LIBRARIES})
 add_dependencies(edge_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## TF broadcaster Gazebo plugin
-add_library(tf_broadcaster_plugin src/tf_broadcaster_plugin.cpp)
+
+# Gazebo Plugins
+
+## Force controller plugin
+add_library(velocity_controller_plugin plugins/velocity_controller_plugin.cpp)
+target_link_libraries(velocity_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## Force controller plugin
+add_library(position_controller_plugin plugins/position_controller_plugin.cpp)
+target_link_libraries(position_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## TF broadcaster plugin
+add_library(tf_broadcaster_plugin plugins/tf_broadcaster_plugin.cpp)
 target_link_libraries(tf_broadcaster_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Grip plugin
