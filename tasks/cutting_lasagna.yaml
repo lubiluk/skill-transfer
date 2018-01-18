@@ -1,7 +1,7 @@
 name: "Cutting Lasagna"
 
 resolve:
-#  - "edge-point"
+  - "none"
 
 # The following motion phases will be executed in a sequence
 motion-phases:

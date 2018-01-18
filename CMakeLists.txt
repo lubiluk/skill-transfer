@@ -122,6 +122,22 @@ add_dependencies(edge_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPO
 add_library(tf_broadcaster_plugin src/tf_broadcaster_plugin.cpp)
 target_link_libraries(tf_broadcaster_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
+## Grip plugin
+add_library(GripPlugin plugins/GripPlugin.cc)
+target_link_libraries(GripPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## Stick plugin
+add_library(StickPlugin plugins/StickPlugin.cc)
+target_link_libraries(StickPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## Grip plugin
+add_library(GrainsFactoryPlugin plugins/GrainsFactoryPlugin.cc)
+target_link_libraries(GrainsFactoryPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## Grip plugin
+add_library(LasagnaFactoryPlugin plugins/LasagnaFactoryPlugin.cc)
+target_link_libraries(LasagnaFactoryPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
 ## Controller visualization Gazebo plugin
 #add_library(controller_visualization_plugin src/controller_visualization_plugin.cpp)
 #target_link_libraries(controller_visualization_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

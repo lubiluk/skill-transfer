@@ -1,0 +1,36 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+    <model name='gripper'>
+        <static>false</static>
+        <allow_auto_disable>false</allow_auto_disable>
+        
+        <pose>0 0 0 0 0 0</pose>
+        
+        <link name='link'>
+            <pose>0 0 0 0 0 0</pose>
+            
+            <inertial>
+                <mass>0.5</mass>
+            </inertial>
+
+            <gravity>false</gravity>
+            
+<!--            <collision name='collision'>-->
+<!--                <geometry>-->
+<!--                    <sphere>-->
+<!--                        <radius>0.02</radius>-->
+<!--                    </sphere>-->
+<!--                </geometry>-->
+<!--            </collision>-->
+            
+            <visual name='visual'>
+                <geometry>
+                    <sphere>
+                        <radius>0.02</radius>
+                    </sphere>
+                </geometry>
+            </visual>
+        
+        </link>
+    </model>
+</sdf>

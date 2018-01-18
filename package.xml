@@ -43,6 +43,6 @@
   <run_depend>tf2_ros</run_depend>
   
   <export>
-    <gazebo_ros plugin_path="${prefix}/lib" gazebo_media_path="${prefix}" />
+    <gazebo_ros plugin_path="${prefix}/lib" gazebo_model_path="${prefix}/models"/>
   </export>
 </package>

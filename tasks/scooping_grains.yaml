@@ -1,5 +1,8 @@
 name: "Scooping Grains"
 
+resolve:
+  - "none"
+
 # The following motion phases will be executed in a sequence
 motion-phases:
   - name: "Position Above"

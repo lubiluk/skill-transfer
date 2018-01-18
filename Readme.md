@@ -6,7 +6,6 @@ ROS package that realises transfer of manipulation skills from known objects and
 ## Requirements
 
 This package is **Developed and Tested on ROS Kinetic**.
-For use with Gazebo simulator additional Gazebo models and plugins are needed. These can be found here: https://github.com/lubiluk/iros2018-gazebo
 At it's core, the system makes use of Giskard library for robot control: https://github.com/SemRoCo/giskard_core
 
 ## Architecture
@@ -52,8 +51,6 @@ There are configuration files that describe different levels of the system: moti
 3. Cutting an object on a flat object/surface
 
 ## Installation
-* First, follow the instructions of iros2018-gazebo repository:
-  https://github.com/lubiluk/iros2018-gazebo
 * Install ROS, then:
   ```
   mkdir -p ~/catkin_ws/src
@@ -63,7 +60,6 @@ There are configuration files that describe different levels of the system: moti
   wstool init
   wstool merge https://raw.githubusercontent.com/lubiluk/iros2018/master/rosinstall/catkin.rosinstall
   wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_core/master/rosinstall/catkin.rosinstall
-  wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_examples/master/rosinstall/catkin.rosinstall
   wstool merge https://raw.githubusercontent.com/SemRoCo/giskard_pr2/master/rosinstall/catkin_indigo.rosinstall
   wstool update
   rosdep install --ignore-src --from-paths .
