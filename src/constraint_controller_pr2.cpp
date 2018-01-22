@@ -26,7 +26,7 @@ public:
     sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::onJointStatesMsg, this);
     
     // Topic for real PR2 commands (joint velocities)
-    pub_ = nh_.advertise<sensor_msgs::JointState>("/pr2/commands", 1);
+    pub_ = nh_.advertise<sensor_msgs::JointState>("/whole_body_controller/velocity_controller/command", 1);
     // Topic for simulation and executive node, since they only
     // care about the end effector velocity and not about joint velocities
     pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
@@ -128,6 +128,8 @@ public:
 
       const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
       const auto cmd = giskard_adapter_.getDesiredJointVelocityMsg();
+
+      ROS_DEBUG_STREAM("ee_twist_desired" << ee_twist_desired);
 
       pub_.publish(cmd);
       pub_gripper_.publish(ee_twist_desired);
