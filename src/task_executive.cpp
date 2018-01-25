@@ -174,7 +174,7 @@ protected:
     goal.constraints = spec;
 
     ROS_INFO("Sending new goal.");
-//    ROS_INFO_STREAM(spec);
+   ROS_INFO_STREAM(spec);
 
     ac_.sendGoal(goal,
                  boost::bind(&TaskExecutive::onFinish, this, _1, _2),
