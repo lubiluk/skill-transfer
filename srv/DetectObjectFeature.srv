@@ -1,3 +1,4 @@
 ObjectFeature object_feature
+string point_cloud_file_name
 ---
 ObjectFeature object_feature

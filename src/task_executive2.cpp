@@ -89,6 +89,10 @@ public:
 
     state_ = State::Ready;
 
+    ROS_INFO("Press any key to begin the motion");
+  
+    std::getchar(); 
+
     // Start the motion
     startPhase(0);
   }

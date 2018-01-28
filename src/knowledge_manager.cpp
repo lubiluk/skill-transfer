@@ -1,9 +1,11 @@
 #include <ros/ros.h>
 #include <yaml-cpp/yaml.h>
 #include <vector>
+#include <utility>
 #include <string>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <tf2_ros/static_transform_broadcaster.h>
 
 #include <skill_transfer/ObjectFeature.h>
 #include <skill_transfer/StopCondition.h>
@@ -19,7 +21,7 @@ private:
   {
     Created,
     Initialized,
-    ObtainingKnowledge,
+    ProcessingKnowledge,
     Ready
   };
   // State
@@ -39,6 +41,8 @@ private:
   YAML::Node setup_;
   YAML::Node task_;
   YAML::Node motion_template_;
+  // TF2
+  tf2_ros::StaticTransformBroadcaster tf_broadcaster_;
 
 public:
   KnowledgeManager() : node_handle_("~")
@@ -101,7 +105,8 @@ public:
     }
 
     // Initialize servers and clients
-    feature_service_client_ = node_handle_.serviceClient<skill_transfer::DetectObjectFeature>("detect_object_feature");
+    feature_service_client_ =
+        node_handle_.serviceClient<skill_transfer::DetectObjectFeature>("detect_object_feature");
 
     state_ = State::Initialized;
   }
@@ -110,26 +115,119 @@ public:
   {
     ROS_ASSERT(state_ == State::Initialized);
 
-    state_ = State::ObtainingKnowledge;
+    state_ = State::ProcessingKnowledge;
 
-    std::vector<skill_transfer::ObjectFeature> required_features;
+    // Broadcast grasps on TF
+    {
+      const auto &tool_grasp_frame = setup_["target-object-grasp"]["frame"];
+      double qx, qy, qz, qw, x, y, z;
+
+      for (const auto &n : tool_grasp_frame)
+      {
+        if (n["quaternion"])
+        {
+          const auto &q = n["quaternion"];
+
+          qx = q[0].as<double>();
+          qy = q[1].as<double>();
+          qz = q[2].as<double>();
+          qw = q[3].as<double>();
+        }
+
+        if (n["vector3"])
+        {
+          const auto &v = n["vector3"];
+
+          x = v[0].as<double>();
+          y = v[1].as<double>();
+          z = v[2].as<double>();
+        }
+      }
+
+      geometry_msgs::TransformStamped transform_stamped;
+
+      transform_stamped.header.frame_id = "r_gripper_tool_frame";
+      transform_stamped.child_frame_id = "target_object_frame";
+      transform_stamped.header.stamp = ros::Time::now();
+
+      transform_stamped.transform.translation.x = x;
+      transform_stamped.transform.translation.y = y;
+      transform_stamped.transform.translation.z = z;
+      transform_stamped.transform.rotation.x = qx;
+      transform_stamped.transform.rotation.y = qy;
+      transform_stamped.transform.rotation.z = qz;
+      transform_stamped.transform.rotation.w = qw;
+
+      tf_broadcaster_.sendTransform(transform_stamped);
+    }
+    {
+      const auto &tool_grasp_frame = setup_["tool-grasp"]["frame"];
+      double qx, qy, qz, qw, x, y, z;
+
+      for (const auto &n : tool_grasp_frame)
+      {
+        if (n["quaternion"])
+        {
+          const auto &q = n["quaternion"];
+
+          qx = q[0].as<double>();
+          qy = q[1].as<double>();
+          qz = q[2].as<double>();
+          qw = q[3].as<double>();
+        }
+
+        if (n["vector3"])
+        {
+          const auto &v = n["vector3"];
+
+          x = v[0].as<double>();
+          y = v[1].as<double>();
+          z = v[2].as<double>();
+        }
+      }
+
+      geometry_msgs::TransformStamped transform_stamped;
+
+      transform_stamped.header.frame_id = "l_gripper_tool_frame";
+      transform_stamped.child_frame_id = "tool_frame";
+      transform_stamped.header.stamp = ros::Time::now();
+
+      transform_stamped.transform.translation.x = x;
+      transform_stamped.transform.translation.y = y;
+      transform_stamped.transform.translation.z = z;
+      transform_stamped.transform.rotation.x = qx;
+      transform_stamped.transform.rotation.y = qy;
+      transform_stamped.transform.rotation.z = qz;
+      transform_stamped.transform.rotation.w = qw;
+
+      tf_broadcaster_.sendTransform(transform_stamped);
+    }
+
+    // Requesting features from detector
+    std::vector<std::pair<std::string, skill_transfer::ObjectFeature>>
+        required_features = getRequiredObjectFeatures();
 
     for (const auto &rf : required_features)
     {
-      skill_transfer::ObjectFeature feature = callDetectObjectFeature(rf);
-      setObjectFeature(feature);
+      skill_transfer::ObjectFeature feature = callDetectObjectFeature(rf.second);
+      setObjectFeature(rf.first, feature);
     }
 
-    // Start services
+    // Starting services
     task_spec_service_server_ =
-        node_handle_.advertiseService("get_task_spec", &KnowledgeManager::serveGetTaskSpec, this);
+        node_handle_.advertiseService("get_task_spec",
+                                      &KnowledgeManager::serveGetTaskSpec,
+                                      this);
     motion_spec_service_server_ =
-        node_handle_.advertiseService("get_motion_spec", &KnowledgeManager::serveGetMotionSpec, this);
+        node_handle_.advertiseService("get_motion_spec",
+                                      &KnowledgeManager::serveGetMotionSpec,
+                                      this);
 
     state_ = State::Ready;
   }
 
-  bool serveGetMotionSpec(skill_transfer::GetMotionSpec::Request &req, skill_transfer::GetMotionSpec::Response &res)
+  bool serveGetMotionSpec(skill_transfer::GetMotionSpec::Request &req,
+                          skill_transfer::GetMotionSpec::Response &res)
   {
     ROS_ASSERT(state_ == State::Ready);
 
@@ -140,7 +238,8 @@ public:
     return true;
   }
 
-  bool serveGetTaskSpec(skill_transfer::GetTaskSpec::Request &req, skill_transfer::GetTaskSpec::Response &res)
+  bool serveGetTaskSpec(skill_transfer::GetTaskSpec::Request &req,
+                        skill_transfer::GetTaskSpec::Response &res)
   {
     ROS_ASSERT(state_ == State::Ready);
 
@@ -150,38 +249,36 @@ public:
   }
 
 private:
-  std::vector<skill_transfer::ObjectFeature> getRequiredObjectFeatures() const
+  std::vector<std::pair<std::string, skill_transfer::ObjectFeature>> getRequiredObjectFeatures() const
   {
     const YAML::Node &rofn = task_["required-object-features"];
-    std::vector<skill_transfer::ObjectFeature> ofv;
+    std::vector<std::pair<std::string, skill_transfer::ObjectFeature>> ofv;
 
     for (YAML::const_iterator oit = rofn.begin(); oit != rofn.end(); ++oit)
     {
-      const std::string object_name = oit->first.as<std::string>();
+      const std::string feature_name = oit->first.as<std::string>();
       const YAML::Node &fn = oit->second;
 
-      for (YAML::const_iterator fit = rofn.begin(); fit != fn.end(); ++fit)
-      {
-        skill_transfer::ObjectFeature of;
-        of.object = object_name;
-        of.feature = fit->as<std::string>();
+      skill_transfer::ObjectFeature of;
+      of.object = fn["object"].as<std::string>();
+      of.feature = fn["feature"].as<std::string>();
+      of.reference = fn["reference"].as<std::string>();
 
-        ofv.push_back(of);
-      }
+      ofv.push_back(std::make_pair(feature_name, of));
     }
 
     return ofv;
   }
 
-  void setObjectFeature(skill_transfer::ObjectFeature feature)
+  void setObjectFeature(std::string name, skill_transfer::ObjectFeature feature)
   {
     YAML::Node point_node;
 
-    point_node["vector3"].push_back(feature.point.x);
-    point_node["vector3"].push_back(feature.point.y);
-    point_node["vector3"].push_back(feature.point.z);
+    point_node["vector3"].push_back(feature.value.x);
+    point_node["vector3"].push_back(feature.value.y);
+    point_node["vector3"].push_back(feature.value.z);
 
-    setup_["object-features"][feature.object][feature.feature] = point_node;
+    setup_["object-features"][name] = point_node;
   }
 
   /**
@@ -191,6 +288,9 @@ private:
   {
     skill_transfer::DetectObjectFeature srv;
     srv.request.object_feature = feature;
+
+    srv.request.point_cloud_file_name =
+        setup_["point-clouds"][feature.object].as<std::string>();
 
     if (!feature_service_client_.call(srv))
     {

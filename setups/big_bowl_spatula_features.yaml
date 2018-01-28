@@ -1,6 +1,7 @@
 # Object scans a.k.a. object knowledge base
-tool-3d-scan: iai_spatula.ply
-target-object-3d-scan: iai_big_bowl.ply
+point-clouds:
+  tool: b_spatula.ply
+  target-object: b_big_bowl.ply
 
 # Transformation from the end effector to the target object
 tool-grasp: 
@@ -16,6 +17,6 @@ target-object-grasp:
     
 # Handcoded object features (for testing purposes)
 object-features:
-  target-object: 
-    edge-point: {vector3: [-0.07, -0.04, -0.002]}
-    
+  heel-point:
+    value: {vector3: [-0.07, -0.04, -0.002]}
+  

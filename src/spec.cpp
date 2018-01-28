@@ -52,9 +52,9 @@ void Spec::setObjectFeature(skill_transfer::ObjectFeature feature)
 {
   YAML::Node point_node;
 
-  point_node["vector3"].push_back(feature.point.x);
-  point_node["vector3"].push_back(feature.point.y);
-  point_node["vector3"].push_back(feature.point.z);
+  point_node["vector3"].push_back(feature.value.x);
+  point_node["vector3"].push_back(feature.value.y);
+  point_node["vector3"].push_back(feature.value.z);
 
   setup_["object-features"][feature.object][feature.feature] = point_node;
 }

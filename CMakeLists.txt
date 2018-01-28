@@ -134,6 +134,13 @@ add_executable(knowledge_manager
 target_link_libraries(knowledge_manager ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(knowledge_manager ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+## Feature detector
+add_executable(feature_detector 
+  src/feature_detector.cpp
+)
+target_link_libraries(feature_detector ${catkin_LIBRARIES})
+add_dependencies(feature_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 # Gazebo Plugins
 
 ## Force controller plugin

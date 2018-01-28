@@ -1,3 +1,4 @@
 string object
 string feature
-geometry_msgs/Point point
+string reference
+geometry_msgs/Point value
