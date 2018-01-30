@@ -246,6 +246,8 @@ public:
     res.stop_condition = getMotionStopCondition(index);
     res.spec = getMotionSpec(index);
 
+    // ROS_INFO_STREAM(res.spec);
+
     return true;
   }
 

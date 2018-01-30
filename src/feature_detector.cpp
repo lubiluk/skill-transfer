@@ -77,11 +77,6 @@ private:
     const std::string &point_cloud_file_name = req.point_cloud_file_name;
     const std::string point_cloud_path = point_cloud_directory_path_ + point_cloud_file_name;
 
-    ROS_INFO_STREAM("Reference point: "
-                    << reference_point.x << " "
-                    << reference_point.y << " "
-                    << reference_point.z);
-
     const auto command =
         boost::format("run_edge_detector.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" %5% %6% > edge.txt") %
         point_cloud_path % reference_point.x % reference_point.y % reference_point.z % print_output_ % plot_results_;

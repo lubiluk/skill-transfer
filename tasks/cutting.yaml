@@ -1,6 +1,10 @@
 name: "Cutting"
 
-required-object-features: 
+required-object-features:
+  blade-point:
+    object: tool
+    feature: blade-mid-point
+    reference: tool 
 
 # The following motion phases will be executed in a sequence
 motion-phases:

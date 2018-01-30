@@ -1,7 +1,7 @@
 <launch>
   <node pkg="skill_transfer" type="feature_detector" name="feature_detector" output="screen">
     <param name="point_cloud_directory_path" type="string" value="$(find skill_transfer)/point_clouds/" />
-    <param name="print_output" type="boolean" value="false" />
+    <param name="print_output" type="boolean" value="true" />
     <param name="plot_results" type="boolean" value="false" />
   </node>
 
