@@ -1,24 +1,18 @@
 <launch>
-  <node pkg="skill_transfer" type="constraint_controller_pr2" name="constraint_controller" output="screen" if="$(arg pr2)"/>
-  <node pkg="skill_transfer" type="constraint_controller_free_ees" name="constraint_controller" output="screen" unless="$(arg pr2)"/>
-  
-  <param name="point_cloud_directory" type="string" value="$(find skill_transfer)/3d_scans/" />
-  
-  <node pkg="skill_transfer" type="edge_detector" name="edge_detector" output="screen">
-    
+  <node pkg="skill_transfer" type="feature_detector" name="feature_detector" output="screen">
+    <param name="point_cloud_directory_path" type="string" value="$(find skill_transfer)/point_clouds/" />
+    <param name="print_output" type="boolean" value="false" />
+    <param name="plot_results" type="boolean" value="false" />
   </node>
-  
-  <node pkg="skill_transfer" type="task_executive" name="task_executive" output="screen">
-    <param name="experiment_file_path" type="string" value="$(find skill_transfer)/experiments/$(arg experiment).yaml" />
-    <param name="task_directory" type="string" value="$(find skill_transfer)/tasks/" />
-    <param name="motion_directory" type="string" value="$(find skill_transfer)/motions/" />
-    <param name="motiom_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/pr2.yaml" if="$(arg pr2)"/>
-    <param name="motiom_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/free_ees.yaml" unless="$(arg pr2)"/>
-  </node>
-  
-  
-  <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_world" args="0 0 0 0 0 0 world base_footprint"/>
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="left_grasp" args="0.14 0.028 -0.002 -0.0500550264148 0.705614610626 0.700932017793 -0.0910868927763 l_gripper_tool_frame tool_frame"/>
-  <node pkg="tf2_ros" type="static_transform_publisher" name="right_grasp" args="0.06 0.11 0 -0.171777970707 -0.685860866607 -0.0174027448572 0.706954273563 r_gripper_tool_frame target_object_frame"/>
+  <node pkg="skill_transfer" type="knowledge_manager" name="knowledge_manager" output="screen">
+    <param name="task_file_path" type="string" value="$(find skill_transfer)/tasks/$(arg task).yaml" />
+    <param name="motion_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/$(arg robot).yaml"/>
+    <param name="motion_directory_path" type="string" value="$(find skill_transfer)/motions/" />
+    <param name="setup_file_path" type="string" value="$(find skill_transfer)/setups/$(arg setup).yaml" />
+  </node>
+
+  <node pkg="skill_transfer" type="constraint_controller_$(arg robot)" name="constraint_controller" output="screen"/>
+
+  <node pkg="skill_transfer" type="task_executive" name="task_executive" output="screen"/>
 </launch>

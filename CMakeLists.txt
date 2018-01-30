@@ -105,27 +105,9 @@ add_dependencies(constraint_controller_free_ees ${${PROJECT_NAME}_EXPORTED_TARGE
 add_executable(task_executive 
   src/task_executive.cpp 
   src/twist_log.cpp
-  src/task.cpp
-  src/experiment.cpp
-  src/spec.cpp
 )
-target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+target_link_libraries(task_executive ${catkin_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Task executive
-add_executable(task_executive2 
-  src/task_executive2.cpp 
-  src/twist_log.cpp
-)
-target_link_libraries(task_executive2 ${catkin_LIBRARIES})
-add_dependencies(task_executive2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Edge detector
-add_executable(edge_detector 
-  src/edge_detector.cpp
-)
-target_link_libraries(edge_detector ${catkin_LIBRARIES})
-add_dependencies(edge_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Knowledge manager
 add_executable(knowledge_manager 
