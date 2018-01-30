@@ -21,6 +21,7 @@ private:
   {
     Created,
     Initialized,
+    Waiting,
     ProcessingKnowledge,
     Ready
   };
@@ -106,7 +107,7 @@ public:
 
     // Initialize servers and clients
     feature_service_client_ =
-        node_handle_.serviceClient<skill_transfer::DetectObjectFeature>("detect_object_feature");
+        node_handle_.serviceClient<skill_transfer::DetectObjectFeature>("/feature_detector/detect_object_feature");
 
     state_ = State::Initialized;
   }
@@ -114,6 +115,10 @@ public:
   void start()
   {
     ROS_ASSERT(state_ == State::Initialized);
+
+    state_ = State::Waiting;
+
+    feature_service_client_.waitForExistence();
 
     state_ = State::ProcessingKnowledge;
 
@@ -209,6 +214,12 @@ public:
 
     for (const auto &rf : required_features)
     {
+      // Check if feature haven't been manually satisfied
+      if (setup_["object-features"][rf.first])
+      {
+        continue;
+      }
+
       skill_transfer::ObjectFeature feature = callDetectObjectFeature(rf.second);
       setObjectFeature(rf.first, feature);
     }
@@ -350,7 +361,15 @@ private:
     new_scope.push_back(target_object_grasp_node);
 
     // Fill in object features
-    // new_scope.push_back(setup_["object-features"]);
+    const YAML::Node &all_features_node = setup_["object-features"];
+
+    for (YAML::const_iterator it = all_features_node.begin(); it != all_features_node.end(); ++it)
+    {
+      YAML::Node fn;
+      fn[it->first] = it->second;
+
+      new_scope.push_back(fn);
+    }
 
     // Fill in template scope
     for (YAML::const_iterator it = motion_spec_scope.begin(); it != motion_spec_scope.end(); ++it)
@@ -384,10 +403,18 @@ private:
     const YAML::Node &node = task_["motion-phases"][index]["stop"];
     skill_transfer::StopCondition msg;
 
-    msg.measured_velocity_min = node["measured-velocity-min-threshold"].as<double>();
-    msg.desired_velocity_min = node["desired-velocity-min-threshold"].as<double>();
-    msg.contact = node["contact"].as<bool>();
-    msg.activation_distance = node["activation-distance"].as<double>();
+    try
+    {
+      msg.measured_velocity_min = node["measured-velocity-min-threshold"].as<double>();
+      msg.desired_velocity_min = node["desired-velocity-min-threshold"].as<double>();
+      msg.contact = node["contact"].as<bool>();
+      msg.activation_distance = node["activation-distance"].as<double>();
+    }
+    catch (std::exception &e)
+    {
+      ROS_ERROR("Failed to parse stop condition");
+      throw;
+    }
 
     return msg;
   }

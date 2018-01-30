@@ -19,6 +19,9 @@ private:
   tf2_ros::Buffer tfBuffer;
   tf2_ros::TransformListener tfListener;
   std::map<std::string, std::string> name2frame_;
+  // Additional parameters
+  bool print_output_ = false;
+  bool plot_results_ = false;
 
 public:
   FeatureDetector() : node_handle_("~"),
@@ -28,11 +31,14 @@ public:
     name2frame_["tool"] = "tool_frame";
     name2frame_["target-object"] = "target_object_frame";
 
-    if (!node_handle_.getParam("point_cloud_directory", point_cloud_directory_path_))
+    if (!node_handle_.getParam("point_cloud_directory_path", point_cloud_directory_path_))
     {
-      throw std::runtime_error("Could not find parameter 'point_cloud_directory' in namespace '" +
+      throw std::runtime_error("Could not find parameter 'point_cloud_directory_path' in namespace '" +
                                node_handle_.getNamespace() + "'.");
     }
+
+    node_handle_.getParam("print_output", print_output_);
+    node_handle_.getParam("plot_results", plot_results_);
 
     // Start services
     detector_service_server_ =
@@ -73,10 +79,12 @@ private:
 
     ROS_INFO_STREAM("Reference point: "
                     << reference_point.x << " "
-                    << reference_point.y << " " 
+                    << reference_point.y << " "
                     << reference_point.z);
 
-    const auto command = boost::format("run_edge_detector.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" > edge.txt") % point_cloud_path % reference_point.x % reference_point.y % reference_point.z;
+    const auto command =
+        boost::format("run_edge_detector.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" %5% %6% > edge.txt") %
+        point_cloud_path % reference_point.x % reference_point.y % reference_point.z % print_output_ % plot_results_;
 
     ROS_INFO_STREAM("Command: " << command);
 
@@ -121,12 +129,12 @@ private:
     try
     {
       transform_stamped = tfBuffer.lookupTransform(
-          object_frame, reference_frame, ros::Time(0));
+          object_frame, reference_frame, ros::Time(0), ros::Duration(10.0));
     }
     catch (tf2::TransformException &ex)
     {
-      ROS_WARN("%s", ex.what());
-      ros::shutdown();
+      ROS_ERROR("Reference point lookup failed");
+      throw;
     }
 
     return transform_stamped.transform.translation;

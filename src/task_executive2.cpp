@@ -68,6 +68,8 @@ public:
 
   void start()
   {
+    ROS_ASSERT(state_ == State::Initialized);
+    
     // Wait for the 3rd parties
     state_ = State::Waiting;
 

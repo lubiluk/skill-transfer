@@ -1,20 +1,12 @@
-name: Scraping
+name: "Scooping"
 
-required-object-features:
-  edge-point:
-    object: target-object
-    feature: edge-point
-    reference: tool
-  heel-point:
-    object: tool
-    feature: heel
-    reference: substance
+required-object-features: 
 
 # The following motion phases will be executed in a sequence
 motion-phases:
-  - name: Position Above
+  - name: "Position Above"
     # Giskard file
-    file: scraping_position_above.yaml
+    file: "scooping_position_above.yaml"
     # Stop conditions
     stop:
       # When measured gripper velocity drops below this threshold
@@ -22,22 +14,29 @@ motion-phases:
       # When desired (set by the controller) gripper velocity drops below this threshold
       desired-velocity-min-threshold: 0.02
       # Stop on contact
-      contact: false
+      contact: true
       # Ignore stop conditions until the distance 
       # from the target configuration is less than this
       activation-distance: 0.15
-  - name: Edge Contact
-    file: scraping_edge_contact.yaml
-    stop:
-      measured-velocity-min-threshold: 0.02
-      desired-velocity-min-threshold: 0.02
-      contact: true
-      activation-distance: 0.15
-  - name: Scrape Off
-    file: scraping_scrape_off.yaml
+  - name: "Insert"
+    file: "scooping_insert.yaml"
     stop:
       measured-velocity-min-threshold: 0.02
       desired-velocity-min-threshold: 0.02
       contact: false
       activation-distance: 0.15
-    
+  - name: "Scoop"
+    file: "scooping_scoop.yaml"
+    stop:
+      measured-velocity-min-threshold: 0.02
+      desired-velocity-min-threshold: 0.02
+      contact: false
+      activation-distance: 0.15
+  - name: "Lift"
+    file: "scooping_lift.yaml"
+    stop:
+      measured-velocity-min-threshold: 0.02
+      desired-velocity-min-threshold: 0.02
+      contact: false
+      activation-distance: 0.15
+      

@@ -1,4 +1,10 @@
 <launch>
+  <node pkg="skill_transfer" type="feature_detector" name="feature_detector" output="screen">
+    <param name="point_cloud_directory_path" type="string" value="$(find skill_transfer)/point_clouds/" />
+    <param name="print_output" type="boolean" value="false" />
+    <param name="plot_results" type="boolean" value="false" />
+  </node>
+
   <node pkg="skill_transfer" type="knowledge_manager" name="knowledge_manager" output="screen">
     <param name="task_file_path" type="string" value="$(find skill_transfer)/tasks/$(arg task).yaml" />
     <param name="motion_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/$(arg robot).yaml"/>

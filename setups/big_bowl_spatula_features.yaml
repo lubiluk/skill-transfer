@@ -17,6 +17,5 @@ target-object-grasp:
     
 # Handcoded object features (for testing purposes)
 object-features:
-  heel-point:
-    value: {vector3: [-0.07, -0.04, -0.002]}
+  heel-point: {vector3: [-0.07, -0.04, -0.002]}
   
