@@ -1,0 +1,42 @@
+name: "Scooping"
+
+required-object-features: 
+
+# The following motion phases will be executed in a sequence
+motion-phases:
+  - name: "Position Above"
+    # Giskard file
+    file: "scooping_position_above.yaml"
+    # Stop conditions
+    stop:
+      # When measured gripper velocity drops below this threshold
+      measured-velocity-min-threshold: 0.02
+      # When desired (set by the controller) gripper velocity drops below this threshold
+      desired-velocity-min-threshold: 0.02
+      # Stop on contact
+      contact: true
+      # Ignore stop conditions until the distance 
+      # from the target configuration is less than this
+      activation-distance: 0.15
+  - name: "Insert"
+    file: "scooping_insert.yaml"
+    stop:
+      measured-velocity-min-threshold: 0.02
+      desired-velocity-min-threshold: 0.02
+      contact: false
+      activation-distance: 0.15
+  - name: "Scoop"
+    file: "scooping_scoop.yaml"
+    stop:
+      measured-velocity-min-threshold: 0.02
+      desired-velocity-min-threshold: 0.02
+      contact: false
+      activation-distance: 0.15
+  - name: "Lift"
+    file: "scooping_lift.yaml"
+    stop:
+      measured-velocity-min-threshold: 0.02
+      desired-velocity-min-threshold: 0.02
+      contact: false
+      activation-distance: 0.15
+      

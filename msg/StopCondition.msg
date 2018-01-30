@@ -1,0 +1,4 @@
+float64 measured_velocity_min
+float64 desired_velocity_min
+bool contact
+float64 activation_distance

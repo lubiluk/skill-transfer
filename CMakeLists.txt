@@ -43,10 +43,18 @@ add_action_files(DIRECTORY action FILES
 )
 
 ## Add messages
-#add_message_files(
-#  FILES
-#  ControllerPoints.msg
-#)
+add_message_files(
+ FILES
+ ObjectFeature.msg
+ StopCondition.msg
+)
+
+add_service_files(
+  FILES
+  DetectObjectFeature.srv
+  GetTaskSpec.srv
+  GetMotionSpec.srv
+)
 
 ## Generate messages
 generate_messages(
@@ -97,19 +105,23 @@ add_dependencies(constraint_controller_free_ees ${${PROJECT_NAME}_EXPORTED_TARGE
 add_executable(task_executive 
   src/task_executive.cpp 
   src/twist_log.cpp
-  src/task.cpp
-  src/experiment.cpp
 )
-target_link_libraries(task_executive ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+target_link_libraries(task_executive ${catkin_LIBRARIES})
 add_dependencies(task_executive ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Edge detector
-add_executable(edge_detector 
-  src/edge_detector.cpp
+## Knowledge manager
+add_executable(knowledge_manager 
+  src/knowledge_manager.cpp 
 )
-target_link_libraries(edge_detector ${catkin_LIBRARIES})
-add_dependencies(edge_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(knowledge_manager ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+add_dependencies(knowledge_manager ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+## Feature detector
+add_executable(feature_detector 
+  src/feature_detector.cpp
+)
+target_link_libraries(feature_detector ${catkin_LIBRARIES})
+add_dependencies(feature_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Gazebo Plugins
 

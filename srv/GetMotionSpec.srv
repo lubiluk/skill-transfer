@@ -1,0 +1,4 @@
+int32 index
+---
+string spec
+StopCondition stop_condition
