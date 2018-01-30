@@ -26,23 +26,24 @@ The package consists of multiple ROS nodes that work collectively for achieving 
 
 ### The Process
 
-The whole process begins with *TaskExecutive* reading an experiment YAML file. 
-Checks what points of the objects should be perceived, e.g container edge and asks vision nodes (*EdgeDetector*) for those.
-Afterwards it the moiton sequence begins. *TaksExecutive* loads robot template file and in each task phase combines that template with motion constraints file. Also adds there grasping transformations and object points obtained from vision nodes. 
-Such prepared motion phase file is then sent to *ConstraintController* for execution. While that happens *TaskExecutive* observes the state of the robot and decides when to finish one phase and begin the next one according to the task specification file.
+The whole process begins with *KnowledgeManager* reading a task and setup YAML files. It decides what visual features are missing
+from the description and asks *FeatureDetector* for them. Once the specs are ready *TaskExecutive* asks for them and the moiton sequence begins. 
+*KnowledgeManager* provides indivisual motion specs to the *TaskExecutive* previously combining them with appripriate motion template.
+Such prepared motion phase file is then sent to *ConstraintController* for execution. While that happens *TaskExecutive* observes 
+the state of the robot and decides when to finish one phase and begin the next one according to the task specification file.
 When all motion phases are done the task is considered as finished.
 
 ### Configuration files
 
-There are configuration files that describe different levels of the system: motions, tasks, experiments. All files are YAML.
+There are configuration files that describe different levels of the system: motions, tasks, setups. All files are YAML.
 
 *robot template* specifies the kinematic chain of a robot.
 
 *motion phase* specifies motion in terms of constraints that should be satified.
 
-*tasks* contains a sequence of motion phases and appropriate stop conditions that toghether form a full task description.
+*tasks* contains a sequence of motion phases and appropriate stop conditions as well as required visual features that should be resolved. Those elements toghether form a full task description.
 
-*experiments* specifies a task to be executed, objects that take part in the task, callibrated grasp transformations and visual features that should be resolved.
+*setups* specifies objects that take part in the task, callibrated grasp transformations and handcoded visual features.
 
 ### Supported tasks
 
