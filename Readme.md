@@ -28,7 +28,7 @@ The package consists of multiple ROS nodes that work collectively for achieving 
 
 The whole process begins with *KnowledgeManager* reading a task and setup YAML files. It decides what visual features are missing
 from the description and asks *FeatureDetector* for them. Once the specs are ready *TaskExecutive* asks for them and the moiton sequence begins. 
-*KnowledgeManager* provides indivisual motion specs to the *TaskExecutive* previously combining them with appripriate motion template.
+*KnowledgeManager* provides individual motion specs to the *TaskExecutive* previously combining them with appropriate motion template.
 Such prepared motion phase file is then sent to *ConstraintController* for execution. While that happens *TaskExecutive* observes 
 the state of the robot and decides when to finish one phase and begin the next one according to the task specification file.
 When all motion phases are done the task is considered as finished.
