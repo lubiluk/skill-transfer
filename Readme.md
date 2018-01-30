@@ -13,14 +13,14 @@ At it's core, the system makes use of Giskard library for robot control: https:/
 The package consists of multiple ROS nodes that work collectively for achieving the desired effects. They communicate in roughly following manner:
 
 ```
-[EdgeDetector][ToolPointDetector] <--> [TaskExecutive] --> [ConstraintController] --> <Actuators>
+[FeatureDetector] <--> [KnowledgeManager] <--> [TaskExecutive] --> [ConstraintController] --> <Actuators>
 ```
+
+*KnowledgeManager* manages all specs needed for the task.
 
 *TaskExecutive* is the main node that supervises the whole process and sends requests to all other nodes.
 
-*EdgeDetector* finds object edges and desired contact points on them.
-
-~~*ToolPointDetector* finds important contact points on tools.~~ (Not implemented yet)
+*FeatureDetector* finds desired object features (edge-point, ...)
 
 *ConstraintController* uses Giskard internally, translates motion description files into desired joint velocities.
 
@@ -88,7 +88,7 @@ There are configuration files that describe different levels of the system: moti
 
 2. In a new terminal, launch the experiment
    ```
-   roslaunch skill_transfer experiment.launch pr2:=false experiment:=scraping_1
+   roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=big_bowl_spatula_features
    ```
 
 ### Running with Gazebo and iai_naive_kinematics PR2 simulator
