@@ -1,22 +1,7 @@
+<?xml version='1.0'?>
 <sdf version="1.6">
     <world name="scraping">
-
-        <physics type="ode">
-            <max_step_size>0.001</max_step_size>
-            <real_time_factor>1</real_time_factor>
-            <real_time_update_rate>1000</real_time_update_rate>
-            <bullet>
-                <solver>
-                    <iters>70</iters>
-                </solver>
-            </bullet>
-            <ode>
-                <solver>
-                    <iters>70</iters>
-                </solver>
-            </ode>
-        </physics>
-
+    
         <include>
             <uri>model://sun</uri>
         </include>
