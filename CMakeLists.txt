@@ -137,6 +137,10 @@ target_link_libraries(position_controller_plugin ${catkin_LIBRARIES} ${GAZEBO_LI
 add_library(tf_broadcaster_plugin plugins/tf_broadcaster_plugin.cpp)
 target_link_libraries(tf_broadcaster_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
+## Feature visualization plugin
+add_library(giskard_visualization_plugin plugins/giskard_visualization_plugin.cpp)
+target_link_libraries(giskard_visualization_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
 ## Grip plugin
 add_library(GripPlugin plugins/GripPlugin.cc)
 target_link_libraries(GripPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

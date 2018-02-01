@@ -32,6 +32,7 @@ private:
   ros::ServiceClient feature_service_client_;
   ros::ServiceServer task_spec_service_server_;
   ros::ServiceServer motion_spec_service_server_;
+  ros::Publisher feature_publisher_;
   // File paths
   std::string task_file_path_;
   std::string setup_file_path_;
@@ -108,6 +109,8 @@ public:
     // Initialize servers and clients
     feature_service_client_ =
         node_handle_.serviceClient<skill_transfer::DetectObjectFeature>("/feature_detector/detect_object_feature");
+
+    feature_publisher_ = node_handle_.advertise<skill_transfer::ObjectFeature>("/object_feature", 5, true);
 
     state_ = State::Initialized;
   }
@@ -223,6 +226,9 @@ public:
       skill_transfer::ObjectFeature feature = callDetectObjectFeature(rf.second);
       setObjectFeature(rf.first, feature);
     }
+
+    // Publish object features for visualization
+    publishObjectFeatures();
 
     // Starting services
     task_spec_service_server_ =
@@ -419,6 +425,29 @@ private:
     }
 
     return msg;
+  }
+
+  void publishObjectFeatures()
+  {
+    const YAML::Node &all_required_features_node = task_["required-object-features"];
+
+    for (YAML::const_iterator it = all_required_features_node.begin(); it != all_required_features_node.end(); ++it)
+    {
+      const std::string &feature_name = it->first.as<std::string>();
+      const YAML::Node &rofn = it->second;
+      const YAML::Node &fn = setup_["object-features"][feature_name];
+
+      skill_transfer::ObjectFeature of;
+
+      of.object = rofn["object"].as<std::string>();
+      of.feature = rofn["feature"].as<std::string>();
+      of.reference = rofn["reference"].as<std::string>();
+      of.value.x = fn["vector3"][0].as<double>();
+      of.value.y = fn["vector3"][1].as<double>();
+      of.value.z = fn["vector3"][2].as<double>();
+
+      feature_publisher_.publish(of);
+    }
   }
 };
 

@@ -84,12 +84,12 @@ There are configuration files that describe different levels of the system: moti
 
 1. Launch the Gazebo world and keep it running
    ```
-   roslaunch skill_transfer simulation.launch world:=scraping_velocity_controlled
+   roslaunch skill_transfer simulation.launch world:=big_bowl_spatula_v
    ```
 
 2. In a new terminal, launch the experiment
    ```
-   roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=big_bowl_spatula_features
+   roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=big_bowl_spatula
    ```
 
 ### Running with Gazebo and iai_naive_kinematics PR2 simulator

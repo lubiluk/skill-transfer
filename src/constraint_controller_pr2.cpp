@@ -31,7 +31,7 @@ public:
     // care about the end effector velocity and not about joint velocities
     pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
     // Desired motion state visualization for RViz
-    pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
+    pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 1);
 
     as_.start();
   }

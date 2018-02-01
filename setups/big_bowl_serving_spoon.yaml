@@ -1,6 +1,6 @@
 # Object scans a.k.a. object knowledge base
 point-clouds:
-  tool: b_spatula.ply
+  tool: b_serving_spoon.ply
   target-object: b_big_bowl.ply
 
 # Transformation from the end effector to the target object

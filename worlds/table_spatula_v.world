@@ -96,6 +96,8 @@
             </plugin>
         </include>
 
+        <plugin name="feature_visualization_plugin" filename="libgiskard_visualization_plugin.so"></plugin>
+
         <gui>
             <camera name='user_camera'>
                 <pose>1.700789 1.175709 1.670612 0 0.375643 -2.675000</pose>

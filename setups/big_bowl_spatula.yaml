@@ -19,5 +19,5 @@ target-object-grasp:
 object-features:
   heel-point: {vector3: [-0.028, 0.002, 0.01]}
   blade-point: {vector3: [-0.0744, -0.0390, -0.00275]}
-  # edge-point: {vector3: [0.0220, 0.1320, 0.0501]}
+  edge-point: {vector3: [0.0220, 0.1320, 0.0501]}
   

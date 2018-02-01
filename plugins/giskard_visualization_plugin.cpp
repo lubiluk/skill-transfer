@@ -1,141 +1,127 @@
-// Source: http://answers.gazebosim.org/question/3383/how-to-add-a-dynamic-visual-marker-in-gazebo/
-
-#include "gazebo/physics/physics.hh"
-#include "gazebo/transport/TransportTypes.hh"
-#include "gazebo/msgs/MessageTypes.hh"
-
-#include "gazebo/common/Time.hh"
-#include "gazebo/common/Plugin.hh"
-#include "gazebo/common/Events.hh"
-
-#include "gazebo/rendering/DynamicLines.hh"
-#include "gazebo/rendering/RenderTypes.hh"
-#include "gazebo/rendering/Visual.hh"
-#include "gazebo/rendering/Scene.hh"
-
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/physics/physics.hh>
+#include <boost/format.hpp>
+#include <map>
 #include <ros/ros.h>
-
-#include <geometry_msgs/Point.h>
-// if you want some positions of the model use this....
-#include <gazebo_msgs/ModelStates.h>
-
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-
+#include <ros/callback_queue.h>
+#include <ros/subscribe_options.h>
+#include <visualization_msgs/Marker.h>
 
 namespace gazebo
 {
-namespace rendering
-{
-class GiskardVisualizationPlugin : public VisualPlugin
+class GiskardVisualizationPlugin : public WorldPlugin
 {
 private:
-  /// \brief pointer to ros node
-  ros::NodeHandle* rosnode_;
-
-  /// \brief store model name
-  std::string model_name_;
-
-  /// \brief topic name
-  std::string topic_name_;
-
-  // /// \brief The visual pointer used to visualize the force.
-  VisualPtr visual_;
-
-  // /// \brief The scene pointer.
-  ScenePtr scene_;
-
-  /// \brief For example a line to visualize the force
-  DynamicLines *line;
-
-  /// \brief for setting ROS name space
-  std::string visual_namespace_;
-
-  /// \Subscribe to some force
-  ros::Subscriber force_sub_;
-
-  // Pointer to the update event connection
+  /// \brief A node use for ROS transport
+  std::unique_ptr<ros::NodeHandle> node_handle_;
+  /// \brief A ROS subscriber
+  ros::Subscriber subscriber_;
+  /// \brief A ROS callbackqueue that helps process messages
+  ros::CallbackQueue callback_queue_;
+  physics::WorldPtr world_;
   event::ConnectionPtr update_connection_;
-  
+  std::map<std::string, common::Time> markers;
+
 public:
-  /// \brief Constructor
-  GiskardVisualizationPlugin(): line(nullptr)
+  GiskardVisualizationPlugin() : WorldPlugin()
   {
-  
   }
 
-  /// \brief Destructor
-  virtual ~GiskardVisualizationPlugin() 
+  void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   {
-    // Finalize the visualizer
-    this->rosnode_->shutdown();
-    delete this->rosnode_;
-  }
-
-  /// \brief Load the visual force plugin tags
-  /// \param node XML config node
-  void Load( VisualPtr _parent, sdf::ElementPtr _sdf )
-  {
-    this->visual_ = _parent;
-    this->visual_namespace_ = "visual/";
-
-    // start ros node
+    // Make sure the ROS node for Gazebo has already been initialized
     if (!ros::isInitialized())
     {
-      int argc = 0;
-      char** argv = NULL;
-      ros::init(argc,argv,"gazebo_visual",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
+      ROS_FATAL_STREAM("A ROS node for Gazebo has not been initialized, unable to load plugin. "
+                       << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the gazebo_ros package)");
+      return;
     }
 
-    this->rosnode_ = new ros::NodeHandle(this->visual_namespace_);
-    this->force_sub_ = this->rosnode_->subscribe("/some_force", 1000, &GiskardVisualizationPlugin::VisualizeForceOnLink, this);
+    this->world_ = _world;
 
-    // Listen to the update event. This event is broadcast every
-    // simulation iteration.
-    this->update_connection_ = event::Events::ConnectRender(
-        boost::bind(&GiskardVisualizationPlugin::UpdateChild, this));
+    // Create our ROS node. This acts in a similar manner to
+    // the Gazebo node
+    this->node_handle_.reset(new ros::NodeHandle("gazebo_client"));
+
+    // Create a named topic, and subscribe to it.
+    ros::SubscribeOptions so =
+        ros::SubscribeOptions::create<visualization_msgs::Marker>(
+            "/giskard/visualization_marker",
+            10,
+            boost::bind(&GiskardVisualizationPlugin::OnRosMsg, this, _1),
+            ros::VoidPtr(), &this->callback_queue_);
+    this->subscriber_ = this->node_handle_->subscribe(so);
+
+    this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
+        boost::bind(&GiskardVisualizationPlugin::Update, this));
   }
 
-
-protected: 
-  /// \brief Update the visual plugin
-  virtual void UpdateChild()
+  void Update()
   {
-    ros::spinOnce();
+    // Get new commands/state
+    callback_queue_.callAvailable();
   }
-  
-private:
-  /// \brief Visualize the force
-  void VisualizeForceOnLink(const geometry_msgs::PointConstPtr &force_msg)
+
+  /// \brief Handle an incoming message from ROS
+  /// \param[in] _msg A float value that is used to set the velocity
+  /// of the Velodyne.
+  void OnRosMsg(const visualization_msgs::MarkerConstPtr &_msg)
   {
-//    this->line = this->visual_->CreateDynamicLine(RENDERING_LINE_STRIP);
+    if (_msg->type != visualization_msgs::Marker::SPHERE)
+    {
+      return;
+    }
 
-//    //TODO: Get the current link position
-//    link_pose = CurrentLinkPose();
-//    //TODO: Get the current end position
-//    endpoint = CalculateEndpointOfForceVector(link_pose, force_msg);
+    std::string name = _msg->ns;
 
-//    // Add two points to a connecting line strip from link_pose to endpoint
-//    this->line->AddPoint(
-//      math::Vector3(
-//        link_pose.position.x,
-//        link_pose.position.y,
-//        link_pose.position.z
-//        )
-//      );
-//    this->line->AddPoint(math::Vector3(endpoint.x, endpoint.y, endpoint.z));
-//    // set the Material of the line, in this case to purple
-//    this->line->setMaterial("Gazebo/Purple")
-//    this->line->setVisibilityFlags(GZ_VISIBILITY_GUI);
-//    this->visual_->SetVisible(true);
+    if (markers.find(name) == markers.end())
+    {
+      std::string pose = boost::str(boost::format("%1% %2% %3% 0 0 0") %
+                                    (_msg->pose.position.x) %
+                                    (_msg->pose.position.y) %
+                                    (_msg->pose.position.z));
+      sdf::SDF sphereSDF;
+      sphereSDF.SetFromString(
+          "<sdf version ='1.6'>\
+          <model name ='sphere'>\
+            <static>true</static>\
+            <pose>" +
+          pose + "</pose>\
+            <link name ='link'>\
+              <pose>0 0 0 0 0 0</pose>\
+              <visual name ='visual'>\
+                <geometry>\
+                  <sphere><radius>0.005</radius></sphere>\
+                </geometry>\
+                <material>\
+                    <script>\
+                        <name>Gazebo/Yellow</name>\
+                        <uri>file://media/materials/scripts/gazebo.material</uri>\
+                    </script>\
+                </material>\
+              </visual>\
+            </link>\
+          </model>\
+        </sdf>");
+      // Demonstrate using a custom model name.
+      sdf::ElementPtr modelSDF = sphereSDF.Root()->GetElement("model");
+      modelSDF->GetAttribute("name")->SetFromString(name);
+      this->world_->InsertModelSDF(sphereSDF);
+    }
+    else
+    {
+      auto model = this->world_->GetModel(name);
+
+      if (model)
+      {
+        math::Pose pose(_msg->pose.position.x, _msg->pose.position.y, _msg->pose.position.z, 0.0, 0.0, 0.0);
+        model->SetWorldPose(pose);
+      }
+    }
+
+    markers[name] = common::Time::GetWallTime();
   }
-  
 };
 
-// Register this plugin within the simulator
-GZ_REGISTER_VISUAL_PLUGIN(GiskardVisualizationPlugin)
-    
-}
+GZ_REGISTER_WORLD_PLUGIN(GiskardVisualizationPlugin)
 }

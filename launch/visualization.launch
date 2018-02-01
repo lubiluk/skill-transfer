@@ -1,9 +1,6 @@
 <launch>
   <env name="GAZEBO_MODEL_PATH" value="$(find skill_transfer)/models"/>
   
-  <node pkg="tf" type="static_transform_publisher" name="base_to_world" args="0 0 0 0 0 0 gazebo_world base_footprint 100"/>
-<!--  <node pkg="tf" type="static_transform_publisher" name="base_to_map" args="0 0 0 0 0 0 map base_footprint 100"/>-->
-  
   <include file="$(find gazebo2rviz)/launch/gazebo2rviz.launch"/>
   <node name="rviz" pkg="rviz" type="rviz"/>
 </launch>
