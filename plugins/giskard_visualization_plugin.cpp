@@ -6,6 +6,7 @@
 #include <visualization_msgs/Marker.h>
 #include <boost/format.hpp>
 #include <map>
+#include <set>
 #include <string>
 #include <mutex>
 #include <thread>
@@ -26,6 +27,9 @@ private:
   physics::WorldPtr world_;
   event::ConnectionPtr update_connection_;
   std::map<std::string, visualization_msgs::Marker> markers_;
+  // To avoid duplicated markers, Gazebo sometimes doesn't
+  // realise that a model has already been created?
+  std::set<std::string> created_markers_;
 
 public:
   GiskardVisualizationPlugin() : WorldPlugin()
@@ -56,9 +60,9 @@ public:
             boost::bind(&GiskardVisualizationPlugin::OnRosMsg, this, _1),
             ros::VoidPtr(), &this->queue_);
     this->subscriber_ = this->node_handle_->subscribe(so);
-    
+
     // Custom Callback Queue
-    this->queue_thread_ = std::thread( boost::bind( &GiskardVisualizationPlugin::QueueThread, this ) );
+    this->queue_thread_ = std::thread(boost::bind(&GiskardVisualizationPlugin::QueueThread, this));
 
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&GiskardVisualizationPlugin::Update, this));
@@ -72,11 +76,15 @@ public:
     {
       const visualization_msgs::Marker &msg = p.second;
       const std::string &name = msg.ns;
-      auto model = this->world_->GetModel(name);
 
-      if (model)
+      if (created_markers_.find(name) != created_markers_.end())
       {
-        updateMarkerModel(model, msg);
+        auto model = this->world_->GetModel(name);
+
+        if (model)
+        {
+          updateMarkerModel(model, msg);
+        }
       }
       else
       {
@@ -98,7 +106,8 @@ public:
         "<sdf version ='1.6'>\
           <model name ='sphere'>\
             <static>true</static>\
-            <pose>" + pose + "</pose>\
+            <pose>" +
+        pose + "</pose>\
             <link name ='link'>\
               <pose>0 0 0 0 0 0</pose>\
               <visual name ='visual'>\
@@ -119,17 +128,18 @@ public:
     sdf::ElementPtr modelSDF = sphereSDF.Root()->GetElement("model");
     modelSDF->GetAttribute("name")->SetFromString(name);
     this->world_->InsertModelSDF(sphereSDF);
+    created_markers_.insert(name);
 
     gzdbg << "Created Marker: " << name << "\n";
   }
 
   void updateMarkerModel(physics::ModelPtr model, const visualization_msgs::Marker &_msg)
   {
-      math::Pose pose(_msg.pose.position.x,
-                      _msg.pose.position.y,
-                      _msg.pose.position.z,
-                      0.0, 0.0, 0.0);
-      model->SetWorldPose(pose);
+    math::Pose pose(_msg.pose.position.x,
+                    _msg.pose.position.y,
+                    _msg.pose.position.z,
+                    0.0, 0.0, 0.0);
+    model->SetWorldPose(pose);
   }
 
   /// \brief Handle an incoming message from ROS
