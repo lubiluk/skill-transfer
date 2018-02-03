@@ -56,7 +56,7 @@
             <plugin name="l_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
               <childLinkName>b_serving_spoon::link</childLinkName>
-              <relativePose>0.112571612 0.00813051871955 0.0153673645109 1.3828344221275815 0.015398730956486372 0.08077832485708741</relativePose>
+              <relativePose>0.112571612 0.00813051871955 -0.0153673645109 1.3828344221275815 0.015398730956486372 0.08077832485708741</relativePose>
             </plugin>
             
             <plugin name="l_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
