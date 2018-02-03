@@ -29,7 +29,7 @@ public:
     pub_l_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
     pub_r_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_r_ee_twist", 1);
     // Desired motion state visualization for RViz
-    pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 1);
+    pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 10);
 
     as_.start();
   }
