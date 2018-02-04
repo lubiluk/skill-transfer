@@ -80,6 +80,10 @@ There are configuration files that describe different levels of the system: moti
 
 ## Running
 
+Worlds with `_v` prefix are for free end effectors simulation only, `_p` for PR2 simulation.
+
+Experiment launch file can be run for freely flying end effectors simulation (argument `robot:=free_ees`) or simulated or real PR2 (`robot:=pr2`).
+
 ### Running with Gazebo simulator
 
 1. Launch the Gazebo world and keep it running
@@ -93,8 +97,26 @@ There are configuration files that describe different levels of the system: moti
    ```
 
 ### Running with Gazebo and iai_naive_kinematics PR2 simulator
-...
+
+1. Launch PR2 simulator, keep it running
+  ```
+  roslaunch skill_transfer pr2.launch
+  ```
+2. Launch the Gazebo world, keep it running
+  ```
+  roslaunch skill_transfer simulation.launch world:=big_bowl_spatula_p
+  ```
+
+3. In a new terminal, launch the experiment.
+   ```
+   roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
+   ```
 
 ### Running with real robot
-...
 
+1. Prepare the robot.
+
+2. Launch the experiment.
+   ```
+   roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
+   ```

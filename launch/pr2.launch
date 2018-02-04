@@ -1,0 +1,29 @@
+<launch>
+  <group>
+    <include file="$(find iai_pr2_description)/launch/upload_pr2.launch" />
+
+    <node pkg="iai_naive_kinematics_sim" type="simulator" 
+          name="simulator" output="screen">
+      <rosparam command="load"
+          file="$(find skill_transfer)/initial_poses/pr2_scraping.yaml" />
+      <remap from="~joint_states" to="/joint_states" />
+      <remap from="~commands" to="/whole_body_controller/velocity_controller/command" />
+    </node>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher"
+          name="robot_state_publisher" />
+    
+    <include file="$(find iai_pr2_sim)/launch/fake_localization.launch" />
+  </group>
+
+  <include file="$(find giskard_pr2)/launch/qp_controller.launch" >
+    <arg name="sim" value="true" />
+    <arg name="trajectory_controller" value="false" />
+  </include>
+
+  <group>
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find skill_transfer)/config/simulator.rviz" />
+  </group>
+
+</launch>

@@ -31,11 +31,12 @@ void GripPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
       
       childLink->SetWorldPose(childPose);
       
-      gzdbg << "Grip: Relative pose given, adjusting child pose " << relativePose << "\n";
+      gzdbg << "Grip: Relative pose given, adjusting child pose\n"
+            << childPose << "\n";
     } else {
       relativePose = parentLink->GetWorldPose() - childLink->GetWorldPose();
       
-      gzdbg << "Grip: Relative pose derrived" << relativePose;
+      gzdbg << "Grip: Relative pose derrived\n";
     }
 
     // Create joint

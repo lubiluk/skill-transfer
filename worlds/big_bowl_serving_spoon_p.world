@@ -36,32 +36,19 @@
             <name>left_ee</name>
             <pose>0 0.5 1 0 0 0</pose>
             
-            <plugin name="l_force_controller" filename="libvelocity_controller_plugin.so">
+            <plugin name="l_position_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
-              <topicName>set_l_ee_twist</topicName>
-              <gains>
-                <linear>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </linear>
-                <angular>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </angular>
-              </gains>
+              <referenceFrameName>base_link</referenceFrameName>
+              <targetFrameName>l_gripper_tool_frame</targetFrameName>
+              <P>0.0</P>
+              <I>0.0</I>
+              <D>0.0</D>
             </plugin>
             
             <plugin name="l_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
               <childLinkName>b_serving_spoon::link</childLinkName>
               <relativePose>0.112571612 0.00813051871955 -0.0153673645109 1.3828344221275815 0.015398730956486372 0.08077832485708741</relativePose>
-            </plugin>
-            
-            <plugin name="l_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
-              <linkName>link</linkName>
-              <frameName>l_gripper_tool_frame</frameName>
             </plugin>
         </include>
 
@@ -71,32 +58,19 @@
             <name>right_ee</name>
             <pose>0 -0.5 1 1.547368 1.402341 1.343703</pose>
             
-            <plugin name="r_force_controller" filename="libvelocity_controller_plugin.so">
+            <plugin name="r_position_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
-              <topicName>set_r_gripper_twist</topicName>
-              <gains>
-                <linear>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </linear>
-                <angular>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </angular>
-              </gains>
+              <referenceFrameName>base_link</referenceFrameName>
+              <targetFrameName>r_gripper_tool_frame</targetFrameName>
+              <P>100.0</P>
+              <I>0.0</I>
+              <D>50.0</D>
             </plugin>
             
             <plugin name="r_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
               <childLinkName>b_big_bowl::link</childLinkName>
               <relativePose>0.06 0.11 0 -1.57 -1.35 1.3</relativePose>
-            </plugin>
-            
-            <plugin name="r_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
-              <linkName>link</linkName>
-              <frameName>r_gripper_tool_frame</frameName>
             </plugin>
         </include>
 
