@@ -87,14 +87,14 @@ Experiment launch file can be run for freely flying end effectors simulation (ar
 ### Running with Gazebo simulator
 
 1. Launch the Gazebo world and keep it running
-   ```
-   roslaunch skill_transfer simulation.launch world:=big_bowl_spatula_v
-   ```
+  ```
+  roslaunch skill_transfer simulation.launch world:=big_bowl_spatula_v
+  ```
 
 2. In a new terminal, launch the experiment
-   ```
-   roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=big_bowl_spatula
-   ```
+  ```
+  roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=big_bowl_spatula
+  ```
 
 ### Running with Gazebo and iai_naive_kinematics PR2 simulator
 
@@ -108,15 +108,15 @@ Experiment launch file can be run for freely flying end effectors simulation (ar
   ```
 
 3. In a new terminal, launch the experiment.
-   ```
-   roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
-   ```
+  ```
+  roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
+  ```
 
 ### Running with real robot
 
 1. Prepare the robot.
 
 2. Launch the experiment.
-   ```
-   roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
-   ```
+  ```
+  roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
+  ```

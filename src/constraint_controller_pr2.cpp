@@ -129,7 +129,7 @@ public:
       const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
       const auto cmd = giskard_adapter_.getDesiredJointVelocityMsg();
 
-      ROS_DEBUG_STREAM("ee_twist_desired" << ee_twist_desired);
+      // ROS_INFO_STREAM("ee_twist_desired" << ee_twist_desired);
 
       pub_.publish(cmd);
       pub_gripper_.publish(ee_twist_desired);
