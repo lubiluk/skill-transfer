@@ -1,0 +1,44 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+	<model name='a_mug2'>
+		<static>false</static>
+		<pose>0 0 0 0 0 0</pose>
+
+		<link name='link'>
+			<inertial>
+			<mass>0.329</mass>
+			<pose>0.0010025 -0.00022342 -0.00040089 0 0 0</pose>
+				<inertia>
+					<ixx>1.3761e-06</ixx>
+					<ixy>0</ixy>
+					<ixz>0</ixz>
+					<iyy>1.227e-06</iyy>
+					<iyz>0</iyz>
+					<izz>8.7996e-07</izz>
+				</inertia>
+			</inertial>
+			<collision name='collision'>
+				<geometry>
+					<mesh>
+						<uri>model://a_mug2/a_mug2.dae</uri>
+					</mesh>
+				</geometry>
+				<surface>
+					<friction>
+						<ode>
+							<mu>0.2</mu>
+							<mu2>0.2</mu2>
+						</ode>
+					</friction>
+				</surface>
+			</collision>
+			<visual name='visual'>
+				<geometry>
+					<mesh>
+						<uri>model://a_mug2/a_mug2.dae</uri>
+					</mesh>
+				</geometry>
+			</visual>
+		</link>
+	</model>
+</sdf>
