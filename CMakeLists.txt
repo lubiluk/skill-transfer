@@ -39,19 +39,18 @@ endif(NOT YAML_CPP_LIBRARIES)
 ## Add actions
 add_action_files(DIRECTORY action FILES 
   MoveArm.action
-  FindEdge.action
 )
 
 ## Add messages
 add_message_files(
  FILES
- ObjectFeature.msg
  StopCondition.msg
 )
 
 add_service_files(
   FILES
-  DetectObjectFeature.srv
+  DetectTargetObjectInfo.srv
+  DetectToolInfo.srv
   GetTaskSpec.srv
   GetMotionSpec.srv
 )

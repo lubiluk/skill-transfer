@@ -1,14 +1,9 @@
 name: Scraping
 
-required-object-features:
-  edge-point:
-    object: target-object
-    feature: edge-point
-    reference: tool
-  heel-point:
-    object: tool
-    feature: heel
-    reference: substance
+required-object-info:
+  tool: true
+  target-object: true
+  task: scraping_butter
 
 # The following motion phases will be executed in a sequence
 motion-phases:

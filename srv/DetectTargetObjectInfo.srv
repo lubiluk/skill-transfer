@@ -1,0 +1,4 @@
+string point_cloud_file_name
+---
+geometry_msgs/Point edge_point
+geometry_msgs/Vector3 alignment_vector

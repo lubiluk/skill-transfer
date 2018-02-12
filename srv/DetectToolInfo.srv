@@ -1,0 +1,12 @@
+string point_cloud_file_name
+float64 tool_mass
+string task_name
+geometry_msgs/Point edge_point
+geometry_msgs/Vector3 alignment_vector
+---
+float64 affordance_score
+geometry_msgs/Point grasp_center
+geometry_msgs/Point action_center
+geometry_msgs/Point tool_tip
+geometry_msgs/Vector3 tool_tip_vector
+geometry_msgs/Quaternion tool_quaternion

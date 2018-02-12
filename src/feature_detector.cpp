@@ -5,16 +5,19 @@
 #include <fstream>
 #include <map>
 
-#include <skill_transfer/DetectObjectFeature.h>
+#include <skill_transfer/DetectTargetObjectInfo.h>
+#include <skill_transfer/DetectToolInfo.h>
 
 class FeatureDetector
 {
 private:
   // ROS handles
   ros::NodeHandle node_handle_;
-  ros::ServiceServer detector_service_server_;
+  ros::ServiceServer tool_info_service_server_;
+  ros::ServiceServer target_object_info_service_server_;
   // File directories
   std::string point_cloud_directory_path_;
+  std::string trained_data_directory_path_;
   // TF
   tf2_ros::Buffer tfBuffer;
   tf2_ros::TransformListener tfListener;
@@ -37,57 +40,106 @@ public:
                                node_handle_.getNamespace() + "'.");
     }
 
+    if (!node_handle_.getParam("trained_data_directory_path", trained_data_directory_path_))
+    {
+      throw std::runtime_error("Could not find parameter 'trained_data_directory_path' in namespace '" +
+                               node_handle_.getNamespace() + "'.");
+    }
+
     node_handle_.getParam("print_output", print_output_);
     node_handle_.getParam("plot_results", plot_results_);
 
     // Start services
-    detector_service_server_ =
-        node_handle_.advertiseService("detect_object_feature",
-                                      &FeatureDetector::serveDetectObjectFeature,
-                                      this);
+    tool_info_service_server_ = node_handle_.advertiseService("detect_tool_info",
+                                                              &FeatureDetector::serveDetectToolInfo,
+                                                              this);
+    target_object_info_service_server_ = node_handle_.advertiseService("detect_target_object_info",
+                                                                       &FeatureDetector::serveDetectTargetObjectInfo,
+                                                                       this);
   }
 
-  bool serveDetectObjectFeature(skill_transfer::DetectObjectFeature::Request &req,
-                                skill_transfer::DetectObjectFeature::Response &res)
-  {
-    // Facade
-    std::string feature = req.object_feature.feature;
-
-    if (feature == "edge-point")
-    {
-      serveDetectEdgePoint(req, res);
-    }
-    else
-    {
-      ROS_ERROR_STREAM("Unknown feature requested: " << feature);
-      return false;
-    }
-
-    return true;
-  }
-
-private:
-  void serveDetectEdgePoint(skill_transfer::DetectObjectFeature::Request &req,
-                            skill_transfer::DetectObjectFeature::Response &res)
+  bool serveDetectTargetObjectInfo(skill_transfer::DetectTargetObjectInfo::Request &req,
+                                   skill_transfer::DetectTargetObjectInfo::Response &res)
   {
     // Find reference point
     const geometry_msgs::Vector3 reference_point =
-        findReferencePoint(req.object_feature.object, req.object_feature.reference);
+        findReferencePoint("target-object", "tool");
 
     const std::string &point_cloud_file_name = req.point_cloud_file_name;
     const std::string point_cloud_path = point_cloud_directory_path_ + point_cloud_file_name;
 
     const auto command =
-        boost::format("run_edge_detector.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" %5% %6% > edge.txt") %
+        boost::format("run_get_target_obj_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% \"[%2% %3% %4%]\" %5% %6% > /tmp/target_object_info.txt") %
         point_cloud_path % reference_point.x % reference_point.y % reference_point.z % print_output_ % plot_results_;
 
     ROS_INFO_STREAM("Command: " << command);
 
     std::system(command.str().c_str());
 
-    std::ifstream file("edge.txt");
+    std::ifstream file("/tmp/target_object_info.txt");
 
-    std::string output;
+    for (std::string line; std::getline(file, line);)
+    {
+      if (line.empty())
+        continue;
+
+      if (line.find("target_obj_contact_points") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.edge_point.x;
+        line_iss >> res.edge_point.y;
+        line_iss >> res.edge_point.z;
+      }
+
+      if (line.find("target_obj_align_vecs") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.alignment_vector.x;
+        line_iss >> res.alignment_vector.y;
+        line_iss >> res.alignment_vector.z;
+      }
+    }
+
+    ROS_INFO_STREAM("Target Object Info: \n" << res);
+    
+    return true;
+  }
+
+  bool serveDetectToolInfo(skill_transfer::DetectToolInfo::Request &req,
+                           skill_transfer::DetectToolInfo::Response &res)
+  {
+    const std::string &point_cloud_file_name = req.point_cloud_file_name;
+    const std::string point_cloud_path = point_cloud_directory_path_ + point_cloud_file_name;
+
+    const std::string trained_data_file_name = req.task_name + ".mat";
+    const std::string trained_data_path = trained_data_directory_path_ + trained_data_file_name;
+
+    const auto command =
+        boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3% %4% %5%]\" %6% %7% %8% %9% > /tmp/tool_info.txt") %
+        point_cloud_path % 
+        req.tool_mass % 
+        req.alignment_vector.x % 
+        req.alignment_vector.y % 
+        req.alignment_vector.z % 
+        req.task_name % 
+        trained_data_path %
+        print_output_ % 
+        plot_results_;
+
+    ROS_INFO_STREAM("Command: " << command);
+
+    std::system(command.str().c_str());
+
+    std::ifstream file("/tmp/tool_info.txt");
+
+    geometry_msgs::Point point;
+    geometry_msgs::Vector3 vector;
 
     for (std::string line; std::getline(file, line);)
     {
@@ -96,24 +148,78 @@ private:
       if (line.empty())
         continue;
 
-      output = line;
+      if (line.find("affordance_score") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read number
+        line_iss >> res.affordance_score;
+      }
+
+      if (line.find("grasp_center") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.grasp_center.x;
+        line_iss >> res.grasp_center.y;
+        line_iss >> res.grasp_center.z;
+      }
+
+      if (line.find("action_center") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.action_center.x;
+        line_iss >> res.action_center.y;
+        line_iss >> res.action_center.z;
+      }
+
+      if (line.find("tool_tip") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.tool_tip.x;
+        line_iss >> res.tool_tip.y;
+        line_iss >> res.tool_tip.z;
+      }
+
+      if (line.find("tool_tip_vector") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.tool_tip_vector.x;
+        line_iss >> res.tool_tip_vector.y;
+        line_iss >> res.tool_tip_vector.z;
+      }
+
+      if (line.find("tool_quaternion") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.tool_quaternion.x;
+        line_iss >> res.tool_quaternion.y;
+        line_iss >> res.tool_quaternion.z;
+        line_iss >> res.tool_quaternion.w;
+      }
     }
 
-    std::istringstream iss(output);
+    ROS_INFO_STREAM("Tool Info: \n" << res);
 
-    double x, y, z;
-
-    geometry_msgs::Point point;
-
-    iss >> point.x;
-    iss >> point.y;
-    iss >> point.z;
-
-    res.object_feature.value = point;
-
-    ROS_INFO_STREAM("Edge point: " << point.x << " " << point.y << " " << point.z);
+    return true;
   }
 
+private:
   geometry_msgs::Vector3 findReferencePoint(std::string object, std::string reference)
   {
     std::string object_frame = name2frame_[object];
