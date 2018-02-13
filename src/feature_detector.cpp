@@ -23,8 +23,7 @@ private:
   tf2_ros::TransformListener tfListener;
   std::map<std::string, std::string> name2frame_;
   // Additional parameters
-  bool print_output_ = false;
-  bool plot_results_ = false;
+  bool show_results_ = false;
 
 public:
   FeatureDetector() : node_handle_("~"),
@@ -46,8 +45,7 @@ public:
                                node_handle_.getNamespace() + "'.");
     }
 
-    node_handle_.getParam("print_output", print_output_);
-    node_handle_.getParam("plot_results", plot_results_);
+    node_handle_.getParam("show_results", show_results_);
 
     // Start services
     tool_info_service_server_ = node_handle_.advertiseService("detect_tool_info",
@@ -68,9 +66,13 @@ public:
     const std::string &point_cloud_file_name = req.point_cloud_file_name;
     const std::string point_cloud_path = point_cloud_directory_path_ + point_cloud_file_name;
 
+    std::string display_options = "";
+
+    display_options =  show_results_ ? "1 1" : "";
+
     const auto command =
-        boost::format("run_get_target_obj_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% \"[%2% %3% %4%]\" %5% %6% > /tmp/target_object_info.txt") %
-        point_cloud_path % reference_point.x % reference_point.y % reference_point.z % print_output_ % plot_results_;
+        boost::format("run_get_target_obj_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% \"[%2% %3% %4%]\" %5% > /tmp/target_object_info.txt") %
+        point_cloud_path % reference_point.x % reference_point.y % reference_point.z % display_options;
 
     ROS_INFO_STREAM("Command: " << command);
 
@@ -120,17 +122,21 @@ public:
     const std::string trained_data_file_name = req.task_name + ".mat";
     const std::string trained_data_path = trained_data_directory_path_ + trained_data_file_name;
 
+    std::string display_options =  show_results_ ? "1 1" : "";
+
     const auto command =
-        boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3% %4% %5%]\" %6% %7% %8% %9% > /tmp/tool_info.txt") %
+        boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%; %4%; %5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
         point_cloud_path % 
         req.tool_mass % 
         req.alignment_vector.x % 
         req.alignment_vector.y % 
-        req.alignment_vector.z % 
+        req.alignment_vector.z %
+        req.edge_point.x % 
+        req.edge_point.y % 
+        req.edge_point.z % 
         req.task_name % 
         trained_data_path %
-        print_output_ % 
-        plot_results_;
+        display_options;
 
     ROS_INFO_STREAM("Command: " << command);
 

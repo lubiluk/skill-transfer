@@ -14,10 +14,4 @@ target-object-grasp:
   frame: 
     - quaternion: [-0.171777970707, -0.685860866607, -0.0174027448572, 0.706954273563]
     - vector3: [0.06, 0.11, 0]
-    
-# Handcoded object features (for testing purposes)
-object-features:
-  heel-point: {vector3: [0.0491, 0.0027, -0.0138]}
-  blade-point: {vector3: [-0.0744, -0.0390, -0.00275]}
-  edge-point: {vector3: [0.0220, 0.1320, 0.0501]}
   

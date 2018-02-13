@@ -1,6 +1,9 @@
 name: "Scooping"
 
-required-object-features: 
+required-object-info:
+  tool: true
+  target-object: true
+  task: scraping_butter
 
 # The following motion phases will be executed in a sequence
 motion-phases:
