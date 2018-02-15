@@ -1,0 +1,113 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+    <world name="b_bucket_b_table_knife_v">
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://b_table_knife</uri>
+            <pose>0.060878 0.497562 1.005864 1.616805 0 0</pose>
+        </include>
+        
+        <include>
+            <uri>model://butter_box</uri>
+            <pose>0.135713 0.488941 1.003983 0.274231 1.507716 1.875637</pose>
+            <plugin name="stick" filename="libStickPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_table_knife::link</childLinkName>
+              <force>5</force>
+            </plugin>
+        </include>
+        
+        <include>
+            <uri>model://b_bucket</uri>
+            <pose>0.100858 -0.510180 0.939254 -3.128475 -0.140461 3.129033</pose>
+        </include>
+
+        <!-- Left Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>left_ee</name>
+            <pose>0 0.5 1 0 0 0</pose>
+            
+            <plugin name="l_force_controller" filename="libvelocity_controller_plugin.so">
+              <linkName>link</linkName>
+              <topicName>set_l_ee_twist</topicName>
+              <gains>
+                <linear>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </linear>
+                <angular>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </angular>
+              </gains>
+            </plugin>
+            
+            <plugin name="l_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_table_knife::link</childLinkName>
+              <relativePose>0.060878 -0.002438 0.005864 1.6168 0 0</relativePose>
+            </plugin>
+            
+            <plugin name="l_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
+              <linkName>link</linkName>
+              <frameName>l_gripper_tool_frame</frameName>
+            </plugin>
+        </include>
+
+        <!-- Right Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>right_ee</name>
+            <pose>0 -0.5 1 1.547368 1.402341 1.343703</pose>
+            
+            <plugin name="r_force_controller" filename="libvelocity_controller_plugin.so">
+              <linkName>link</linkName>
+              <topicName>set_r_gripper_twist</topicName>
+              <gains>
+                <linear>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </linear>
+                <angular>
+                  <P>100.0</P>
+                  <I>0.0</I>
+                  <D>25.0</D>
+                </angular>
+              </gains>
+            </plugin>
+            
+            <plugin name="r_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_bucket::link</childLinkName>
+              <relativePose>0.0577053 0.0189525 0.101375 2.17015 1.31252 2.31211</relativePose>
+            </plugin>
+            
+            <plugin name="r_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
+              <linkName>link</linkName>
+              <frameName>r_gripper_tool_frame</frameName>
+            </plugin>
+        </include>
+
+        <plugin name="feature_visualization_plugin" filename="libgiskard_visualization_plugin.so"></plugin>
+
+        <gui>
+            <camera name='user_camera'>
+                <pose>1.700789 1.175709 1.670612 0 0.375643 -2.675000</pose>
+                <view_controller>orbit</view_controller>
+            </camera>
+        </gui>
+
+    </world>
+</sdf>

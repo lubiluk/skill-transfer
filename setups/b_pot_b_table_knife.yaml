@@ -1,0 +1,17 @@
+# Object scans a.k.a. object knowledge base
+point-clouds:
+  tool: b_table_knife.ply
+  target-object: b_pot.ply
+
+# Transformation from the end effector to the target object
+tool-grasp: 
+  frame:
+    - quaternion: [0.723185,0,0,0.690655] # x, y, z, w
+    - vector3: [0.060878,-0.002438,0.005864] # x, y, z
+
+# Transformation from the end effector to the tool
+target-object-grasp:
+  frame: 
+    - quaternion: [-0.130649,-0.693518,0.0126058,0.708382]
+    - vector3: [0.023942,0.0237816,0.132364]
+  

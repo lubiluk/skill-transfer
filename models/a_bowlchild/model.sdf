@@ -1,26 +1,26 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
-	<model name='b_coffee_cup'>
+	<model name='a_bowlchild'>
 		<static>false</static>
 		<pose>0 0 0 0 0 0</pose>
 
 		<link name='link'>
 			<inertial>
-			<mass>0.1</mass>
-			<pose>-2.03e-05 0.001225 -0.00019831 0 0 0</pose>
+			<mass>0.051</mass>
+			<pose>0.00062327 -0.00082628 9.9469e-05 0 0 0</pose>
 				<inertia>
-					<ixx>7.571e-07</ixx>
+					<ixx>1.0588e-06</ixx>
 					<ixy>0</ixy>
 					<ixz>0</ixz>
-					<iyy>6.1374e-07</iyy>
+					<iyy>6.0902e-07</iyy>
 					<iyz>0</iyz>
-					<izz>6.0131e-07</izz>
+					<izz>6.8437e-07</izz>
 				</inertia>
 			</inertial>
 			<collision name='collision'>
 				<geometry>
 					<mesh>
-						<uri>model://b_coffee_cup/b_coffee_cup.dae</uri>
+						<uri>model://a_bowlchild/a_bowlchild.dae</uri>
 					</mesh>
 				</geometry>
 				<surface>
@@ -35,7 +35,7 @@
 			<visual name='visual'>
 				<geometry>
 					<mesh>
-						<uri>model://b_coffee_cup/b_coffee_cup.dae</uri>
+						<uri>model://a_bowlchild/a_bowlchild.dae</uri>
 					</mesh>
 				</geometry>
 			</visual>
