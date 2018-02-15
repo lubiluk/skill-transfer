@@ -18,11 +18,9 @@ scope:
   - tool-point: 
       transform-vector: [tool-frame, tool-heel]     
   - target-object-point: 
-      transform-vector: 
-        - target-object-frame
-        - vector-add: 
-          - edge-point # This has to be provided
-          - {vector3: [0, 0.3, 0]} # 30 cm next the edge
+      vector-add:
+        - transform-vector: [target-object-frame, edge-point]
+        - {vector3: [0, 0.3, 0]} # 30 cm next to the edgeI
 
   # expressions used in constraints
   - distance: {vector-sub: [target-object-point, tool-point]}

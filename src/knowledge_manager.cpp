@@ -132,16 +132,21 @@ public:
 
     // Requesting info from detector
 
-    // Target object info
-    if (task_["required-object-info"]["target-object"].as<bool>())
+    // When object info is given in setup file skip calling feature_detector
+    // This is to enable faster testing and debugging
+    if (!setup_["object-info"])
     {
-      callDetectTargetObjectInfo();
-    }
+      // Target object info
+      if (task_["required-object-info"]["target-object"].as<bool>())
+      {
+        callDetectTargetObjectInfo();
+      }
 
-    // Tool info
-    if (task_["required-object-info"]["tool"].as<bool>())
-    {
-      callDetectToolInfo();
+      // Tool info
+      if (task_["required-object-info"]["tool"].as<bool>())
+      {
+        callDetectToolInfo();
+      }
     }
 
     // Starting services
@@ -218,9 +223,9 @@ private:
 
     srv.request.point_cloud_file_name =
         setup_["point-clouds"]["tool"].as<std::string>();
-    
+
     srv.request.task_name = task_["required-object-info"]["task"].as<std::string>();
-    
+
     srv.request.tool_mass = setup_["tool-mass"].as<double>();
 
     srv.request.edge_point.x = setup_["object-info"]["edge-point"]["vector3"][0].as<double>();

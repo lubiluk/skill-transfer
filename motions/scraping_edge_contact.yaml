@@ -17,10 +17,8 @@ scope:
   # definition of features
   - tool-point: 
       transform-vector: [tool-frame, tool-heel]        
-  - target-object-point: 
-      transform-vector: 
-        - target-object-frame 
-        - edge-point # This has to be provided
+  - target-object-point:
+        transform-vector: [target-object-frame, edge-point]
 
   # distance definition
   - distance: {vector-sub: [target-object-point, tool-point]}

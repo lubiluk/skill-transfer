@@ -3,7 +3,7 @@ name: "Cutting"
 required-object-info:
   tool: true
   target-object: false
-  task: scraping_butter
+  task: cutting_lasagna
 
 # The following motion phases will be executed in a sequence
 motion-phases:

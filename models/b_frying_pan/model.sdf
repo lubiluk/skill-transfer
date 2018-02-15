@@ -6,17 +6,17 @@
         
         <link name='link'>
             <inertial>
-                <mass>0.40</mass>
-                <pose>0.000382297035518770	-0.000149204207528814	0.00495379249275721 0 0 0</pose>
+                <mass>1</mass>
+                <pose>0.002625 0.0 0.01465 0 0 0</pose>
                 <inertia>
-                    <ixx>7.972462473661376e-05</ixx>
-                    <ixy>0.0</ixy>
-                    <ixz>0.0</ixz>
-                    <iyy>9.743942735555959e-05</iyy>
-                    <iyz>0.0</iyz>
-                    <izz>3.897022921041362e-05</izz>
+                    <ixx>0.007971675</ixx>
+                    <iyy>0.008713309</iyy>
+                    <izz>0.016311566</izz>
+                    <ixy>-1.69694542e-019</ixy>
+                    <ixz>-0.000025788</ixz>
+                    <iyz>-6.28650663e-021</iyz>
                 </inertia>
-            </inertial>
+            </inertial>t
             
             <collision name='collision'>
                 <geometry>
