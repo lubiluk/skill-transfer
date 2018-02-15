@@ -16,7 +16,7 @@ scope:
 
   # definition of features
   - tool-point: 
-      transform-vector: [tool-frame, heel-point]        
+      transform-vector: [tool-frame, tool-heel]        
   - target-object-point: 
       transform-vector: 
         - target-object-frame 

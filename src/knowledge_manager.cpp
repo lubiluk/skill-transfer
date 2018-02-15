@@ -271,6 +271,13 @@ private:
     orientation_node["quaternion"].push_back(srv.response.tool_quaternion.w);
 
     setup_["object-info"]["tool-quaternion"] = orientation_node;
+
+    YAML::Node heel_node;
+    heel_node["vector3"].push_back(srv.response.tool_heel.x);
+    heel_node["vector3"].push_back(srv.response.tool_heel.y);
+    heel_node["vector3"].push_back(srv.response.tool_heel.z);
+
+    setup_["object-info"]["tool-heel"] = heel_node;
   }
 
   std::size_t getMotionCount() const

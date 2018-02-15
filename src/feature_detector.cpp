@@ -125,7 +125,7 @@ public:
     std::string display_options =  show_results_ ? "1 1" : "";
 
     const auto command =
-        boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%; %4%; %5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
+        boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%;%4%;%5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
         point_cloud_path % 
         req.tool_mass % 
         req.alignment_vector.x % 
@@ -217,6 +217,17 @@ public:
         line_iss >> res.tool_quaternion.y;
         line_iss >> res.tool_quaternion.z;
         line_iss >> res.tool_quaternion.w;
+      }
+
+      if (line.find("tool_heel") != std::string::npos)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.tool_heel.x;
+        line_iss >> res.tool_heel.y;
+        line_iss >> res.tool_heel.z;
       }
     }
 
