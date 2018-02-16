@@ -52,7 +52,7 @@ public:
                     velocity_log_(10),
                     command_log_(10)
   {
-    ee_twist_subscriber_ = node_handle_.subscribe("/ee_twist", 1,
+    ee_twist_subscriber_ = node_handle_.subscribe("/l_ee_twist", 1,
                                                   &TaskExecutive::onEeTwistMsg, this);
     set_ee_twist_subscriber_ = node_handle_.subscribe("/set_l_ee_twist", 1,
                                                       &TaskExecutive::onSetEeTwistMsg, this);

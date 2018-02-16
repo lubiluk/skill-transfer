@@ -48,6 +48,7 @@ public:
     // Topic for simulation and executive node, since they only
     // care about the end effector velocity and not about joint velocities
     pub_gripper_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
+    pub_gripper_measured_ = nh_.advertise<geometry_msgs::Twist>("/l_ee_twist", 1);
     // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 1);
 
@@ -114,12 +115,14 @@ public:
       giskard_adapter_.updateController(inputs);
 
       const auto ee_twist_desired = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
+      const auto ee_twist_measured = giskard_adapter_.getMeasuredFrameTwistMsg(inputs, velocities, "left_ee");
       const auto cmd = giskard_adapter_.getDesiredJointVelocityMsg();
 
       // ROS_INFO_STREAM("ee_twist_desired" << ee_twist_desired);
 
       pub_.publish(cmd);
       pub_gripper_.publish(ee_twist_desired);
+      pub_gripper_measured_.publish(ee_twist_measured);
 
       feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);

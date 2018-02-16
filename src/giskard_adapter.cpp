@@ -3,9 +3,8 @@
 #include "skill_transfer/giskard_utils.h"
 #include "skill_transfer/giskard_viz.h"
 
-GiskardAdapter::GiskardAdapter(int nWSR): nWSR_(nWSR)
+GiskardAdapter::GiskardAdapter(int nWSR) : nWSR_(nWSR)
 {
-
 }
 
 void GiskardAdapter::createController(const std::string &constraints)
@@ -22,7 +21,7 @@ void GiskardAdapter::startController(const Eigen::VectorXd &inputs)
     {
       throw std::runtime_error("Failed to start controller");
     }
-    
+
     controller_started_ = true;
   }
   else
@@ -40,12 +39,12 @@ void GiskardAdapter::updateController(const Eigen::VectorXd &inputs)
 }
 
 geometry_msgs::Twist GiskardAdapter::getDesiredFrameTwistMsg(
-                                      const Eigen::VectorXd &inputs,
-                                      const std::string &frame_name)
+    const Eigen::VectorXd &inputs,
+    const std::string &frame_name)
 {
-  const Eigen::VectorXd desired_velocity = 
-    getJacobian(controller_, frame_name, inputs).data * controller_.get_command();
-                 
+  const Eigen::VectorXd desired_velocity =
+      getJacobian(controller_, frame_name, inputs).data * controller_.get_command();
+
   return eigenVectorToMsgTwist(desired_velocity);
 }
 
@@ -54,22 +53,28 @@ sensor_msgs::JointState GiskardAdapter::getDesiredJointVelocityMsg()
   return eigenVectorToMsgJointState(controller_.get_command());
 }
 
+geometry_msgs::Twist GiskardAdapter::getMeasuredFrameTwistMsg(
+    const Eigen::VectorXd &inputs,
+    const Eigen::VectorXd &velocities,
+    const std::string &frame_name)
+{
+  return eigenVectorToMsgTwist(getJacobian(controller_, frame_name, inputs).data * velocities);
+}
+
 double GiskardAdapter::getDistance()
 {
   const KDL::Expression<KDL::Vector>::Ptr distance_exp =
-    controller_.get_scope().find_vector_expression("distance");
+      controller_.get_scope().find_vector_expression("distance");
   auto distance_vector = distance_exp->value();
   double distance = distance_vector.Norm();
-  
+
   return distance;
 }
 
 std::vector<visualization_msgs::Marker> GiskardAdapter::getVisualizationMsgs()
 {
-  return std::vector<visualization_msgs::Marker> {
-    createPointMarker(controller_, "tool-point", "base_footprint"),
-    createPointMarker(controller_, "target-object-point", "base_footprint"),
-    createPointDirectionMarker(controller_, "tool-point", "distance", "base_footprint")
-  };
+  return std::vector<visualization_msgs::Marker>{
+      createPointMarker(controller_, "tool-point", "base_footprint"),
+      createPointMarker(controller_, "target-object-point", "base_footprint"),
+      createPointDirectionMarker(controller_, "tool-point", "distance", "base_footprint")};
 }
-

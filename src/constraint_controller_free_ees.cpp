@@ -26,8 +26,10 @@ public:
     sub_ = nh_.subscribe("/gazebo/link_states", 1, &ConstraintController::onLinkStatesMsg, this);
     // Topic for simulation and executive node, since they only
     // care about the end effector velocity and not about joint velocities
-    pub_l_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
-    pub_r_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_r_ee_twist", 1);
+    pub_l_ee_ = nh_.advertise<geometry_msgs::Twist>("/l_ee_twist", 1);
+    pub_set_l_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_l_ee_twist", 1);
+    pub_r_ee_ = nh_.advertise<geometry_msgs::Twist>("/r_ee_twist", 1);
+    pub_set_r_ee_ = nh_.advertise<geometry_msgs::Twist>("/set_r_ee_twist", 1);
     // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 10);
 
@@ -59,10 +61,13 @@ public:
   void onLinkStatesMsg(const gazebo_msgs::LinkStatesConstPtr &msg)
   {
     // Link state map
-    auto link_states_map = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
+    auto link_pose_map = toMap<std::string, geometry_msgs::Pose>(msg->name, msg->pose);
+    auto link_twist_map = toMap<std::string, geometry_msgs::Twist>(msg->name, msg->twist);
     
-    const auto left_ee_pose = link_states_map.find("left_ee::link")->second;
-    const auto right_ee_pose = link_states_map.find("right_ee::link")->second; 
+    const auto left_ee_pose = link_pose_map.find("left_ee::link")->second;
+    const auto left_ee_twist = link_twist_map.find("left_ee::link")->second;
+    const auto right_ee_pose = link_pose_map.find("right_ee::link")->second; 
+    const auto right_ee_twist = link_twist_map.find("right_ee::link")->second; 
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -85,8 +90,10 @@ public:
       const auto l_ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "left_ee");
       const auto r_ee_twist_desired_msg = giskard_adapter_.getDesiredFrameTwistMsg(inputs, "right_ee");
     
-      pub_l_ee_.publish(l_ee_twist_desired_msg);
-      pub_r_ee_.publish(r_ee_twist_desired_msg);
+      pub_set_l_ee_.publish(l_ee_twist_desired_msg);
+      pub_l_ee_.publish(left_ee_twist);
+      pub_set_r_ee_.publish(r_ee_twist_desired_msg);
+      pub_r_ee_.publish(right_ee_twist);
 
       feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);
@@ -102,8 +109,8 @@ public:
     else
     {
       const geometry_msgs::Twist cmd;
-      pub_l_ee_.publish(cmd);
-      pub_r_ee_.publish(cmd);
+      pub_set_l_ee_.publish(cmd);
+      pub_set_r_ee_.publish(cmd);
     } 
 
     // ROS_INFO_STREAM("Twist: " << cmd.twist);
@@ -115,7 +122,9 @@ protected:
   std::string action_name_;
   ros::Subscriber sub_;
   ros::Publisher pub_l_ee_;
+  ros::Publisher pub_set_l_ee_;
   ros::Publisher pub_r_ee_;
+  ros::Publisher pub_set_r_ee_;
   ros::Publisher pub_viz_;
   std::string constraints_;
   skill_transfer::MoveArmFeedback feedback_;

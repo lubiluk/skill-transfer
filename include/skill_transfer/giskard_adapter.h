@@ -12,20 +12,24 @@ class GiskardAdapter
 {
 public:
   GiskardAdapter(int nWSR);
-  
+
   void createController(const std::string &constraints);
   void startController(const Eigen::VectorXd &inputs);
   void updateController(const Eigen::VectorXd &inputs);
   geometry_msgs::Twist getDesiredFrameTwistMsg(
-                                      const Eigen::VectorXd &inputs,
-                                      const std::string &frame_name);
+      const Eigen::VectorXd &inputs,
+      const std::string &frame_name);
+  geometry_msgs::Twist getMeasuredFrameTwistMsg(
+      const Eigen::VectorXd &inputs,
+      const Eigen::VectorXd &velocities,
+      const std::string &frame_name);
   sensor_msgs::JointState getDesiredJointVelocityMsg();
   double getDistance();
   std::vector<visualization_msgs::Marker> getVisualizationMsgs();
-  
+
   bool controller_started_;
   int nWSR_;
-  
+
 private:
   giskard_core::QPController controller_;
 };

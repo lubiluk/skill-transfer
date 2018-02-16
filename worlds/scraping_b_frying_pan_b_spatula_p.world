@@ -1,0 +1,97 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+    <world name="b_frying_pan_b_spatula_v">
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://b_spatula</uri>
+            <pose>0.146581 0.505236 0.992013 1.576128 -0.007193 -3.141592</pose>
+        </include>
+        
+        <include>
+            <uri>model://butter_box</uri>
+            <pose>0.226360 0.495670 0.996721 1.461945 1.549196 2.743082</pose>
+            <plugin name="stick" filename="libStickPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_spatula::link</childLinkName>
+              <force>5</force>
+            </plugin>
+        </include>
+        
+        <include>
+            <uri>model://b_frying_pan</uri>
+            <pose>0.228443 -0.496122 0.971397 0 0 0</pose>
+        </include>
+
+        <!-- Left Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>left_ee</name>
+            <pose>0 0.5 1 0 0 0</pose>
+            
+            <plugin name="l_position_controller" filename="libposition_controller_plugin.so">
+              <linkName>link</linkName>
+              <referenceFrameName>base_link</referenceFrameName>
+              <targetFrameName>l_gripper_tool_frame</targetFrameName>
+              <P>0.0</P>
+              <I>0.0</I>
+              <D>0.0</D>
+            </plugin>
+            
+            <plugin name="l_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_spatula::link</childLinkName>
+              <relativePose>0.146581 0.005236 -0.007987 1.57613 -0.007193 -3.14159</relativePose>
+            </plugin>
+            
+            <plugin name="l_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
+              <linkName>link</linkName>
+              <frameName>l_gripper_tool_frame</frameName>
+            </plugin>
+        </include>
+
+        <!-- Right Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>right_ee</name>
+            <pose>0 -0.5 1 1.547368 1.402341 1.343703</pose>
+            
+            <plugin name="r_position_controller" filename="libposition_controller_plugin.so">
+              <linkName>link</linkName>
+              <referenceFrameName>base_link</referenceFrameName>
+              <targetFrameName>r_gripper_tool_frame</targetFrameName>
+              <P>100.0</P>
+              <I>0.0</I>
+              <D>50.0</D>
+            </plugin>
+            
+            <plugin name="r_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_frying_pan::link</childLinkName>
+              <relativePose>0.0186144 0.0468562 0.224672 -1.55141 -1.36676 1.3834</relativePose>
+            </plugin>
+            
+            <plugin name="r_tf_broadcaster" filename="libtf_broadcaster_plugin.so">
+              <linkName>link</linkName>
+              <frameName>r_gripper_tool_frame</frameName>
+            </plugin>
+        </include>
+
+        <plugin name="feature_visualization_plugin" filename="libgiskard_visualization_plugin.so"></plugin>
+
+        <gui>
+            <camera name='user_camera'>
+                <pose>1.700789 1.175709 1.670612 0 0.375643 -2.675000</pose>
+                <view_controller>orbit</view_controller>
+            </camera>
+        </gui>
+
+    </world>
+</sdf>
