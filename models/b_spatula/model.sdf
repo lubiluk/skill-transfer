@@ -17,6 +17,19 @@
 					<izz>5.3661e-07</izz>
 				</inertia>
 			</inertial>
+
+			<sensor name="tool_contact_sensor" type="contact">
+				<always_on>true</always_on>
+				<update_rate>30.0</update_rate>
+				<contact>
+					<collision>collision</collision>
+				</contact>
+				<plugin name="tool_bumper" filename="libgazebo_ros_bumper.so">
+					<bumperTopicName>tool_contact_sensor_state</bumperTopicName>
+					<frameName>world</frameName>
+				</plugin>
+			</sensor>
+
 			<collision name='collision'>
 				<geometry>
 					<mesh>

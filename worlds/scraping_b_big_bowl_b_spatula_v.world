@@ -89,7 +89,7 @@
             
             <plugin name="r_force_controller" filename="libvelocity_controller_plugin.so">
               <linkName>link</linkName>
-              <topicName>set_r_gripper_twist</topicName>
+              <topicName>set_r_ee_twist</topicName>
               <gains>
                 <linear>
                   <P>0.1</P>
