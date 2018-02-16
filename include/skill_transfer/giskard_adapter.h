@@ -14,8 +14,8 @@ public:
   GiskardAdapter(int nWSR);
   
   void createController(const std::string &constraints);
-  void startController(Eigen::VectorXd inputs);
-  void updateController(Eigen::VectorXd inputs);
+  void startController(const Eigen::VectorXd &inputs);
+  void updateController(const Eigen::VectorXd &inputs);
   geometry_msgs::Twist getDesiredFrameTwistMsg(
                                       const Eigen::VectorXd &inputs,
                                       const std::string &frame_name);

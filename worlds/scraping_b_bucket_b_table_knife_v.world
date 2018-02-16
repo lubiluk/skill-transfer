@@ -39,18 +39,6 @@
             <plugin name="l_force_controller" filename="libvelocity_controller_plugin.so">
               <linkName>link</linkName>
               <topicName>set_l_ee_twist</topicName>
-              <gains>
-                <linear>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </linear>
-                <angular>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </angular>
-              </gains>
             </plugin>
             
             <plugin name="l_grip" filename="libGripPlugin.so">
@@ -74,18 +62,6 @@
             <plugin name="r_force_controller" filename="libvelocity_controller_plugin.so">
               <linkName>link</linkName>
               <topicName>set_r_gripper_twist</topicName>
-              <gains>
-                <linear>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </linear>
-                <angular>
-                  <P>100.0</P>
-                  <I>0.0</I>
-                  <D>25.0</D>
-                </angular>
-              </gains>
             </plugin>
             
             <plugin name="r_grip" filename="libGripPlugin.so">

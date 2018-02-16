@@ -14,7 +14,7 @@ void GiskardAdapter::createController(const std::string &constraints)
   controller_ = generateController(constraints);
 }
 
-void GiskardAdapter::startController(Eigen::VectorXd inputs)
+void GiskardAdapter::startController(const Eigen::VectorXd &inputs)
 {
   if (!controller_started_)
   {
@@ -31,7 +31,7 @@ void GiskardAdapter::startController(Eigen::VectorXd inputs)
   }
 }
 
-void GiskardAdapter::updateController(Eigen::VectorXd inputs)
+void GiskardAdapter::updateController(const Eigen::VectorXd &inputs)
 {
   if (!controller_.update(inputs, nWSR_))
   {

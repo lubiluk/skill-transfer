@@ -18,6 +18,24 @@ public:
                                            action_name_(name),
                                            giskard_adapter_(100)
   {
+    joint_names_ = {
+      "torso_lift_joint",
+      "l_shoulder_pan_joint",
+      "l_shoulder_lift_joint",
+      "l_upper_arm_roll_joint",
+      "l_elbow_flex_joint",
+      "l_forearm_roll_joint",
+      "l_wrist_flex_joint",
+      "l_wrist_roll_joint",
+      "r_shoulder_pan_joint",
+      "r_shoulder_lift_joint",
+      "r_upper_arm_roll_joint",
+      "r_elbow_flex_joint",
+      "r_forearm_roll_joint",
+      "r_wrist_flex_joint",
+      "r_wrist_roll_joint"
+    };
+    
     //register the goal and feeback callbacks
     as_.registerGoalCallback(boost::bind(&ConstraintController::onGoal, this));
     as_.registerPreemptCallback(boost::bind(&ConstraintController::onPreempt, this));
@@ -64,38 +82,7 @@ public:
     auto joint_positions_map = toMap<std::string, double>(msg->name, msg->position);
     auto joint_velocities_map = toMap<std::string, double>(msg->name, msg->velocity); 
     
-    std::vector<std::string> joint_names {
-      "torso_lift_joint",
-      "l_shoulder_pan_joint",
-      "l_shoulder_lift_joint",
-      "l_upper_arm_roll_joint",
-      "l_elbow_flex_joint",
-      "l_forearm_roll_joint",
-      "l_wrist_flex_joint",
-      "l_wrist_roll_joint",
-      "r_shoulder_pan_joint",
-      "r_shoulder_lift_joint",
-      "r_upper_arm_roll_joint",
-      "r_elbow_flex_joint",
-      "r_forearm_roll_joint",
-      "r_wrist_flex_joint",
-      "r_wrist_roll_joint"
-    };
-    
-    auto joint_count = joint_names.size();
-    
-    std::vector<double> joint_positions(joint_count);
-    std::vector<double> joint_velocities(joint_count);
-    
-    std::transform(joint_names.begin(), joint_names.end(), joint_positions.begin(),
-      [&joint_positions_map](std::string &n) {
-        return joint_positions_map.find(n)->second;
-      });   
-      
-    std::transform(joint_names.begin(), joint_names.end(), joint_velocities.begin(),
-      [&joint_velocities_map](std::string &n) {
-        return joint_velocities_map.find(n)->second;
-      });    
+    auto joint_count = joint_names_.size();  
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -107,14 +94,14 @@ public:
       
       for(int i = 0; i < joint_count; ++i)
       {
-        inputs(i) = joint_positions[i];
+        inputs(i) = joint_positions_map.find(joint_names_[i])->second;
       }
 
       Eigen::VectorXd velocities(joint_count);
       
       for(int i = 0; i < joint_count; ++i)
       {
-        velocities(i) = joint_velocities[i];
+        velocities(i) = joint_velocities_map.find(joint_names_[i])->second;
       }
 
       // Start the controller if it's a new one
@@ -174,6 +161,7 @@ protected:
   std::string constraints_;
   skill_transfer::MoveArmFeedback feedback_;
   GiskardAdapter giskard_adapter_;
+  std::vector<std::string> joint_names_;
 };
 
 int main(int argc, char **argv)

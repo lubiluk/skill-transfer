@@ -10,6 +10,7 @@
     <param name="motion_template_file_path" type="string" value="$(find skill_transfer)/motion_templates/$(arg robot).yaml"/>
     <param name="motion_directory_path" type="string" value="$(find skill_transfer)/motions/" />
     <param name="setup_file_path" type="string" value="$(find skill_transfer)/setups/$(arg setup).yaml" />
+    <param name="info_cache_directory_path" type="string" value="$(find skill_transfer)/info_cache/" />
   </node>
 
   <node pkg="skill_transfer" type="constraint_controller_$(arg robot)" name="constraint_controller" output="screen"/>
