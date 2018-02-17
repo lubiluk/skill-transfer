@@ -75,7 +75,7 @@ public:
     try 
     {
       transformStamped = tfBuffer.lookupTransform(
-        this->reference_frame_name_, this->target_frame_name_, ros::Time(0));  
+        this->reference_frame_name_, this->target_frame_name_, ros::Time(0), ros::Duration(0.02));  
     }
     catch (tf2::TransformException &ex) 
     {
@@ -109,7 +109,7 @@ public:
     torque.y = this->pid_angular_y_.Update(current_pose.rot.y - transformStamped.transform.rotation.y, _delta_time);
     torque.z = this->pid_angular_z_.Update(current_pose.rot.z - transformStamped.transform.rotation.z, _delta_time);
     
-    this->link_->SetForce(force);
+    // this->link_->SetForce(force);
 //    this->link_->SetTorque(torque);
 
     this->link_->SetWorldPose(desired_pose);

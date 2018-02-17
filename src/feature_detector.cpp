@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
+#include <tf/transform_datatypes.h>
 #include <geometry_msgs/Point.h>
 #include <boost/format.hpp>
 #include <fstream>
@@ -60,15 +61,15 @@ public:
                                    skill_transfer::DetectTargetObjectInfo::Response &res)
   {
     // Find reference point
-    const geometry_msgs::Vector3 reference_point =
-        findReferencePoint("target-object", "tool");
+    const geometry_msgs::TransformStamped transform_stamped = findTransform("target-object", "tool");
+    const geometry_msgs::Vector3 reference_point = transform_stamped.transform.translation;
 
     const std::string &point_cloud_file_name = req.point_cloud_file_name;
     const std::string point_cloud_path = point_cloud_directory_path_ + point_cloud_file_name;
 
     std::string display_options = "";
 
-    display_options =  show_results_ ? "1 1" : "";
+    display_options = show_results_ ? "1 1" : "";
 
     const auto command =
         boost::format("run_get_target_obj_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% \"[%2% %3% %4%]\" %5% > /tmp/target_object_info.txt") %
@@ -85,7 +86,7 @@ public:
       if (line.empty())
         continue;
 
-      if (line.find("target_obj_contact_points") != std::string::npos)
+      if (line.find("target_obj_contact_points") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -96,7 +97,7 @@ public:
         line_iss >> res.edge_point.z;
       }
 
-      if (line.find("target_obj_align_vecs") != std::string::npos)
+      if (line.find("target_obj_align_vecs") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -108,8 +109,9 @@ public:
       }
     }
 
-    ROS_INFO_STREAM("Target Object Info: \n" << res);
-    
+    ROS_INFO_STREAM("Target Object Info: \n"
+                    << res);
+
     return true;
   }
 
@@ -122,19 +124,19 @@ public:
     const std::string trained_data_file_name = req.task_name + ".mat";
     const std::string trained_data_path = trained_data_directory_path_ + trained_data_file_name;
 
-    std::string display_options =  show_results_ ? "1 1" : "";
+    std::string display_options = show_results_ ? "1 1" : "";
 
     const auto command =
         boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%;%4%;%5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
-        point_cloud_path % 
-        req.tool_mass % 
-        req.alignment_vector.x % 
-        req.alignment_vector.y % 
+        point_cloud_path %
+        req.tool_mass %
+        req.alignment_vector.x %
+        req.alignment_vector.y %
         req.alignment_vector.z %
-        req.edge_point.x % 
-        req.edge_point.y % 
-        req.edge_point.z % 
-        req.task_name % 
+        req.edge_point.x %
+        req.edge_point.y %
+        req.edge_point.z %
+        req.task_name %
         trained_data_path %
         display_options;
 
@@ -154,7 +156,7 @@ public:
       if (line.empty())
         continue;
 
-      if (line.find("affordance_score") != std::string::npos)
+      if (line.find("affordance_score") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -163,7 +165,7 @@ public:
         line_iss >> res.affordance_score;
       }
 
-      if (line.find("grasp_center") != std::string::npos)
+      if (line.find("grasp_center") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -174,7 +176,7 @@ public:
         line_iss >> res.grasp_center.z;
       }
 
-      if (line.find("action_center") != std::string::npos)
+      if (line.find("action_center") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -185,7 +187,7 @@ public:
         line_iss >> res.action_center.z;
       }
 
-      if (line.find("tool_tip") != std::string::npos)
+      if (line.find("tool_tip") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -196,7 +198,7 @@ public:
         line_iss >> res.tool_tip.z;
       }
 
-      if (line.find("tool_tip_vector") != std::string::npos)
+      if (line.find("tool_tip_vector") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -207,7 +209,7 @@ public:
         line_iss >> res.tool_tip_vector.z;
       }
 
-      if (line.find("tool_quaternion") != std::string::npos)
+      if (line.find("tool_quaternion") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -219,7 +221,7 @@ public:
         line_iss >> res.tool_quaternion.w;
       }
 
-      if (line.find("tool_heel") != std::string::npos)
+      if (line.find("tool_heel") == 0)
       {
         std::getline(file, line);
         std::istringstream line_iss(line);
@@ -231,13 +233,25 @@ public:
       }
     }
 
-    ROS_INFO_STREAM("Tool Info: \n" << res);
+    // Transform quaternion
+    const geometry_msgs::TransformStamped transform_stamped = findTransform("tool", "target-object");
+    tf::Transform transform;
+    tf::Quaternion quaternion;
+    tf::transformMsgToTF(transform_stamped.transform, transform);
+    tf::quaternionMsgToTF(res.tool_quaternion, quaternion);
+
+    tf::Quaternion relative_quaternion = transform * quaternion;
+
+    tf::quaternionTFToMsg(relative_quaternion, res.tool_quaternion);
+
+    ROS_INFO_STREAM("Tool Info: \n"
+                    << res);
 
     return true;
   }
 
 private:
-  geometry_msgs::Vector3 findReferencePoint(std::string object, std::string reference)
+  geometry_msgs::TransformStamped findTransform(std::string object, std::string reference)
   {
     std::string object_frame = name2frame_[object];
     std::string reference_frame = name2frame_[reference];
@@ -255,7 +269,7 @@ private:
       throw;
     }
 
-    return transform_stamped.transform.translation;
+    return transform_stamped;
   }
 };
 
