@@ -3,6 +3,8 @@ point-clouds:
   tool: b_knife.ply
   target-object: b_coffee_cup.ply
 
+tool-mass: 0.4
+
 # Transformation from the end effector to the target object
 tool-grasp: 
   frame:

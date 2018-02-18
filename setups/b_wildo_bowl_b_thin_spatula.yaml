@@ -3,6 +3,8 @@ point-clouds:
   tool: b_thin_spatula.ply
   target-object: b_wildo_bowl.ply
 
+tool-mass: 0.11
+
 # Transformation from the end effector to the target object
 tool-grasp: 
   frame:
