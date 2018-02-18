@@ -187,17 +187,6 @@ public:
         line_iss >> res.action_center.z;
       }
 
-      if (line.find("tool_tip") == 0)
-      {
-        std::getline(file, line);
-        std::istringstream line_iss(line);
-
-        // read point
-        line_iss >> res.tool_tip.x;
-        line_iss >> res.tool_tip.y;
-        line_iss >> res.tool_tip.z;
-      }
-
       if (line.find("tool_tip_vector") == 0)
       {
         std::getline(file, line);
@@ -207,6 +196,17 @@ public:
         line_iss >> res.tool_tip_vector.x;
         line_iss >> res.tool_tip_vector.y;
         line_iss >> res.tool_tip_vector.z;
+      }
+
+      if (line.find("tool_tip") == 0)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.tool_tip.x;
+        line_iss >> res.tool_tip.y;
+        line_iss >> res.tool_tip.z;
       }
 
       if (line.find("tool_quaternion") == 0)
