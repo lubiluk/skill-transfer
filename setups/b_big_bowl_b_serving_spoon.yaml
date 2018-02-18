@@ -3,6 +3,8 @@ point-clouds:
   tool: b_serving_spoon.ply
   target-object: b_big_bowl.ply
 
+tool-mass: 0.06
+
 # Transformation from the end effector to the target object
 tool-grasp: 
   frame:

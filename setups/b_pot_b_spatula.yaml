@@ -3,11 +3,13 @@ point-clouds:
   tool: b_spatula.ply
   target-object: b_pot.ply
 
+tool-mass: 0.11
+
 # Transformation from the end effector to the target object
 tool-grasp: 
   frame:
-    - quaternion: [-0.00253608 -0.708985 -0.705215 0.0025501] # x, y, z, w
-    - vector3: [0.146581 0.005236 -0.007987] # x, y, z
+    - quaternion: [-0.00253608,-0.708985,-0.705215,0.0025501] # x, y, z, w
+    - vector3: [0.146581,0.005236,-0.007987] # x, y, z
 
 # Transformation from the end effector to the tool
 target-object-grasp:
