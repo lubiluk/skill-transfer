@@ -127,12 +127,12 @@ public:
     std::string display_options = show_results_ ? "1 1" : "";
 
     // Rotate alignment vector
-    const geometry_msgs::TransformStamped transform_stamped = findTransform("target-object", "tool");
-    tf::Transform transform;
-    tf::Vector3 vector;
-    tf::transformMsgToTF(transform_stamped.transform, transform);
-    tf::vector3MsgToTF(req.alignment_vector, vector);
-    tf::Vector3 transformed_vector = transform(vector);
+    const geometry_msgs::TransformStamped target_2_tool_transform_msg = findTransform("target-object", "tool");
+    tf::Transform target_2_tool_transform;
+    tf::Vector3 alignment_vector;
+    tf::transformMsgToTF(target_2_tool_transform_msg.transform, target_2_tool_transform);
+    tf::vector3MsgToTF(req.alignment_vector, alignment_vector);
+    tf::Vector3 transformed_vector = target_2_tool_transform(alignment_vector);
 
     const auto command =
         boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%;%4%;%5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
@@ -239,15 +239,15 @@ public:
     }
 
     // Transform quaternion
-    const geometry_msgs::TransformStamped transform_stamped2 = findTransform("tool", "target-object");
-    tf::Transform transform2;
-    tf::Quaternion quaternion;
-    tf::transformMsgToTF(transform_stamped2.transform, transform2);
-    tf::quaternionMsgToTF(res.tool_quaternion, quaternion);
+    const geometry_msgs::TransformStamped tool_2_target_transform_msg = findTransform("tool", "target-object");
+    tf::Transform tool_2_target_transform;
+    tf::Quaternion tool_quaterniion;
+    tf::transformMsgToTF(tool_2_target_transform_msg.transform, tool_2_target_transform);
+    tf::quaternionMsgToTF(res.tool_quaternion, tool_quaterniion);
 
-    tf::Quaternion relative_quaternion = transform2 * quaternion;
+    tf::Quaternion transformed_quaternion = tool_2_target_transform * tool_quaterniion;
 
-    tf::quaternionTFToMsg(relative_quaternion, res.tool_quaternion);
+    tf::quaternionTFToMsg(transformed_quaternion, res.tool_quaternion);
 
     ROS_INFO_STREAM("Tool Info: \n"
                     << res);
