@@ -26,7 +26,7 @@ scope:
   - distance: {vector-sub: [target-object-point, tool-point]}
   
   - l_goal_rot:
-      rotation-mul: [{orientation-of: target-object-frame}, tool-quaternion]
+      rotation-mul: [tool-quaternion, {orientation-of: target-object-frame}]
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 

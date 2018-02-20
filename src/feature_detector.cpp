@@ -127,20 +127,20 @@ public:
     std::string display_options = show_results_ ? "1 1" : "";
 
     // Rotate alignment vector
-    const geometry_msgs::TransformStamped target_2_tool_transform_msg = findTransform("target-object", "tool");
-    tf::Transform target_2_tool_transform;
-    tf::Vector3 alignment_vector;
-    tf::transformMsgToTF(target_2_tool_transform_msg.transform, target_2_tool_transform);
-    tf::vector3MsgToTF(req.alignment_vector, alignment_vector);
-    tf::Vector3 transformed_vector = target_2_tool_transform(alignment_vector);
+    // const geometry_msgs::TransformStamped target_2_tool_transform_msg = findTransform("target-object", "tool");
+    // tf::Transform target_2_tool_transform;
+    // tf::Vector3 aligvector;
+    // tf::transformMsgToTF(target_2_tool_transform_msg.transform, target_2_tool_transform);
+    // tf::vector3MsgToTF(req.alignment_vector, aligvector);
+    // tf::Vector3 transformed_vector = target_2_tool_transform(aligvector);
 
     const auto command =
         boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%;%4%;%5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
         point_cloud_path %
         req.tool_mass %
-        transformed_vector.x() %
-        transformed_vector.y() %
-        transformed_vector.z() %
+        req.alignment_vector.x %
+        req.alignment_vector.y %
+        req.alignment_vector.z %
         req.edge_point.x %
         req.edge_point.y %
         req.edge_point.z %
@@ -238,16 +238,18 @@ public:
       }
     }
 
-    // Transform quaternion
-    const geometry_msgs::TransformStamped tool_2_target_transform_msg = findTransform("tool", "target-object");
-    tf::Transform tool_2_target_transform;
-    tf::Quaternion tool_quaterniion;
-    tf::transformMsgToTF(tool_2_target_transform_msg.transform, tool_2_target_transform);
-    tf::quaternionMsgToTF(res.tool_quaternion, tool_quaterniion);
+    // ROS_INFO_STREAM("Before: \n" << res.tool_quaternion << "\n");
 
-    tf::Quaternion transformed_quaternion = tool_2_target_transform * tool_quaterniion;
+    // // Transform quaternion
+    // const geometry_msgs::TransformStamped tool_2_target_transform_msg = findTransform("tool", "target-object");
+    // tf::Transform tool_2_target_transform;
+    // tf::Quaternion tool_quaterniion;
+    // tf::transformMsgToTF(tool_2_target_transform_msg.transform, tool_2_target_transform);
+    // tf::quaternionMsgToTF(res.tool_quaternion, tool_quaterniion);
 
-    tf::quaternionTFToMsg(transformed_quaternion, res.tool_quaternion);
+    // tf::Quaternion transformed_quaternion = tool_2_target_transform * tool_quaterniion;
+
+    // tf::quaternionTFToMsg(transformed_quaternion, res.tool_quaternion);
 
     ROS_INFO_STREAM("Tool Info: \n"
                     << res);

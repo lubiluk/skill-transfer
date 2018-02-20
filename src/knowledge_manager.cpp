@@ -139,34 +139,29 @@ public:
 
     // Requesting info from detector
 
-    // Target object info
-    if (task_["required-object-info"]["target-object"].as<bool>())
-    {
-      const std::string &ply_name = setup_["point-clouds"]["target-object"].as<std::string>();
+    // Check if cache exist
+    const std::string &target_object_ply_name = setup_["point-clouds"]["target-object"].as<std::string>();
+    const std::string &tool_ply_name = setup_["point-clouds"]["tool"].as<std::string>();
 
-      if (cachedInfoExists(ply_name))
-      {
-        loadCachedInfo(ply_name);
-      }
-      else
+    if (cachedInfoExists(target_object_ply_name, tool_ply_name))
+    {
+      loadCachedInfo(target_object_ply_name, tool_ply_name);
+    }
+    else
+    {
+      // Target object info
+      if (task_["required-object-info"]["target-object"].as<bool>())
       {
         callDetectTargetObjectInfo();
       }
-    }
 
-    // Tool info
-    if (task_["required-object-info"]["tool"].as<bool>())
-    {
-      const std::string &ply_name = setup_["point-clouds"]["tool"].as<std::string>();
-
-      if (cachedInfoExists(ply_name))
-      {
-        loadCachedInfo(ply_name);
-      }
-      else
+      // Tool info
+      if (task_["required-object-info"]["tool"].as<bool>())
       {
         callDetectToolInfo();
       }
+
+      saveCachedInfo(target_object_ply_name, tool_ply_name);
     }
 
     // Starting services
@@ -222,15 +217,12 @@ private:
       throw std::runtime_error("Failed to call service detect_target_object_info");
     }
 
-    YAML::Node cache_node;
-
     YAML::Node point_node;
     point_node["vector3"].push_back(srv.response.edge_point.x);
     point_node["vector3"].push_back(srv.response.edge_point.y);
     point_node["vector3"].push_back(srv.response.edge_point.z);
 
     setup_["object-info"]["edge-point"] = point_node;
-    cache_node["edge-point"] = point_node;
 
     YAML::Node vector_node;
     vector_node["vector3"].push_back(srv.response.alignment_vector.x);
@@ -238,9 +230,6 @@ private:
     vector_node["vector3"].push_back(srv.response.alignment_vector.z);
 
     setup_["object-info"]["alignment-vector"] = vector_node;
-    cache_node["alignment-vector"] = vector_node;
-
-    saveCachedInfo(cache_node, srv.request.point_cloud_file_name);
   }
 
   void callDetectToolInfo()
@@ -267,15 +256,12 @@ private:
       throw std::runtime_error("Failed to call service detect_target_object_info");
     }
 
-    YAML::Node cache_node;
-
     YAML::Node grasp_node;
     grasp_node["vector3"].push_back(srv.response.grasp_center.x);
     grasp_node["vector3"].push_back(srv.response.grasp_center.y);
     grasp_node["vector3"].push_back(srv.response.grasp_center.z);
 
     setup_["object-info"]["grasp-center"] = grasp_node;
-    cache_node["grasp-center"] = grasp_node;
 
     YAML::Node center_node;
     center_node["vector3"].push_back(srv.response.action_center.x);
@@ -283,7 +269,6 @@ private:
     center_node["vector3"].push_back(srv.response.action_center.z);
 
     setup_["object-info"]["action-center"] = center_node;
-    cache_node["action-center"] = center_node;
 
     YAML::Node tip_node;
     tip_node["vector3"].push_back(srv.response.tool_tip.x);
@@ -291,7 +276,6 @@ private:
     tip_node["vector3"].push_back(srv.response.tool_tip.z);
 
     setup_["object-info"]["tool-tip"] = tip_node;
-    cache_node["tool-tip"] = tip_node;
 
     YAML::Node tip_vector_node;
     tip_vector_node["vector3"].push_back(srv.response.tool_tip_vector.x);
@@ -299,7 +283,6 @@ private:
     tip_vector_node["vector3"].push_back(srv.response.tool_tip_vector.z);
 
     setup_["object-info"]["tool-tip-vector"] = tip_vector_node;
-    cache_node["tool-tip-vector"] = tip_vector_node;
 
     YAML::Node orientation_node;
     orientation_node["quaternion"].push_back(srv.response.tool_quaternion.x);
@@ -308,7 +291,6 @@ private:
     orientation_node["quaternion"].push_back(srv.response.tool_quaternion.w);
 
     setup_["object-info"]["tool-quaternion"] = orientation_node;
-    cache_node["tool-quaternion"] = orientation_node;
 
     YAML::Node heel_node;
     heel_node["vector3"].push_back(srv.response.tool_heel.x);
@@ -316,9 +298,6 @@ private:
     heel_node["vector3"].push_back(srv.response.tool_heel.z);
 
     setup_["object-info"]["tool-heel"] = heel_node;
-    cache_node["tool-heel"] = heel_node;
-
-    saveCachedInfo(cache_node, srv.request.point_cloud_file_name);
   }
 
   std::size_t getMotionCount() const
@@ -518,10 +497,17 @@ private:
     }
   }
 
-  bool cachedInfoExists(const std::string &point_cloud_file_name)
+  bool cachedInfoExists(const std::string &target_object_ply_name,
+                        const std::string &tool_ply_name)
   {
+    const boost::filesystem::path target_object_ply_path{target_object_ply_name};
+    const boost::filesystem::path tool_ply_path{tool_ply_name};
+
+    std::string cache_file_name = target_object_ply_path.stem().string() +
+                                  "_" + tool_ply_path.stem().string();
+
     boost::filesystem::path dir_path(info_cache_directory_path_);
-    const boost::filesystem::path path = dir_path / (point_cloud_file_name + ".yaml");
+    const boost::filesystem::path path = dir_path / (cache_file_name + ".yaml");
 
     if (!boost::filesystem::exists(path))
     {
@@ -531,10 +517,17 @@ private:
     return true;
   }
 
-  void loadCachedInfo(const std::string &point_cloud_file_name)
+  void loadCachedInfo(const std::string &target_object_ply_name,
+                      const std::string &tool_ply_name)
   {
+    const boost::filesystem::path target_object_ply_path{target_object_ply_name};
+    const boost::filesystem::path tool_ply_path{tool_ply_name};
+
+    std::string cache_file_name = target_object_ply_path.stem().string() +
+                                  "_" + tool_ply_path.stem().string();
+
     boost::filesystem::path dir_path(info_cache_directory_path_);
-    const boost::filesystem::path path = dir_path / (point_cloud_file_name + ".yaml");
+    const boost::filesystem::path path = dir_path / (cache_file_name + ".yaml");
 
     if (!boost::filesystem::exists(path))
     {
@@ -542,24 +535,28 @@ private:
     }
 
     const YAML::Node info_node = YAML::LoadFile(path.string());
-    YAML::Node setup_info_node = setup_["object-info"];
-
-    for (YAML::const_iterator it = info_node.begin(); it != info_node.end(); ++it)
-    {
-      setup_info_node[it->first] = it->second;
-    }
+    setup_["object-info"] = info_node;
 
     ROS_INFO_STREAM("SETUP: \n"
                     << setup_["object-info"]);
   }
 
-  void saveCachedInfo(const YAML::Node &cache_node, const std::string &point_cloud_file_name)
+  void saveCachedInfo(const std::string &target_object_ply_name,
+                      const std::string &tool_ply_name)
   {
+    const YAML::Node &all_features_node = setup_["object-info"];
+
+    const boost::filesystem::path target_object_ply_path{target_object_ply_name};
+    const boost::filesystem::path tool_ply_path{tool_ply_name};
+
+    std::string cache_file_name = target_object_ply_path.stem().string() +
+                                  "_" + tool_ply_path.stem().string();
+
     boost::filesystem::path dir_path(info_cache_directory_path_);
-    const boost::filesystem::path path = dir_path / (point_cloud_file_name + ".yaml");
+    const boost::filesystem::path path = dir_path / (cache_file_name + ".yaml");
 
     YAML::Emitter emitter;
-    emitter << cache_node;
+    emitter << all_features_node;
 
     std::ofstream fout(path.c_str());
     fout << emitter.c_str();
