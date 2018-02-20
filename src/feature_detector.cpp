@@ -126,13 +126,21 @@ public:
 
     std::string display_options = show_results_ ? "1 1" : "";
 
+    // Rotate alignment vector
+    const geometry_msgs::TransformStamped transform_stamped = findTransform("target-object", "tool");
+    tf::Transform transform;
+    tf::Vector3 vector;
+    tf::transformMsgToTF(transform_stamped.transform, transform);
+    tf::vector3MsgToTF(req.alignment_vector, vector);
+    tf::Vector3 transformed_vector = transform(vector);
+
     const auto command =
         boost::format("run_get_tool_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% %2% \"[%3%;%4%;%5%]\" \"[%6% %7% %8%]\" %9% %10% %11% > /tmp/tool_info.txt") %
         point_cloud_path %
         req.tool_mass %
-        req.alignment_vector.x %
-        req.alignment_vector.y %
-        req.alignment_vector.z %
+        transformed_vector.x() %
+        transformed_vector.y() %
+        transformed_vector.z() %
         req.edge_point.x %
         req.edge_point.y %
         req.edge_point.z %
@@ -145,9 +153,6 @@ public:
     std::system(command.str().c_str());
 
     std::ifstream file("/tmp/tool_info.txt");
-
-    geometry_msgs::Point point;
-    geometry_msgs::Vector3 vector;
 
     for (std::string line; std::getline(file, line);)
     {
@@ -215,10 +220,10 @@ public:
         std::istringstream line_iss(line);
 
         // read point
+        line_iss >> res.tool_quaternion.w;
         line_iss >> res.tool_quaternion.x;
         line_iss >> res.tool_quaternion.y;
         line_iss >> res.tool_quaternion.z;
-        line_iss >> res.tool_quaternion.w;
       }
 
       if (line.find("tool_heel") == 0)
@@ -234,13 +239,13 @@ public:
     }
 
     // Transform quaternion
-    const geometry_msgs::TransformStamped transform_stamped = findTransform("tool", "target-object");
-    tf::Transform transform;
+    const geometry_msgs::TransformStamped transform_stamped2 = findTransform("tool", "target-object");
+    tf::Transform transform2;
     tf::Quaternion quaternion;
-    tf::transformMsgToTF(transform_stamped.transform, transform);
+    tf::transformMsgToTF(transform_stamped2.transform, transform2);
     tf::quaternionMsgToTF(res.tool_quaternion, quaternion);
 
-    tf::Quaternion relative_quaternion = transform * quaternion;
+    tf::Quaternion relative_quaternion = transform2 * quaternion;
 
     tf::quaternionTFToMsg(relative_quaternion, res.tool_quaternion);
 
