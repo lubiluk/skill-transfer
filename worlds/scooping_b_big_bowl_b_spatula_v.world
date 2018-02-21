@@ -45,6 +45,11 @@
             <uri>model://b_big_bowl</uri>
             <pose>0.024164 -0.383989 0.959287 -0.017186 -0.000884 -0.101566</pose>
         </include>
+        
+        <include>
+            <uri>model://table</uri>
+            <pose>0.021929 0.062805 -0.116833 0 0 -1.571974</pose>
+        </include>
 
         <!-- Left Gripper -->
         <include>

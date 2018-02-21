@@ -30,6 +30,10 @@
             <pose>0.228443 -0.496122 0.971397 0 0 0</pose>
         </include>
 
+        <include>
+            <uri>model://table</uri>
+            <pose>0.021929 0.062805 -0.065959 0 0 -1.571974</pose>
+        </include>
         <!-- Left Gripper -->
         <include>
             <uri>model://gripper</uri>

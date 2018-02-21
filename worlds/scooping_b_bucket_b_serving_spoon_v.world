@@ -29,6 +29,11 @@
             <uri>model://b_bucket</uri>
             <pose>0.100858 -0.510180 0.939254 -3.128475 -0.140461 3.129033</pose>
         </include>
+        
+        <include>
+            <uri>model://table</uri>
+            <pose>0.021929 0.062805 -0.137579 0 0 -1.571974</pose>
+        </include>
 
         <!-- Left Gripper -->
         <include>
