@@ -68,23 +68,23 @@ controlled_joints:
   - l_gripper_l_finger_joint
   - l_gripper_r_finger_joint
 start_config:
-  torso_lift_joint: 0.3007849430842053
+  torso_lift_joint: 0.3000262665739086
   head_pan_joint: -0.016552842705291115
   head_tilt_joint: 0.7287556667322448
-  r_upper_arm_roll_joint: -1.3351230294970737
-  r_shoulder_pan_joint: -1.0489713192626062
-  r_shoulder_lift_joint: -0.0337662888586017
-  r_forearm_roll_joint: 4.954040580711836
-  r_elbow_flex_joint: -1.6954641064176876
-  r_wrist_flex_joint: -1.5742733400117634
-  r_wrist_roll_joint: -2.398480044745123
-  l_elbow_flex_joint: -1.1000206816083982
-  l_forearm_roll_joint: 0.8018847264145844
-  l_shoulder_lift_joint: 0.09913986734189655
-  l_shoulder_pan_joint: 0.5244532801685695
-  l_upper_arm_roll_joint: 0.5151343804663929
-  l_wrist_flex_joint: -0.6394288886084176
-  l_wrist_roll_joint: 6.7505988913485035
+  r_upper_arm_roll_joint: -0.9545442485020886
+  r_shoulder_pan_joint: -0.9763766874612734
+  r_shoulder_lift_joint: 0.5734009433853502
+  r_forearm_roll_joint: 5.26860285279
+  r_elbow_flex_joint: -1.6422521567729969
+  r_wrist_flex_joint: -1.5074640847105494
+  r_wrist_roll_joint: 1.90604009753
+  l_elbow_flex_joint: -1.00213547438
+  l_forearm_roll_joint: 0.834058592757
+  l_shoulder_lift_joint: 0.103903217692
+  l_shoulder_pan_joint: 0.3688738798
+  l_upper_arm_roll_joint: 0.730572260662
+  l_wrist_flex_joint: -1.34841376457
+  l_wrist_roll_joint: 7.00870758722
 projection_mode: false
 sim_frequency: 100
 watchdog_period: 0.1

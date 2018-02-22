@@ -75,7 +75,7 @@ public:
     try 
     {
       transformStamped = tfBuffer.lookupTransform(
-        this->reference_frame_name_, this->target_frame_name_, ros::Time(0), ros::Duration(0.02));  
+        this->reference_frame_name_, this->target_frame_name_, ros::Time(0));  
     }
     catch (tf2::TransformException &ex) 
     {
@@ -113,6 +113,8 @@ public:
 //    this->link_->SetTorque(torque);
 
     this->link_->SetWorldPose(desired_pose);
+    this->link_->SetAngularVel(math::Vector3(0.0, 0.0, 0.0));
+    this->link_->SetLinearVel(math::Vector3(0.0, 0.0, 0.0));
   }
   
 private:
