@@ -6,15 +6,12 @@
 
 		<link name='link'>
 			<inertial>
-			  <mass>0.12</mass>
+			  <mass>0.1</mass>
 			  <pose>-8.8541e-06 -4.0274e-05 -0.00010513 0 0 0</pose>
 			  <inertia>
-				  <ixx>3.9502e-08</ixx>
-				  <ixy>0</ixy>
-				  <ixz>0</ixz>
-				  <iyy>4.7031e-08</iyy>
-				  <iyz>0</iyz>
-				  <izz>5.1447e-08</izz>
+				  <ixx>0.000005</ixx>
+				  <iyy>0.0002433333</iyy>
+				  <izz>0.0002433333</izz>
 			  </inertia>
 			</inertial>
 			<sensor name="tool_contact_sensor" type="contact">

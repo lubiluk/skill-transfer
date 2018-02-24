@@ -37,9 +37,9 @@ public:
     this->link_name_ = _sdf->GetElement("linkName")->Get<std::string>();
     this->target_frame_name_ = _sdf->GetElement("targetFrameName")->Get<std::string>();
     this->reference_frame_name_ = _sdf->GetElement("referenceFrameName")->Get<std::string>();
-    this->P_ = _sdf->GetElement("P")->Get<double>();
-    this->I_ = _sdf->GetElement("I")->Get<double>();
-    this->D_ = _sdf->GetElement("D")->Get<double>();
+    this->P_ = 10000.0;
+    this->I_ = 0.0;
+    this->D_ = 7000.0;
     
     // Link
     this->link_ = _parent->GetLink(this->link_name_);
@@ -51,13 +51,17 @@ public:
     // simulation iteration.
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
         boost::bind(&ForceControllerPlugin::UpdateChild, this, _1));
+
+    double l_P = 1.0; 
+    double l_I = 0.0;
+    double l_D = 1.0;
     
     this->pid_linear_x_ = common::PID(P_, I_, D_);
     this->pid_linear_y_ = common::PID(P_, I_, D_);
     this->pid_linear_z_ = common::PID(P_, I_, D_);
-    this->pid_angular_x_ = common::PID(P_, I_, D_);
-    this->pid_angular_y_ = common::PID(P_, I_, D_);
-    this->pid_angular_z_ = common::PID(P_, I_, D_);
+    this->pid_angular_x_ = common::PID(l_P, l_I, l_D);
+    this->pid_angular_y_ = common::PID(l_P, l_I, l_D);
+    this->pid_angular_z_ = common::PID(l_P, l_I, l_D);
   }
   
   void UpdateChild(const common::UpdateInfo &_info)
@@ -83,8 +87,8 @@ public:
       return;
     }
     
-    const auto current_pose = this->link_->GetWorldPose();
-    const math::Pose desired_pose = math::Pose(
+    math::Pose current_pose = this->link_->GetWorldPose();
+    math::Pose desired_pose = math::Pose(
       math::Vector3(transformStamped.transform.translation.x, 
                     transformStamped.transform.translation.y, 
                     transformStamped.transform.translation.z), 
@@ -100,21 +104,22 @@ public:
     force.y = this->pid_linear_y_.Update(current_pose.pos.y - desired_pose.pos.y, _delta_time);
     force.z = this->pid_linear_z_.Update(current_pose.pos.z - desired_pose.pos.z, _delta_time);
     
-//    ROS_INFO_STREAM("Current pos: " << current_pose.pos.x << " " << current_pose.pos.y << " " << current_pose.pos.z);
-//    ROS_INFO_STREAM("Desired pos: " << desired_pose.pos.x << " " << desired_pose.pos.y << " " << desired_pose.pos.z);
-//    ROS_INFO_STREAM("Error: " << current_pose.pos.y - desired_pose.pos.y);
-//    ROS_INFO_STREAM("Force: " << force);
+  //  gzdbg  << "Current pos: " << current_pose.pos.x << " " << current_pose.pos.y << " " << current_pose.pos.z << "\n";
+  //  gzdbg  << "Desired pos: " << desired_pose.pos.x << " " << desired_pose.pos.y << " " << desired_pose.pos.z << "\n";
+  //  gzdbg  << "Error: "  << current_pose.pos.x - desired_pose.pos.x <<  " "  << current_pose.pos.y - desired_pose.pos.y << " " << current_pose.pos.z - desired_pose.pos.z << "\n";
+  //  gzdbg  << "Force: " << force << "\n";
     
-    torque.x = this->pid_angular_x_.Update(current_pose.rot.x - transformStamped.transform.rotation.x, _delta_time);
-    torque.y = this->pid_angular_y_.Update(current_pose.rot.y - transformStamped.transform.rotation.y, _delta_time);
-    torque.z = this->pid_angular_z_.Update(current_pose.rot.z - transformStamped.transform.rotation.z, _delta_time);
+    torque.x = this->pid_angular_x_.Update(current_pose.rot.GetRoll() - desired_pose.rot.GetRoll(), _delta_time);
+    torque.y = this->pid_angular_y_.Update(current_pose.rot.GetPitch() - desired_pose.rot.GetPitch(), _delta_time);
+    torque.z = this->pid_angular_z_.Update(current_pose.rot.GetYaw() - desired_pose.rot.GetYaw(), _delta_time);
     
     // this->link_->SetForce(force);
-//    this->link_->SetTorque(torque);
+    // this->link_->SetTorque(torque);
+  // this->link_->set
 
     this->link_->SetWorldPose(desired_pose);
-    this->link_->SetAngularVel(math::Vector3(0.0, 0.0, 0.0));
-    this->link_->SetLinearVel(math::Vector3(0.0, 0.0, 0.0));
+    // this->link_->SetAngularVel(math::Vector3(0.0, 0.0, 0.0));
+    // this->link_->SetLinearVel(math::Vector3(0.0, 0.0, 0.0));
   }
   
 private:

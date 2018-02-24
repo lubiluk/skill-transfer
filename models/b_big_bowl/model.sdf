@@ -6,15 +6,12 @@
 
 		<link name='link'>
 			<inertial>
-			<mass>0.46</mass>
+			<mass>0.35</mass>
 			<pose>-0.0022966 -0.0039142 0.0041527 0 0 0</pose>
 				<inertia>
-					<ixx>9.1823e-05</ixx>
-					<ixy>0</ixy>
-					<ixz>0</ixz>
-					<iyy>0.00010724</iyy>
-					<iyz>0</iyz>
-					<izz>4.8824e-05</izz>
+					<ixx>0.0009479167</ixx>
+					<iyy>0.0009479167</iyy>
+					<izz>0.00175</izz>
 				</inertia>
 			</inertial>
 			<collision name='collision'>
