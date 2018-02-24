@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "skill_transfer/watchdog.hpp"
 
 class ConstraintController
 {
@@ -19,30 +20,30 @@ public:
                                            giskard_adapter_(100)
   {
     joint_names_ = {
-      "torso_lift_joint",
-      "l_shoulder_pan_joint",
-      "l_shoulder_lift_joint",
-      "l_upper_arm_roll_joint",
-      "l_elbow_flex_joint",
-      "l_forearm_roll_joint",
-      "l_wrist_flex_joint",
-      "l_wrist_roll_joint",
-      "r_shoulder_pan_joint",
-      "r_shoulder_lift_joint",
-      "r_upper_arm_roll_joint",
-      "r_elbow_flex_joint",
-      "r_forearm_roll_joint",
-      "r_wrist_flex_joint",
-      "r_wrist_roll_joint"
-    };
-    
+        "torso_lift_joint",
+        "l_shoulder_pan_joint",
+        "l_shoulder_lift_joint",
+        "l_upper_arm_roll_joint",
+        "l_elbow_flex_joint",
+        "l_forearm_roll_joint",
+        "l_wrist_flex_joint",
+        "l_wrist_roll_joint",
+        "r_shoulder_pan_joint",
+        "r_shoulder_lift_joint",
+        "r_upper_arm_roll_joint",
+        "r_elbow_flex_joint",
+        "r_forearm_roll_joint",
+        "r_wrist_flex_joint",
+        "r_wrist_roll_joint"};
+
     //register the goal and feeback callbacks
     as_.registerGoalCallback(boost::bind(&ConstraintController::onGoal, this));
     as_.registerPreemptCallback(boost::bind(&ConstraintController::onPreempt, this));
 
     //subscribe to the data topic of interest
-    sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::onJointStatesMsg, this);
-    
+    sub_ = nh_.subscribe("/joint_states", 1, &ConstraintController::onJointStatesMsg, this,
+                         ros::TransportHints().tcpNoDelay());
+
     // Topic for real PR2 commands (joint velocities)
     pub_ = nh_.advertise<sensor_msgs::JointState>("/whole_body_controller/velocity_controller/command", 1);
     // Topic for simulation and executive node, since they only
@@ -51,6 +52,8 @@ public:
     pub_gripper_measured_ = nh_.advertise<geometry_msgs::Twist>("/l_ee_twist", 1);
     // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 1);
+
+    watchdog_.setPeriod(ros::Duration(0.1));
 
     as_.start();
   }
@@ -66,8 +69,9 @@ public:
     constraints_ = goal->constraints;
 
     ROS_INFO("%s: Received a new goal", action_name_.c_str());
-    
+
     giskard_adapter_.createController(constraints_);
+    watchdog_.kick(ros::Time::now());
   }
 
   void onPreempt()
@@ -79,11 +83,17 @@ public:
 
   void onJointStatesMsg(const sensor_msgs::JointStateConstPtr &msg)
   {
+    if (watchdog_.barking(msg->header.stamp))
+    {
+      // ROS_INFO("BARKING");
+      return;
+    }
+
     // Link state map
     auto joint_positions_map = toMap<std::string, double>(msg->name, msg->position);
-    auto joint_velocities_map = toMap<std::string, double>(msg->name, msg->velocity); 
-    
-    auto joint_count = joint_names_.size();  
+    auto joint_velocities_map = toMap<std::string, double>(msg->name, msg->velocity);
+
+    auto joint_count = joint_names_.size();
 
     // When action is not active send zero twist,
     // otherwise do all the calculations
@@ -92,15 +102,15 @@ public:
       // Prepare controller inputs
 
       Eigen::VectorXd inputs(joint_count);
-      
-      for(int i = 0; i < joint_count; ++i)
+
+      for (int i = 0; i < joint_count; ++i)
       {
         inputs(i) = joint_positions_map.find(joint_names_[i])->second;
       }
 
       Eigen::VectorXd velocities(joint_count);
-      
-      for(int i = 0; i < joint_count; ++i)
+
+      for (int i = 0; i < joint_count; ++i)
       {
         velocities(i) = joint_velocities_map.find(joint_names_[i])->second;
       }
@@ -126,10 +136,10 @@ public:
 
       feedback_.distance = giskard_adapter_.getDistance();
       as_.publishFeedback(feedback_);
-      
+
       // Visualization
       const auto viz_msgs = giskard_adapter_.getVisualizationMsgs();
-      
+
       for (const auto &m : viz_msgs)
       {
         pub_viz_.publish(m);
@@ -138,17 +148,18 @@ public:
     else
     {
       Eigen::VectorXd velocities(joint_count);
-      
-      for(int i = 0; i < joint_count; ++i)
+
+      for (int i = 0; i < joint_count; ++i)
       {
         velocities(i) = 0.0;
       }
-      
+
       auto cmd = eigenVectorToMsgJointState(velocities);
 
       pub_.publish(cmd);
-    } 
+    }
 
+    watchdog_.kick(ros::Time::now());
     // ROS_INFO_STREAM("Twist: " << cmd.twist);
   }
 
@@ -165,6 +176,7 @@ protected:
   skill_transfer::MoveArmFeedback feedback_;
   GiskardAdapter giskard_adapter_;
   std::vector<std::string> joint_names_;
+  giskard_ros::Watchdog<ros::Time, ros::Duration> watchdog_;
 };
 
 int main(int argc, char **argv)
