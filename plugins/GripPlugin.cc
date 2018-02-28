@@ -25,9 +25,7 @@ void GripPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
       relativePose = _sdf->GetElement("relativePose")->Get<math::Pose>();
       
       const auto parentPose = parentLink->GetWorldPose();
-      const auto position = parentPose.CoordPositionAdd(relativePose.pos);
-      const auto rotation = parentPose.CoordRotationAdd(relativePose.rot);
-      const auto childPose = math::Pose(position, rotation);
+      const auto childPose = math::Pose(parentPose.pos + (parentPose.rot.RotateVector(relativePose.pos)), parentPose.rot * relativePose.rot);
       
       childLink->SetWorldPose(childPose);
       
