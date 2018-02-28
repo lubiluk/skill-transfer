@@ -40,13 +40,11 @@ void QGripPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
 
       relativeRotation = math::Quaternion(w, x, y, z);
 
+      gzdbg << "xyz: " << relativeTranslation.x << " " << relativeTranslation.y << " " << relativeTranslation.z << " " << "\n";
       gzdbg << "xyzw: " << relativeRotation.x << " " << relativeRotation.y << " " << relativeRotation.z << " " << relativeRotation.w << "\n";
       
       const auto parentPose = parentLink->GetWorldPose();
-      const auto rotation = parentPose.CoordRotationAdd(relativeRotation);
-      const auto position = parentPose.CoordPositionAdd(relativeTranslation);
-      const auto childPose = math::Pose(position, rotation);
-      relativePose = math::Pose(relativeTranslation, relativeRotation);
+      const auto childPose = math::Pose(parentPose.pos + (parentPose.rot.RotateVector(relativeTranslation)), parentPose.rot * relativeRotation);
       
       childLink->SetWorldPose(childPose);
       
@@ -62,7 +60,7 @@ void QGripPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf) {
     const auto joint = physics->CreateJoint("fixed", parentModel);
     // Bullet physics needs accurate joint position
     // ODE does't care
-    joint->Load(parentLink, childLink, relativePose);
+    joint->Load(parentLink, childLink, math::Pose());
     joint->Init();
     joint->SetName("grip_joint_" + parentLink->GetScopedName() + "_" + childLink->GetScopedName());
       
