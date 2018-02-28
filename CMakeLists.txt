@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   gazebo_ros
   sensor_msgs
+  giskard_msgs
 )
 
 ## Find Boost
@@ -143,6 +144,10 @@ target_link_libraries(giskard_visualization_plugin ${catkin_LIBRARIES} ${GAZEBO_
 ## Grip plugin
 add_library(GripPlugin plugins/GripPlugin.cc)
 target_link_libraries(GripPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+## QGrip plugin
+add_library(QGripPlugin plugins/QGripPlugin.cc)
+target_link_libraries(QGripPlugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Stick plugin
 add_library(StickPlugin plugins/StickPlugin.cc)

@@ -1,11 +1,13 @@
 <launch>
   <group>
+    <arg name="pose" default="pr2_scraping" />
+
     <include file="$(find iai_pr2_description)/launch/upload_pr2.launch" />
 
     <node pkg="iai_naive_kinematics_sim" type="simulator" 
           name="simulator" output="screen">
       <rosparam command="load"
-          file="$(find skill_transfer)/initial_poses/pr2_scraping.yaml" />
+          file="$(find skill_transfer)/initial_poses/$(arg pose).yaml" />
       <remap from="~joint_states" to="/joint_states" />
       <remap from="~commands" to="/whole_body_controller/velocity_controller/command" />
     </node>

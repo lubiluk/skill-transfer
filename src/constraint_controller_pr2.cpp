@@ -53,7 +53,7 @@ public:
     // Desired motion state visualization for RViz
     pub_viz_ = nh_.advertise<visualization_msgs::Marker>("/giskard/visualization_marker", 1);
 
-    watchdog_.setPeriod(ros::Duration(0.1));
+    watchdog_.setPeriod(ros::Duration(0.02));
 
     as_.start();
   }
@@ -88,6 +88,8 @@ public:
       // ROS_INFO("BARKING");
       return;
     }
+
+    // ROS_INFO("PASSED");
 
     // Link state map
     auto joint_positions_map = toMap<std::string, double>(msg->name, msg->position);

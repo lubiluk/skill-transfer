@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version="1.6">
-    <world name="scraping">
-    
+    <world name="b_big_bowl_b_table_knife_p">
+
         <include>
             <uri>model://sun</uri>
         </include>
@@ -11,16 +11,16 @@
         </include>
 
         <include>
-            <uri>model://b_spatula</uri>
-            <pose>0.140489 0.527566 0.997957 1.571605 -0.058101 -2.939758</pose>
+            <uri>model://b_table_knife</uri>
+            <pose>0.060878 0.497562 1.005864 1.616805 0 0</pose>
         </include>
         
         <include>
             <uri>model://butter_box</uri>
-            <pose>0.208221 0.534198 0.991390 1.634659 1.569999 -0.001148</pose>
+            <pose>0.135223 0.505221 1.004970 0.274247 1.507719 1.875657</pose>
             <plugin name="stick" filename="libStickPlugin.so">
               <parentLinkName>link</parentLinkName>
-              <childLinkName>b_spatula::link</childLinkName>
+              <childLinkName>b_table_knife::link</childLinkName>
               <force>5</force>
             </plugin>
         </include>
@@ -30,9 +30,15 @@
             <pose>0.024164 -0.383989 0.959287 -0.017186 -0.000884 -0.101566</pose>
         </include>
 
+        <include>
+            <uri>model://b_table</uri>
+            <pose>0.729232 0 0 0 0 0</pose>
+        </include>
+
         <!-- Left Gripper -->
         <include>
             <uri>model://gripper</uri>
+            <name>left_ee</name>
             <pose>0 0.5 1 0 0 0</pose>
             
             <plugin name="l_position_controller" filename="libposition_controller_plugin.so">
@@ -41,17 +47,19 @@
               <targetFrameName>l_gripper_tool_frame</targetFrameName>
             </plugin>
             
-            <plugin name="l_grip" filename="libGripPlugin.so">
+            <plugin name="l_grip" filename="libQGripPlugin.so">
               <parentLinkName>link</parentLinkName>
-              <childLinkName>b_spatula::link</childLinkName>
-              <relativePose>0.14 0.028 -0.002 -1.57 3.20 0.20</relativePose>
+              <childLinkName>b_table_knife::link</childLinkName>
+              <relativeTranslation>0.0384850800037 -0.00200759898871 0.0044107735157</relativeTranslation>
+              <relativeRotationXYZW>-0.694968938828 0.0 0.0 0.719039916992</relativeRotationXYZW>
             </plugin>
         </include>
 
         <!-- Right Gripper -->
         <include>
             <uri>model://gripper</uri>
-            <pose>0 -0.5 1 0 0 0</pose>
+            <name>right_ee</name>
+            <pose>0 -0.5 1 1.547368 1.402341 1.343703</pose>
             
             <plugin name="r_position_controller" filename="libposition_controller_plugin.so">
               <linkName>link</linkName>
@@ -59,6 +67,13 @@
               <targetFrameName>r_gripper_tool_frame</targetFrameName>
             </plugin>
             
+            <!-- <plugin name="r_grip" filename="libQGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_big_bowl::link</childLinkName>
+              <relativeTranslation>0.0698283538222 -0.101200096309 -0.00832558982074</relativeTranslation>
+              <relativeRotationXYZW>0.0882896855474 -0.714526772499 0.152498945594 0.677053391933</relativeRotationXYZW>
+            </plugin> -->
+
             <plugin name="r_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
               <childLinkName>b_big_bowl::link</childLinkName>
@@ -66,6 +81,7 @@
             </plugin>
         </include>
 
+        <plugin name="feature_visualization_plugin" filename="libgiskard_visualization_plugin.so"></plugin>
 
         <gui>
             <camera name='user_camera'>

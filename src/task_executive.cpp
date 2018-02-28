@@ -3,11 +3,11 @@
 #include <actionlib/client/terminal_state.h>
 #include <geometry_msgs/Twist.h>
 #include <gazebo_msgs/ContactsState.h>
+#include <giskard_msgs/WholeBodyAction.h>
 
 #include <skill_transfer/StopCondition.h>
 #include <skill_transfer/GetTaskSpec.h>
 #include <skill_transfer/GetMotionSpec.h>
-#include <skill_transfer/MoveArmAction.h>
 
 #include "skill_transfer/twist_log.h"
 
@@ -36,7 +36,7 @@ private:
   ros::Subscriber tool_contact_subscriber_;
   ros::ServiceClient task_spec_service_client_;
   ros::ServiceClient motion_spec_service_client_;
-  actionlib::SimpleActionClient<skill_transfer::MoveArmAction> constraint_action_server_;
+  actionlib::SimpleActionClient<giskard_msgs::WholeBodyAction> body_action_client_;
   // Motion control variables
   int phase_count_;
   int phase_index_;
@@ -48,7 +48,7 @@ private:
 
 public:
   TaskExecutive() : node_handle_("~"),
-                    constraint_action_server_("move_arm", true),
+                    body_action_client_("qp_controller/command", true),
                     velocity_log_(10),
                     command_log_(10)
   {
@@ -75,7 +75,7 @@ public:
 
     task_spec_service_client_.waitForExistence();
     motion_spec_service_client_.waitForExistence();
-    constraint_action_server_.waitForServer();
+    body_action_client_.waitForServer();
 
     // Obtain the number of phases
     state_ = State::ObtainingTaskSpec;
@@ -143,17 +143,17 @@ public:
   }
 
   void onFinish(const actionlib::SimpleClientGoalState &state,
-                const skill_transfer::MoveArmResultConstPtr &result)
+                const giskard_msgs::WholeBodyResultConstPtr &result)
   {
     // This should never happen, as constraint_controller doesn't
     // ever finish.
     ROS_INFO("Finished in state [%s]", state.toString().c_str());
-    ros::shutdown();
+    completePhase();
   }
 
-  void onFeedback(const skill_transfer::MoveArmFeedbackConstPtr &feedback)
+  void onFeedback(const giskard_msgs::WholeBodyFeedbackConstPtr &feedback)
   {
-    goal_distance_ = feedback->distance;
+    goal_distance_ = 0.0;
   }
 
 private:
@@ -186,17 +186,18 @@ private:
     command_log_.clear();
 
     // Create and send goal
-    skill_transfer::MoveArmGoal goal;
-    goal.constraints = spec_;
+    giskard_msgs::WholeBodyGoal goal;
+    goal.command.type = 1;
+    goal.command.yaml_spec = spec_;
     // ROS_INFO("Spec:");
     // ROS_INFO_STREAM(spec_);
 
     ROS_INFO("Sending new goal.");
 
-    constraint_action_server_
+    body_action_client_
         .sendGoal(goal,
                   boost::bind(&TaskExecutive::onFinish, this, _1, _2),
-                  actionlib::SimpleActionClient<skill_transfer::MoveArmAction>::SimpleActiveCallback(),
+                  actionlib::SimpleActionClient<giskard_msgs::WholeBodyAction>::SimpleActiveCallback(),
                   boost::bind(&TaskExecutive::onFeedback, this, _1));
 
     state_ = State::Running;
@@ -204,7 +205,7 @@ private:
 
   void finish()
   {
-    constraint_action_server_.cancelGoal();
+    body_action_client_.cancelGoal();
 
     state_ = State::Finished;
   }

@@ -41,7 +41,7 @@ void StickPlugin::OnUpdate(const common::UpdateInfo &_info) {
     auto measuredForceLength = measuredForce.GetLength();
 
     if (measuredForceLength > force) {
-        gzdbg << "Removed joint: " << " (" << joint->GetName() << "), force: " << measuredForceLength << "\n";
+        gzdbg << "Stick: Removed joint: " << " (" << joint->GetName() << "), force: " << measuredForceLength << "\n";
         
         this->BreakJoint();
     }
@@ -57,13 +57,15 @@ void StickPlugin::CreateJoint() {
     this->joint = this->physics->CreateJoint("fixed", this->model);
     // Bullet physics needs accurate joint position
     // ODE does't care
-    this->joint->Load(this->parentLink, this->childLink, this->parentLink->GetWorldPose() - this->childLink->GetWorldPose());
+    this->joint->Load(this->parentLink, this->childLink, math::Pose(0,0,0,0,0,0));
     this->joint->Init();
     this->joint->SetProvideFeedback(true);
     this->joint->SetName("stick_joint_" + this->parentLink->GetScopedName() + "_" + this->childLink->GetScopedName());
     
     // Disable gravity on the butter link
     this->parentLink->SetGravityMode(false);
+
+    gzdbg << "Stick: Created joint: " << " (" << this->joint->GetName() << ")\n";
 
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
             boost::bind(&StickPlugin::OnUpdate, this, _1));
