@@ -1,7 +1,7 @@
 # Object scans a.k.a. object knowledge base
 point-clouds:
   tool: b_table_knife.ply
-  target-object: b_big_bowl.ply
+  target-object: b_red_bowl.ply
 
 tool-mass: 0.12
 

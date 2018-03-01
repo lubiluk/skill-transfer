@@ -67,13 +67,15 @@ public:
     const std::string &point_cloud_file_name = req.point_cloud_file_name;
     const std::string point_cloud_path = point_cloud_directory_path_ + point_cloud_file_name;
 
+    const std::string task_name = req.task_name;
+
     std::string display_options = "";
 
-    display_options = show_results_ ? "1 1" : "";
+    display_options = show_results_ ? "1" : "";
 
     const auto command =
-        boost::format("run_get_target_obj_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% \"[%2% %3% %4%]\" %5% > /tmp/target_object_info.txt") %
-        point_cloud_path % reference_point.x % reference_point.y % reference_point.z % display_options;
+        boost::format("run_GetTargetObjInfo.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" %5% %6% > /tmp/target_object_info.txt") %
+        point_cloud_path % reference_point.x % reference_point.y % reference_point.z % task_name % display_options;
 
     ROS_INFO_STREAM("Command: " << command);
 

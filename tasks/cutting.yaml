@@ -2,8 +2,9 @@ name: "Cutting"
 
 required-object-info:
   tool: true
-  target-object: false
-  task: cutting_lasagna
+  target-object: true
+  target-object-task: cutting
+  tool-task: cutting_lasagna
 
 # The following motion phases will be executed in a sequence
 motion-phases:

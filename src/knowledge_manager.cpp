@@ -212,6 +212,8 @@ private:
     srv.request.point_cloud_file_name =
         setup_["point-clouds"]["target-object"].as<std::string>();
 
+    srv.request.task_name = task_["required-object-info"]["target-object-task"].as<std::string>();
+
     if (!target_object_info_service_client_.call(srv))
     {
       throw std::runtime_error("Failed to call service detect_target_object_info");
@@ -239,7 +241,7 @@ private:
     srv.request.point_cloud_file_name =
         setup_["point-clouds"]["tool"].as<std::string>();
 
-    srv.request.task_name = task_["required-object-info"]["task"].as<std::string>();
+    srv.request.task_name = task_["required-object-info"]["tool-task"].as<std::string>();
 
     srv.request.tool_mass = setup_["tool-mass"].as<double>();
 

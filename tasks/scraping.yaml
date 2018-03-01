@@ -3,7 +3,9 @@ name: Scraping
 required-object-info:
   tool: true
   target-object: true
-  task: scraping_butter
+  task: scraping
+  target-object-task: scraping
+  tool-task: scraping_butter
 
 # The following motion phases will be executed in a sequence
 motion-phases:

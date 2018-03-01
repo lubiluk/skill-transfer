@@ -3,7 +3,8 @@ name: "Scooping"
 required-object-info:
   tool: true
   target-object: true
-  task: scooping_grains
+  tool-task: scooping_grains
+  target-object-task: scooping
 
 # The following motion phases will be executed in a sequence
 motion-phases:
@@ -24,17 +25,17 @@ motion-phases:
   - name: "Insert"
     file: "scooping_insert.yaml"
     stop:
-      measured-velocity-min-threshold: 0.02
-      desired-velocity-min-threshold: 0.02
+      measured-velocity-min-threshold: 0.03
+      desired-velocity-min-threshold: 0.03
       contact: false
-      activation-distance: 0.15
+      activation-distance: 0.2
   - name: "Scoop"
     file: "scooping_scoop.yaml"
     stop:
-      measured-velocity-min-threshold: 0.02
-      desired-velocity-min-threshold: 0.02
+      measured-velocity-min-threshold: 0.03
+      desired-velocity-min-threshold: 0.03
       contact: false
-      activation-distance: 0.15
+      activation-distance: 0.01
   - name: "Lift"
     file: "scooping_lift.yaml"
     stop:

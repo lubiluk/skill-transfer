@@ -31,7 +31,7 @@
         </include>
 
         <include>
-            <uri>model://b_table</uri>
+            <uri>model://b_kitchen_isle</uri>
             <pose>0.729232 0 0 0 0 0</pose>
         </include>
 
@@ -67,18 +67,18 @@
               <targetFrameName>r_gripper_tool_frame</targetFrameName>
             </plugin>
             
-            <!-- <plugin name="r_grip" filename="libQGripPlugin.so">
+            <plugin name="r_grip" filename="libQGripPlugin.so">
               <parentLinkName>link</parentLinkName>
               <childLinkName>b_red_bowl::link</childLinkName>
               <relativeTranslation>0.0231388099492 -0.058066226542 -0.0105737010017</relativeTranslation>
               <relativeRotationXYZW>0.60975420475 -0.319607585669 -0.258612215519 0.677622616291</relativeRotationXYZW>
-            </plugin> -->
+            </plugin>
 
-            <plugin name="r_grip" filename="libGripPlugin.so">
+            <!-- <plugin name="r_grip" filename="libGripPlugin.so">
               <parentLinkName>link</parentLinkName>
               <childLinkName>b_red_bowl::link</childLinkName>
               <relativePose>0.0231388099492 -0.058066226542 -0.0105737010017 1.5183037194940738 -0.1180405933701519 -0.8411841321678737</relativePose>
-            </plugin>
+            </plugin> -->
         </include>
 
         <plugin name="feature_visualization_plugin" filename="libgiskard_visualization_plugin.so"></plugin>

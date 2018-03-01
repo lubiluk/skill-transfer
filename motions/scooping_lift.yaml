@@ -7,27 +7,29 @@ scope:
   - target-object-frame:
       frame-mul:
         - right_ee  
-        - tool-grasp # This has to be provided
+        - target-object-grasp # This has to be provided
         
   - tool-frame:
       frame-mul:
         - left_ee
-        - target-object-grasp # This has to be provided
+        - tool-grasp # This has to be provided
 
   # definition of features
   - tool-point: 
-      transform-vector: [tool-frame, {vector3: [-0.1149, -0.005, -0.0118]}]       
-  - target-object-point: 
-      transform-vector: [target-object-frame, {vector3: [0.018, -0.04, 0.245]}]
+      transform-vector: [tool-frame, tool-tip]        
+  - target-object-point:
+      vector-add:
+        - transform-vector: [target-object-frame, edge-point]
+        - {vector3: [0.04, 0.0, 0.2]} # 20 cm above the edge
 
-  # expressions used in constraints 
+  # distance definition
   - distance: {vector-sub: [target-object-point, tool-point]}
   
   - l_goal_rot: 
       rotation-mul: 
-        - {axis-angle: [unit-z, 1.57]}
-        - {axis-angle: [unit-y, -0.3]}
-        - {axis-angle: [unit-x, 3.14]}
+        - {axis-angle: [unit-z, 0]}
+        - {axis-angle: [unit-y, 0.35]} #0.35
+        - {axis-angle: [unit-x, 0]}
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 
