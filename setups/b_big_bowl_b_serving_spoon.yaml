@@ -3,7 +3,7 @@ point-clouds:
   tool: b_serving_spoon.ply
   target-object: b_big_bowl.ply
 
-tool-mass: 0.06
+tool-mass: 0.2
 
 tool-grasp: 
   frame:

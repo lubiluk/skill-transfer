@@ -294,6 +294,22 @@ private:
 
     setup_["object-info"]["tool-quaternion"] = orientation_node;
 
+    YAML::Node scooping_quat1_node;
+    scooping_quat1_node["quaternion"].push_back(srv.response.scooping_quat1.x);
+    scooping_quat1_node["quaternion"].push_back(srv.response.scooping_quat1.y);
+    scooping_quat1_node["quaternion"].push_back(srv.response.scooping_quat1.z);
+    scooping_quat1_node["quaternion"].push_back(srv.response.scooping_quat1.w);
+
+    setup_["object-info"]["scooping-quat1"] = scooping_quat1_node;
+
+    YAML::Node scooping_quat2_node;
+    scooping_quat2_node["quaternion"].push_back(srv.response.scooping_quat2.x);
+    scooping_quat2_node["quaternion"].push_back(srv.response.scooping_quat2.y);
+    scooping_quat2_node["quaternion"].push_back(srv.response.scooping_quat2.z);
+    scooping_quat2_node["quaternion"].push_back(srv.response.scooping_quat2.w);
+
+    setup_["object-info"]["scooping-quat2"] = scooping_quat2_node;
+
     YAML::Node heel_node;
     heel_node["vector3"].push_back(srv.response.tool_heel.x);
     heel_node["vector3"].push_back(srv.response.tool_heel.y);

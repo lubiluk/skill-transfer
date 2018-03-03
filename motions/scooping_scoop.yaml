@@ -29,7 +29,7 @@ scope:
   - l_goal_rot: 
       rotation-mul: 
         - {axis-angle: [unit-z, 0]}
-        - {axis-angle: [unit-y, 0.35]}#0.35
+        - {axis-angle: [unit-y, 0.35]}
         - {axis-angle: [unit-x, 0]}
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}

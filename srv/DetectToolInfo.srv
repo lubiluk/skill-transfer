@@ -10,4 +10,6 @@ geometry_msgs/Point action_center
 geometry_msgs/Point tool_tip
 geometry_msgs/Vector3 tool_tip_vector
 geometry_msgs/Quaternion tool_quaternion
+geometry_msgs/Quaternion scooping_quat1
+geometry_msgs/Quaternion scooping_quat2
 geometry_msgs/Point tool_heel

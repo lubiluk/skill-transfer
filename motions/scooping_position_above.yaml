@@ -16,7 +16,7 @@ scope:
 
   # definition of features
   - tool-point: 
-      transform-vector: [tool-frame, tool-tip]        
+      transform-vector: [tool-frame, tool-heel]       
   - target-object-point:
       vector-add:
         - transform-vector: [target-object-frame, edge-point]
@@ -26,7 +26,7 @@ scope:
   - distance: {vector-sub: [target-object-point, tool-point]}
   
   - l_goal_rot:
-      rotation-mul: [tool-quaternion, {orientation-of: target-object-frame}]
+      rotation-mul: [scooping-quat1, {orientation-of: target-object-frame}]
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 
@@ -44,20 +44,20 @@ scope:
 
 soft-constraints: 
   - soft-constraint: 
-      - {double-sub: [-0.005, {x-coord: distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {x-coord: distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {x-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {x-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {x-coord: distance} # expression used for Jacobian calcuation
       - contact_x # name of expression reported
   - soft-constraint: 
-      - {double-sub: [-0.005, {y-coord: distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {y-coord: distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {y-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {y-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {y-coord: distance} # expression used for Jacobian calcuation
       - contact_y # name of expression reported
   - soft-constraint: 
-      - {double-sub: [-0.005, {z-coord: distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {z-coord: distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {z-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {z-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {z-coord: distance} # expression used for Jacobian calcuation
       - contact_z # name of expression reported

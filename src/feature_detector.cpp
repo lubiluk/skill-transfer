@@ -74,7 +74,7 @@ public:
     display_options = show_results_ ? "1" : "";
 
     const auto command =
-        boost::format("run_GetTargetObjInfo.sh /usr/local/MATLAB/MATLAB_Runtime/v92 %1% \"[%2% %3% %4%]\" %5% %6% > /tmp/target_object_info.txt") %
+        boost::format("run_get_target_obj_info.sh /usr/local/MATLAB/MATLAB_Runtime/v93 %1% \"[%2% %3% %4%]\" %5% %6% > /tmp/target_object_info.txt") %
         point_cloud_path % reference_point.x % reference_point.y % reference_point.z % task_name % display_options;
 
     ROS_INFO_STREAM("Command: " << command);
@@ -226,6 +226,30 @@ public:
         line_iss >> res.tool_quaternion.x;
         line_iss >> res.tool_quaternion.y;
         line_iss >> res.tool_quaternion.z;
+      }
+
+      if (line.find("scooping_quat1") == 0)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.scooping_quat1.w;
+        line_iss >> res.scooping_quat1.x;
+        line_iss >> res.scooping_quat1.y;
+        line_iss >> res.scooping_quat1.z;
+      }
+
+      if (line.find("scooping_quat2") == 0)
+      {
+        std::getline(file, line);
+        std::istringstream line_iss(line);
+
+        // read point
+        line_iss >> res.scooping_quat2.w;
+        line_iss >> res.scooping_quat2.x;
+        line_iss >> res.scooping_quat2.y;
+        line_iss >> res.scooping_quat2.z;
       }
 
       if (line.find("tool_heel") == 0)

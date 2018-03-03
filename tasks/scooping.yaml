@@ -22,25 +22,25 @@ motion-phases:
       # Ignore stop conditions until the distance 
       # from the target configuration is less than this
       activation-distance: 0.15
-  - name: "Insert"
-    file: "scooping_insert.yaml"
-    stop:
-      measured-velocity-min-threshold: 0.03
-      desired-velocity-min-threshold: 0.03
-      contact: false
-      activation-distance: 0.2
-  - name: "Scoop"
-    file: "scooping_scoop.yaml"
-    stop:
-      measured-velocity-min-threshold: 0.03
-      desired-velocity-min-threshold: 0.03
-      contact: false
-      activation-distance: 0.01
-  - name: "Lift"
-    file: "scooping_lift.yaml"
-    stop:
-      measured-velocity-min-threshold: 0.02
-      desired-velocity-min-threshold: 0.02
-      contact: false
-      activation-distance: 0.15
+  # - name: "Insert"
+  #   file: "scooping_insert.yaml"
+  #   stop:
+  #     measured-velocity-min-threshold: 0.03
+  #     desired-velocity-min-threshold: 0.03
+  #     contact: false
+  #     activation-distance: 0.2
+  # - name: "Scoop"
+  #   file: "scooping_scoop.yaml"
+  #   stop:
+  #     measured-velocity-min-threshold: 0.03
+  #     desired-velocity-min-threshold: 0.03
+  #     contact: false
+  #     activation-distance: 0.01
+  # - name: "Lift"
+  #   file: "scooping_lift.yaml"
+  #   stop:
+  #     measured-velocity-min-threshold: 0.02
+  #     desired-velocity-min-threshold: 0.02
+  #     contact: false
+  #     activation-distance: 0.15
       
