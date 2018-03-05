@@ -1,0 +1,84 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+    <world name="big_bowl_serving_spoon_p">
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://b_red_mug</uri>
+            <pose>0.112572 0.508131 0.984633 1.382835 0.015399 0.080779</pose>
+        </include>
+        
+        <include>
+            <uri>model://b_big_bowl</uri>
+            <pose>0.024164 -0.383989 0.959287 -0.017186 -0.000884 -0.101566</pose>
+        </include>
+
+        <include>
+            <uri>model://b_kitchen_isle</uri>
+            <pose>0.729232 0 0 0 0 0</pose>
+        </include>
+
+        <!-- Left Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>left_ee</name>
+            <pose>0 0.5 1 0 0 0</pose>
+            
+            <plugin name="l_position_controller" filename="libposition_controller_plugin.so">
+              <linkName>link</linkName>
+              <referenceFrameName>base_link</referenceFrameName>
+              <targetFrameName>l_gripper_tool_frame</targetFrameName>
+            </plugin>
+            
+            <plugin name="l_grip" filename="libQGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_red_mug::link</childLinkName>
+              <relativeTranslation>0.071897149086 -0.00266407802701 -0.0123504642397</relativeTranslation>
+              <relativeRotationXYZW>-0.00352649204433 -0.347647994757 -0.93575501442 -0.0591045282781</relativeRotationXYZW>
+            </plugin>
+        </include>
+
+        <!-- Right Gripper -->
+        <include>
+            <uri>model://gripper</uri>
+            <name>right_ee</name>
+            <pose>0 -0.5 1 1.547368 1.402341 1.343703</pose>
+            
+            <plugin name="r_position_controller" filename="libposition_controller_plugin.so">
+              <linkName>link</linkName>
+              <referenceFrameName>base_link</referenceFrameName>
+              <targetFrameName>r_gripper_tool_frame</targetFrameName>
+            </plugin>
+
+            <plugin name="r_grip" filename="libQGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_big_bowl::link</childLinkName>
+              <relativeTranslation>0.0698283538222 -0.101200096309 -0.00832558982074</relativeTranslation>
+              <relativeRotationXYZW>0.0882896855474 -0.714526772499 0.152498945594 0.677053391933</relativeRotationXYZW>
+            </plugin>
+
+            <!-- <plugin name="r_grip" filename="libGripPlugin.so">
+              <parentLinkName>link</parentLinkName>
+              <childLinkName>b_big_bowl::link</childLinkName>
+              <relativePose>0.06 0.11 0 -1.57 -1.35 1.3</relativePose>
+            </plugin> -->
+        </include>
+
+        <plugin name="feature_visualization_plugin" filename="libgiskard_visualization_plugin.so"></plugin>
+
+        <gui>
+            <camera name='user_camera'>
+                <pose>1.700789 1.175709 1.670612 0 0.375643 -2.675000</pose>
+                <view_controller>orbit</view_controller>
+            </camera>
+        </gui>
+
+    </world>
+</sdf>

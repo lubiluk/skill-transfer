@@ -16,17 +16,22 @@ scope:
 
   # definition of features
   - tool-point: 
-      transform-vector: [tool-frame, tool-heel]       
+      transform-vector: [tool-frame, tool-tip]       
   - target-object-point:
       vector-add:
         - transform-vector: [target-object-frame, edge-point]
-        - {vector3: [0, 0, 0.2]} # 20 cm above the edge
+        - {vector3: [0, 0.05, 0.2]} # 20 cm above the edge
 
   # expressions used in constraints 
   - distance: {vector-sub: [target-object-point, tool-point]}
   
   - l_goal_rot:
-      rotation-mul: [scooping-quat1, {orientation-of: target-object-frame}]
+      rotation-mul: 
+        - rotation-mul: 
+            - {axis-angle: [unit-z, 1.57]}
+            - {axis-angle: [unit-y, -1.57]}
+            - {axis-angle: [unit-x, 0]}
+        - {orientation-of: target-object-frame}
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 

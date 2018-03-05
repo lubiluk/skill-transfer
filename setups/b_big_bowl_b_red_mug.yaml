@@ -1,0 +1,22 @@
+# Object scans a.k.a. object knowledge base
+point-clouds:
+  tool: b_red_mug.ply
+  target-object: b_big_bowl.ply
+
+tool-mass: 0.2
+
+tool-grasp: 
+  frame:
+    - quaternion: [-0.00352649204433, -0.347647994757, -0.93575501442, -0.0591045282781] # x, y, z, w
+    - vector3: [0.071897149086, -0.00266407802701, -0.0123504642397] # x, y, z
+
+target-object-grasp:
+  frame: 
+    - quaternion: [0.0882896855474, -0.714526772499, 0.152498945594, 0.677053391933]
+    - vector3: [0.0698283538222, -0.101200096309, -0.00832558982074]
+# target-object-grasp:
+#   frame: 
+#     - quaternion: [-0.171777970707, -0.685860866607, -0.0174027448572, 0.706954273563]
+#     - vector3: [0.06, 0.11, 0]
+  
+  

@@ -3,12 +3,7 @@ scope:
   - controllable-weight: 0.001 # mu * 1
   - constraint-weight: 10.001 # mu + 10
   
-  # definition of object frames 
-  - target-object-frame:
-      frame:
-        - quaternion: [0, 0, 0, 1]
-        - vector3: [0, 0, 1.03] 
-        
+  # definition of object frames f
   - tool-frame:
       frame-mul:
         - left_ee
@@ -17,19 +12,15 @@ scope:
   # definition of features
   - tool-point: 
       transform-vector: [tool-frame, action-center]       
-  - target-object-point: 
-      transform-vector: 
-        - target-object-frame
-        - {vector3: [0, 0, 0.015672]} # 0 cm above the object
+  - target-object-point:
+      vector-add:
+        - transform-vector: [right_ee, {vector3: [0.3, 0.55, -0.2]}]
 
   # expressions used in constraints 
   - distance: {vector-sub: [target-object-point, tool-point]}
   
-  - l_goal_rot: 
-      rotation-mul: 
-        - {axis-angle: [unit-z, 0]}
-        - {axis-angle: [unit-y, 0]}
-        - {axis-angle: [unit-x, -1.586820]}
+  - l_goal_rot:
+      rotation-mul: [{quaternion: [0.706,  0.031, -0.031, 0.706]}, {orientation-of: right_ee}]
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 
@@ -47,20 +38,20 @@ scope:
 
 soft-constraints: 
   - soft-constraint: 
-      - {double-sub: [-0.005, {x-coord: distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {x-coord: distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {x-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {x-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {x-coord: distance} # expression used for Jacobian calcuation
       - contact_x # name of expression reported
   - soft-constraint: 
-      - {double-sub: [-0.005, {y-coord: distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {y-coord: distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {y-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {y-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {y-coord: distance} # expression used for Jacobian calcuation
       - contact_y # name of expression reported
   - soft-constraint: 
-      - {double-sub: [-0.005, {z-coord: distance}]} # control law for lower boundary
-      - {double-sub: [0.005, {z-coord: distance}]} # control law for upper boundary
+      - {double-sub: [-0.007, {z-coord: distance}]} # control law for lower boundary
+      - {double-sub: [0.007, {z-coord: distance}]} # control law for upper boundary
       - constraint-weight # weight of this constraint
       - {z-coord: distance} # expression used for Jacobian calcuation
       - contact_z # name of expression reported

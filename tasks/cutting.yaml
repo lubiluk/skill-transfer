@@ -27,7 +27,7 @@ motion-phases:
     stop:
       measured-velocity-min-threshold: 0.002
       desired-velocity-min-threshold: 0.002
-      contact: false
+      contact: true
       activation-distance: 0.15
   - name: "Pull"
     file: "cutting_pull.yaml"

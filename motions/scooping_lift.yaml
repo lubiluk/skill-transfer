@@ -20,16 +20,18 @@ scope:
   - target-object-point:
       vector-add:
         - transform-vector: [target-object-frame, edge-point]
-        - {vector3: [0.04, 0.0, 0.2]} # 20 cm above the edge
+        - {vector3: [0, -0.02, 0.2]} # 20 cm above the edge
 
   # distance definition
   - distance: {vector-sub: [target-object-point, tool-point]}
   
   - l_goal_rot: 
       rotation-mul: 
-        - {axis-angle: [unit-z, 0]}
-        - {axis-angle: [unit-y, 0.35]} #0.35
-        - {axis-angle: [unit-x, 0]}
+        - rotation-mul: 
+            - {axis-angle: [unit-z, 1.57]}
+            - {axis-angle: [unit-y, -0.5]}
+            - {axis-angle: [unit-x, 0]}
+        - {orientation-of: target-object-frame}
   - l_rot: {orientation-of: tool-frame}
   - l_rot_error: {vector-norm: {rot-vector: {rotation-mul: [{inverse-rotation: l_rot}, l_goal_rot]}}}
   - l_rot_scaling: 
