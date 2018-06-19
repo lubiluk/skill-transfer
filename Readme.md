@@ -106,12 +106,12 @@ Experiment launch file can be run for freely flying end effectors simulation (ar
   ```
 2. Launch the Gazebo world, keep it running
   ```
-  roslaunch skill_transfer simulation.launch world:=big_bowl_spatula_p
+  roslaunch skill_transfer simulation.launch world:=scraping_b_big_bowl_b_spatula_p
   ```
 
 3. In a new terminal, launch the experiment.
   ```
-  roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
+  roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=b_big_bowl_b_spatula
   ```
 
 ### Running with real robot
@@ -120,7 +120,7 @@ Experiment launch file can be run for freely flying end effectors simulation (ar
 
 2. Launch the experiment.
   ```
-  roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
+  roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=b_big_bowl_b_spatula
   ```
 
 ## Appendix
