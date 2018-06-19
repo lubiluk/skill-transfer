@@ -123,3 +123,17 @@ Experiment launch file can be run for freely flying end effectors simulation (ar
   roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
   ```
 
+## Appendix
+
+### Running Giskard with simulated PR2
+
+To test if giskard works correctly with simulated PR2 use the following instructions.
+
+1. Install `giskard_pr2` and `iai_pr2`
+
+2. Run.
+   ```
+   roslaunch giskard_pr2 interactive_markers_demo.launch gazebo:=true trajectory_controller:=false
+   ```
+
+**Note:** When using simulated PR2 make sure that `/use_sim_time` is set to `true`
