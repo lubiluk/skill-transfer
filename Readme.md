@@ -84,16 +84,18 @@ Worlds with `_v` prefix are for free end effectors simulation only, `_p` for PR2
 
 Experiment launch file can be run for freely flying end effectors simulation (argument `robot:=free_ees`) or simulated or real PR2 (`robot:=pr2`).
 
+**Note:** Perception programs (Matlab) take long time to complete, so to save time, this system saves perception results to cache files. If you want to re-run the whole process remember to delete cache files from `info_cache` directory.
+
 ### Running with Gazebo simulator
 
 1. Launch the Gazebo world and keep it running
   ```
-  roslaunch skill_transfer simulation.launch world:=big_bowl_spatula_v
+  roslaunch skill_transfer simulation.launch world:=scraping_b_big_bowl_b_spatula_v
   ```
 
 2. In a new terminal, launch the experiment
   ```
-  roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=big_bowl_spatula
+  roslaunch skill_transfer experiment.launch task:=scraping robot:=free_ees setup:=b_big_bowl_b_spatula
   ```
 
 ### Running with Gazebo and iai_naive_kinematics PR2 simulator
@@ -120,3 +122,4 @@ Experiment launch file can be run for freely flying end effectors simulation (ar
   ```
   roslaunch skill_transfer experiment.launch task:=scraping robot:=pr2 setup:=big_bowl_spatula
   ```
+
